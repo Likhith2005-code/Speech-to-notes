@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>login</title>
+  <link rel="stylesheet" href="/static/css/auth.css" />
+  <!-- Optional: preload fonts -->
+</head>
+<body class="auth">
+  <main class="auth-shell">
+    <section class="panel panel-left">
+      <header class="brand">
+        <div class="logo" aria-hidden="true"> </div>
+        <span class="brand-name">Speech-To-Notes</span>
+      </header>
+      <div class="welcome">
+        <h1 class="title">Welcome Back!</h1>
+        <p class="subtitle">To keep connected with us please login with personal info</p>
+        <a class="btn btn-outline" href="/register">Create Account</a>
+      </div>
+      <div class="bg-shapes" aria-hidden="true"></div>
+    </section>
+
+    <section class="panel panel-right">
+      <div class="card">
+        <h2 class="card-title">Sign In</h2>
+
+        <div class="oauth">
+          <button class="oauth-btn" data-provider="facebook" type="button" aria-label="Continue with Facebook">f</button>
+          <button class="oauth-btn" data-provider="google" type="button" aria-label="Continue with Google">G+</button>
+          <button class="oauth-btn" data-provider="linkedin" type="button" aria-label="Continue with LinkedIn">in</button>
+        </div>
+
+        <div class="divider">
+          <span>or use your email</span>
+        </div>
+
+        <form id="signin-form" method="post" action="/auth/login">
+          <!-- For Flask/Django add server-side CSRF token -->
+          <!-- {{ csrf_token() }} or {% csrf_token %} -->
+          <input type="hidden" name="next" value="{{ next or '' }}">
+          <div class="field">
+            <label for="email">Email</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">✉</span>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">🔒</span>
+              <input id="password" name="password" type="password" autocomplete="current-password" required minlength="8" />
+              <button class="peek" type="button" aria-label="Toggle password visibility"></button>
+            </div>
+          </div>
+
+          <div class="field row-between">
+            <label class="checkbox">
+              <input type="checkbox" name="remember" value="1" />
+              <span>Remember me</span>
+            </label>
+            <a class="link" href="/forgot">Forgot password?</a>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Sign In</button>
+        </form>
+
+        <p class="alt">Don’t have an account? <a class="link" href="/register">Sign Up</a></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>
