@@ -36,7 +36,7 @@
           <span>or use your email</span>
         </div>
 
-        <form id="signin-form" method="post" action="/auth/login">
+        <form id="signin-form" method="POST" action="/login">
           <!-- For Flask/Django add server-side CSRF token -->
           <!-- {{ csrf_token() }} or {% csrf_token %} -->
           <input type="hidden" name="next" value="{{ next or '' }}">

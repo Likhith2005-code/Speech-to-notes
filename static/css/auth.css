@@ -10,13 +10,20 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+
 body.auth{
   margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   background: var(--bg);
   color:#1f2a37;
 }
-a{color:var(--teal); text-decoration:none}
-a:hover{text-decoration:underline}
+a{color:var(--teal); 
+  text-decoration:none
+}
+
+a:hover{
+  text-decoration:underline
+}
+
 .auth-shell{
   min-height:100%;
   display:grid;
@@ -44,25 +51,49 @@ a:hover{text-decoration:underline}
   width:36px; height:36px; border-radius:10px;
   border:2px solid #eafff980;
 }
-.brand-name{font-weight:600; letter-spacing:.2px}
-.welcome{max-width:280px; text-align:left}
-.title{margin:0 0 8px; font-size:28px; color:#fff}
-.subtitle{margin:0 0 20px; color:#eafff9; opacity:.9}
+.brand-name{font-weight:600; 
+  letter-spacing:.2px
+}
+.welcome{max-width:280px; 
+  text-align:left
+}
+.title{margin:0 0 8px; 
+  font-size:28px; 
+  color:#fff
+}
+.subtitle{margin:0 0 20px; 
+  color:#eafff9;
+   opacity:.9
+  }
 .btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:12px 20px; border-radius:999px; cursor:pointer; border:0;
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center;
+  padding:12px 20px; 
+  border-radius:999px; 
+  cursor:pointer; 
+  border:0;
   transition:.2s transform ease, .2s box-shadow ease, .2s background ease;
 }
-.btn:active{transform:translateY(1px)}
-.btn-outline{
-  background:transparent; color:#fff; border:2px solid #fff;
+.btn:active{
+  transform:translateY(1px)
 }
-.btn-outline:hover{background:#ffffff1a}
+.btn-outline{
+  background:transparent; 
+  color:#fff; 
+  border:2px solid #fff;
+}
+.btn-outline:hover{
+  background:#ffffff1a
+}
 .btn-primary{
   width:100%;
-  background:var(--teal); color:#fff; box-shadow: var(--shadow);
+  background:var(--teal); 
+  color:#fff; 
+  box-shadow: var(--shadow);
 }
-.btn-primary:hover{background:var(--teal-dark)}
+.btn-primary:hover{
+  background:var(--teal-dark)}
 .card{
   width:min(520px, 92vw);
   background:var(--card);
