@@ -44,15 +44,29 @@ a:hover{
   background:transparent;
 }
 .brand{
-  position:absolute; top:24px; left:24px;
-  display:flex; align-items:center; gap:10px;
+  position:absolute;
+  top:24px; 
+  left:24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 .logo{
-  width:36px; height:36px; border-radius:10px;
-  border:2px solid #eafff980;
+  width:50px; 
+  height:50px; 
+  line-height: 46px;
+  border-radius:10px;
+  border:2px solid #46d3ab80;
+  text-align: center;
+  font-size: 23px;
+  background-color: rgb(28, 153, 114);
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
-.brand-name{font-weight:600; 
-  letter-spacing:.2px
+.brand-name{
+  font-weight:600; 
+  letter-spacing:.2px;
+  font-size: 25px;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 .welcome{max-width:280px; 
   text-align:left
@@ -75,6 +89,7 @@ a:hover{
   border:0;
   transition:.2s transform ease, .2s box-shadow ease, .2s background ease;
 }
+
 .btn:active{
   transform:translateY(1px)
 }
@@ -148,14 +163,27 @@ label{display:block; font-size:13px; color:#475467; margin-bottom:6px}
 .peek.peeked::after{transform:rotate(45deg); border-color:transparent transparent #99a4b0 transparent; height:2px; width:18px}
 
 .bg-shapes::before{
-  content:""; position:absolute; left:-60px; bottom:-60px;
-  width:240px; height:240px; background:#f7c74a; border-radius:50%;
+  content:""; 
+  position:absolute; 
+  left:-60px;
+   bottom:-60px;
+  width:240px; 
+  height:240px; 
+  background:#f7c74a; 
+  border-radius:50%;
   opacity:.95;
 }
 .bg-shapes::after{
-  content:""; position:absolute; right:-80px; top:-60px;
-  width:260px; height:260px; background:#e86d72; border-radius:28px;
-  transform:rotate(45deg); opacity:.9;
+  content:""; 
+  position: absolute; 
+  right:-80px; 
+  top:-60px;
+  width:260px; 
+  height:260px;
+   background:#e86d72; 
+   border-radius:28px;
+  transform:rotate(45deg); 
+  opacity:.9;
 }
 
 @media (max-width: 980px){
