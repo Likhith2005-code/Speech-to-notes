@@ -135,12 +135,17 @@ a:hover{
 .divider::before,.divider::after{
   content:""; flex:1; height:1px; background:#e5e7eb;
 }
-.field{margin:12px 0}
-.field .hint{color:#6b7a86; font-size:12px}
+.field{margin:12px 0 ;
+}
+
+.field .hint{color:#697a87; font-size:12px}
 .field-input{
-  display:flex; align-items:center; gap:10px;
-  border:1px solid #e5e7eb; border-radius:10px;
-  padding:10px 12px; background:#fff;
+  display:flex; 
+  align-items:last center; 
+  gap:10px;
+  border:1px solid #e5e7eb; 
+  border-radius:10px;
+  padding:10px 12px; background:#ffffff;
 }
 .field-input:focus-within{outline:2px solid var(--ring); border-color:transparent}
 .field-input .icon{opacity:.7}
@@ -148,8 +153,17 @@ a:hover{
   width:100%; border:0; outline:0; font-size:15px; padding:6px 0; background:transparent;
 }
 label{display:block; font-size:13px; color:#475467; margin-bottom:6px}
-.row-between{display:flex; align-items:center; justify-content:space-between}
-.checkbox{display:flex; align-items:center; gap:8px; user-select:none}
+.row-between{display:flex; 
+  align-items:center; 
+  justify-content:space-between
+}
+
+.checkbox{
+  display:flex; 
+  gap:8px; 
+  align-items: center;
+  user-select:none;
+}
 .link{color:var(--teal)}
 .alt{margin-top:18px; color:#6b7a86; text-align:left}
 .peek{
