@@ -1,58 +1,90 @@
-from flask import Flask, render_template, request, redirect, session,url_for
-#import mysql.connector
-from flask_mysqldb import MySQL
-import os
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import mysql.connector
+
 app = Flask(__name__)
-app.secret_key = 'Sada@2005'  # Use a secure key in production
+app.secret_key = "your"   # secret for session management
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'sada'
-app.config['MYSQL_DB'] = 'S2T'
+# ------------------ Config ------------------
+app.config['MYSQL_HOST'] = "localhost"
+app.config['MYSQL_USER'] = "root"
+app.config['MYSQL_PASSWORD'] = "sada"          # change to your MySQL password
+app.config['MYSQL_DATABASE'] = "speech_notes"
 
-mysql = MySQL(app)
+# ------------------ DB Connection ------------------
+def get_db_connection():
+    return mysql.connector.connect(
+        host=app.config['MYSQL_HOST'],
+        user=app.config['MYSQL_USER'],
+        password=app.config['MYSQL_PASSWORD'],
+        database=app.config['MYSQL_DATABASE']
+    )
 
-# Landing route (Splash)
+# ------------------ Routes ------------------
+
 @app.route('/')
 def index():
-    if 'user' in session:
-        return "hello"
+    if 'user_id' in session:
+        return render_template("index.html", name=session['name'])
     return redirect('/login')
 
-# Login
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
+    if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
-        cursor = mysql.connection.cursor()
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE email=%s AND password=%s", (email, password))
         user = cursor.fetchone()
         cursor.close()
+        conn.close()
+
         if user:
-            session['user'] = user[1]
-            return redirect('/home')
-        else:
-            #return "Invalid login credentials"
+            session['user_id'] = user[0]
+            session['name'] = user[1]
+            flash("Login Successful!", "success")
             return redirect('/')
-    return render_template('login.html')
+        else:
+            flash("Invalid Email or Password", "danger")
+            return redirect('/login')
 
-# Register
-@app.route('/register', methods=['GET', 'POST'])
+    return render_template("login.html")
+
+@app.route('/register', methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
+    if request.method == "POST":
+        name = request.form['name']
+        email = request.form['email']
         password = request.form['password']
-        cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
-        euser = cursor.fetchone()
-        if euser:
-            return render_template('register.html',error="username already exits")
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
-        mysql.connection.commit()
-        cursor.close()
-        return redirect('/login')
-    return render_template('register.html')
 
-if __name__ == '__main__':
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash("Email already registered!", "warning")
+        else:
+            cursor.execute(
+                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+                (name, email, password)
+            )
+            conn.commit()
+            flash("Registration Successful! Please Login.", "success")
+
+        cursor.close()
+        conn.close()
+        return redirect(url_for('login'))
+
+    return render_template("register.html")
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("Logged out successfully!", "info")
+    return redirect('/login')
+
+# ------------------ Run ------------------
+if __name__ == "__main__":
     app.run(debug=True)

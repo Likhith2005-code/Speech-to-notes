@@ -18,14 +18,20 @@
           <span class="icon" aria-hidden="true"></span>
           <span>Upload Video</span>
         </button>
+
         <button class="btn" data-kind="yt" id="btnYT" aria-label="YouTube Link">
           <span class="icon" aria-hidden="true"></span>
           <span>YouTube Link</span>
         </button>
-        <button class="btn" data-kind="mic" id="btnRecord" aria-label="Record Audio">
-          <span class="icon" aria-hidden="true"></span>
-          <span>Record Audio</span>
+        <input class="btn" type="text" id="inputBox" placeholder="paste link">
+        <button class="btn" id="record-btn">
+          <span class="icon">🎤</span>
+          <span class="timer" id="timer">0:00</span>
+          <span class="action hidden" id="stop-btn">⏹️</span>
+          <span class="action hidden" id="delete-btn">🗑️</span>
         </button>
+
+
         <label class="btn" id="btnPlaceholder" aria-label="Placeholder">
           <span class="icon" aria-hidden="true"></span>
           <span>Upload File </span>
@@ -70,3 +76,12 @@
   <script src="/static/js/app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+

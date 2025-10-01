@@ -230,3 +230,28 @@ body{
   .frame{ grid-template-columns:1fr; }
   .left{ min-height:360px }
 }
+#inputBox{
+  display: none;
+}
+
+#btnYT{
+  cursor: pointer;
+}
+
+
+
+
+/*Record---------------*/
+  .icon, .action {
+    flex-shrink: 0;
+  }
+
+  .timer {
+    flex-grow: 1;
+    text-align: left;
+    
+  }
+
+  .hidden {
+    display: none;
+  }

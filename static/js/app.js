@@ -37,3 +37,63 @@ clearBtn.addEventListener('click', ()=>{
 document.addEventListener('keydown', (e)=>{
   if(e.key === 'Tab') document.body.classList.add('kbd');
 });
+
+const button = document.getElementById("btnYT");
+    const inputBox = document.getElementById("inputBox");
+
+    button.addEventListener("click", () => {
+      button.style.display = "none";     // hide button
+      inputBox.style.display = "inline"; // show input box
+      inputBox.focus();                  // focus input
+    });
+
+
+
+
+// Record Button simulation--------
+const recordBtn = document.getElementById('record-btn');
+const stopBtn = document.getElementById('stop-btn');
+const deleteBtn = document.getElementById('delete-btn');
+const timerEl = document.getElementById('timer');
+
+let timerInterval;
+let seconds = 0;
+let recording = false;
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+recordBtn.addEventListener('click', () => {
+  if (!recording) {
+    // Start recording
+    recording = true;
+    stopBtn.classList.remove('hidden');
+    recordBtn.style.backgroundColor = '#f88585ff'; // slightly lighter red
+    seconds = 0;
+    timerEl.textContent = formatTime(seconds);
+
+    timerInterval = setInterval(() => {
+      seconds++;
+      timerEl.textContent = formatTime(seconds);
+    }, 1000);
+  }
+});
+
+stopBtn.addEventListener('click', (e) => {
+  e.stopPropagation(); // prevent triggering recordBtn click
+  clearInterval(timerInterval);
+  stopBtn.classList.add('hidden');
+  deleteBtn.classList.remove('hidden');
+  recordBtn.style.backgroundColor = '#ffffffff';
+  timerEl.textContent = formatTime(seconds);
+});
+
+deleteBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  deleteBtn.classList.add('hidden');
+  timerEl.textContent = '0:00';
+  recording = false;
+});
