@@ -17,12 +17,19 @@
         <button class="btn" id="btnUpload" aria-label="Upload Video">
           <span class="icon" aria-hidden="true"></span>
           <span>Upload Video</span>
+          <span class="action hidden" id="previewBtn" title="Preview Button">C</span>
+          
         </button>
+        <video id="videoPreview" controls ></video>
+        <input type="file" id="videoInput" accept="Video/*" style="display: none;">
+    
 
         <button class="btn" data-kind="yt" id="btnYT" aria-label="YouTube Link">
           <span class="icon" aria-hidden="true"></span>
           <span>YouTube Link</span>
         </button>
+
+
         <input class="btn" type="text" id="inputBox" placeholder="paste link">
         <button class="btn" id="record-btn">
           <span class="icon">🎤</span>

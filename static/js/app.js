@@ -97,3 +97,37 @@ deleteBtn.addEventListener('click', (e) => {
   timerEl.textContent = '0:00';
   recording = false;
 });
+
+
+
+const btnUpload = document.getElementById('btnUpload');
+const videoInput = document.getElementById('videoInput');
+const videoPreview = document.getElementById('videoPreview');
+const previewBtn = document.getElementById('previewBtn');
+
+let isPreviewVisible = false;
+
+// Trigger file input when main button is clicked
+btnUpload.addEventListener('click', (e) => {
+  // Prevent preview button click from triggering file input
+  if (e.target === previewBtn) return;
+  videoInput.click();
+});
+
+// When a video is selected
+videoInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    videoPreview.src = URL.createObjectURL(file);
+    previewBtn.style.display = 'inline-block'; // show preview button
+    //previewBtn.classList.remove('hidden');
+    videoPreview.style.display = 'none'; // hide preview initially
+    isPreviewVisible = false;
+  }
+});
+
+// Toggle video preview on 👁️ button click
+previewBtn.addEventListener('click', () => {
+  isPreviewVisible = !isPreviewVisible;
+  videoPreview.style.display = isPreviewVisible ? 'block' : 'none';
+});
