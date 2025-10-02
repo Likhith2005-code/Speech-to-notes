@@ -20,12 +20,18 @@ def get_db_connection():
     )
 
 # ------------------ Routes ------------------
-
 @app.route('/')
+def home():
+    return redirect('/login')
+
+
+
+@app.route('/index')
 def index():
     if 'user_id' in session:
         return render_template("index.html", name=session['name'])
-    return redirect('/login')
+    else:
+        return render_template("index.html",name="Guest")
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -44,7 +50,7 @@ def login():
             session['user_id'] = user[0]
             session['name'] = user[1]
             flash("Login Successful!", "success")
-            return redirect('/')
+            return redirect('/index')
         else:
             flash("Invalid Email or Password", "danger")
             return redirect('/login')

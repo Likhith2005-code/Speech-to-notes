@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>login</title>
   <link rel="stylesheet" href="/static/css/auth.css" />
+
+
+<div id="popupModal" class="modal">
+    <div class="modal-content">
+      <h2>Do you want to stay logged out?</h2>
+      <p>You can continue as a guest without logging in.</p>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Login</button>
+        <a href="/index"><button>Stay Logged Out</button></a>
+      </div>
+    </div>
+  </div>
+
   <!-- Optional: preload fonts -->
 </head>
 <body class="auth">

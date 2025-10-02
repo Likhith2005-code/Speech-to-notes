@@ -38,3 +38,9 @@
     });
   });
 })();
+
+
+// Close popup when user chooses "Login"
+function closeModal() {
+  document.getElementById("popupModal").style.display = "none";
+}
