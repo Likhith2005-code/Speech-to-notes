@@ -1,408 +1,468 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Ultra Instagram — Single File</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ultra WhatsApp — Single File</title>
   <style>
     :root{
-      --bg:#fafafa;
-      --card:#fff;
-      --text:#222;
-      --muted:#737373;
-      --line:#dbdbdb;
-      --blue:#0095f6;
-      --heart:#ed4956;
+      --bg:#0b141a;
+      --panel:#111b21;
+      --panel-2:#202c33;
+      --accent:#00a884;
+      --text:#e9edef;
+      --muted:#8696a0;
+      --bubble-me:#005c4b;
+      --bubble-them:#1f2c34;
+      --divider:#2a3942;
+      --scroll:#2a3942;
     }
-    .dark{
-      --bg:#0f1115;
-      --card:#161a22;
-      --text:#e6e6e6;
-      --muted:#a1a1a1;
-      --line:#262b36;
-      --blue:#2ea6ff;
-      --heart:#ff5a76;
+    [data-theme="light"]{
+      --bg:#ece5dd;
+      --panel:#ffffff;
+      --panel-2:#f0f2f5;
+      --accent:#25d366;
+      --text:#111b21;
+      --muted:#667781;
+      --bubble-me:#d9fdd3;
+      --bubble-them:#ffffff;
+      --divider:#e9edef;
+      --scroll:#d1d7db;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%}
+    html,body{height:100%}
     body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
       background:var(--bg);
       color:var(--text);
-      font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      overflow:hidden;
     }
-    a{color:inherit;text-decoration:none}
-    img{display:block;max-width:100%}
-
-    /* Top nav */
-    .nav{
-      position:sticky;top:0;z-index:10;
-      background:var(--card);
-      border-bottom:1px solid var(--line);
+    .app{
+      height:100vh;
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      background: linear-gradient(180deg, rgba(0,0,0,0.12) 0 20%, transparent 20% 100%), var(--bg);
     }
-    .nav-inner{
-      max-width:975px;margin:0 auto;
-      display:flex;align-items:center;gap:12px;
+    .sidebar{
+      display:flex;
+      flex-direction:column;
+      border-right:1px solid var(--divider);
+      background:var(--panel);
+    }
+    .sb-header{
+      display:flex; align-items:center; justify-content:space-between;
       padding:10px 16px;
+      background:var(--panel-2);
+      border-bottom:1px solid var(--divider);
     }
-    .brand{font-family:Georgia,serif;font-size:22px}
-    .spacer{flex:1}
-    .search{
-      display:flex;align-items:center;
-      background:var(--bg);
-      border:1px solid var(--line);
-      padding:8px 10px;border-radius:8px;
-      gap:8px;min-width:160px;flex:0 0 260px;
-    }
-    .search input{
-      border:0;outline:0;background:transparent;color:var(--text);width:100%;
-    }
-    .actions{display:flex;gap:12px;align-items:center}
-    .btn{
-      padding:8px 12px;border-radius:8px;border:1px solid var(--line);
-      background:var(--card);color:var(--text);cursor:pointer
-    }
-    .btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
-
-    /* Layout */
-    .wrap{max-width:975px;margin:0 auto;padding:20px 16px;display:grid;grid-template-columns:1fr 320px;gap:24px}
-    @media (max-width: 1000px){ .wrap{grid-template-columns:1fr} .side{display:none} }
-
-    /* Stories */
-    .stories{
-      background:var(--card);border:1px solid var(--line);border-radius:8px;
-      padding:12px;display:flex;gap:14px;overflow:auto;scrollbar-width:none
-    }
-    .stories::-webkit-scrollbar{display:none}
-    .story{
-      flex:0 0 auto;text-align:center;width:74px
+    .me{
+      display:flex; align-items:center; gap:12px;
     }
     .avatar{
-      width:60px;height:60px;border-radius:50%;
-      padding:2px;background:conic-gradient(#f99 0 25%,#f9f 25% 50%,#9f9 50% 75%,#99f 75% 100%);
+      width:40px; height:40px; border-radius:50%;
+      background:#ccc; overflow:hidden; flex:0 0 40px;
     }
-    .avatar img{
-      width:100%;height:100%;object-fit:cover;border-radius:50%;background:var(--card);padding:2px
-    }
-    .handle{font-size:12px;color:var(--muted);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-    /* Feed post */
-    .card{
-      background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:16px
-    }
-    .card-head{
-      display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)
-    }
-    .card-head .mini{
-      width:34px;height:34px;border-radius:50%;overflow:hidden;flex:0 0 auto
-    }
-    .card-head .name{font-weight:600}
-    .card-head .more{margin-left:auto;color:var(--muted)}
-    .media{
-      aspect-ratio:1/1;background:#000;display:flex;align-items:center;justify-content:center
-    }
-    .media img{width:100%;height:100%;object-fit:cover}
-    .card-actions{
-      display:flex;align-items:center;justify-content:space-between;padding:8px 12px
-    }
-    .left-actions, .right-actions{display:flex;gap:12px;align-items:center}
+    .avatar img{width:100%; height:100%; object-fit:cover}
+    .tools{display:flex; align-items:center; gap:14px; color:var(--muted)}
     .icon-btn{
-      background:none;border:0;cursor:pointer;color:var(--text);font-size:22px;line-height:1
+      width:36px; height:36px; border-radius:50%;
+      display:grid; place-items:center; cursor:pointer; user-select:none;
     }
-    .liked{color:var(--heart)}
-    .meta{padding:0 12px 10px}
-    .likes{font-weight:600;margin-bottom:6px}
-    .caption{margin-bottom:6px}
-    .caption .user{font-weight:600;margin-right:6px}
-    .time{font-size:12px;color:var(--muted);letter-spacing:.2px}
-    .comment-box{
-      display:flex;border-top:1px solid var(--line);align-items:center;padding:8px 12px;gap:10px
+    .icon-btn:hover{background:rgba(255,255,255,0.06)}
+    .notif{
+      display:flex; gap:12px; padding:10px 16px; align-items:center;
+      background:#182229; color:#9de1fe; border-bottom:1px solid var(--divider);
     }
-    .comment-box input{
-      flex:1;border:0;outline:0;background:transparent;color:var(--text)
+    .search{
+      position:relative; padding:8px 12px; background:var(--panel);
+      border-bottom:1px solid var(--divider);
     }
-    .comment-box button{
-      border:0;background:transparent;color:var(--blue);cursor:pointer;font-weight:600
+    .search input{
+      width:100%; padding:10px 40px 10px 42px; border:none; outline:none;
+      border-radius:8px; background:var(--panel-2); color:var(--text);
     }
-
-    /* Sidebar */
-    .side .me{
-      display:flex;align-items:center;gap:10px
+    .search .glass{
+      position:absolute; top:50%; left:24px; transform:translateY(-50%); color:var(--muted);
     }
-    .side-card{
-      background:transparent;border:0;padding:0
+    .chats{
+      overflow:auto; flex:1;
+      scrollbar-color: var(--scroll) transparent;
+      scrollbar-width: thin;
     }
-    .subtle{color:var(--muted);font-size:12px}
-    .suggestions{
-      background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:16px
+    .chat-item{
+      display:flex; gap:12px; padding:10px 16px; cursor:pointer;
+      border-bottom:1px solid var(--divider);
     }
-    .s-title{
-      display:flex;justify-content:space-between;align-items:center;margin-bottom:8px
+    .chat-item:hover{background:rgba(255,255,255,0.03)}
+    .chat-meta{flex:1; min-width:0}
+    .chat-row{
+      display:flex; justify-content:space-between; align-items:center;
     }
-    .s-item{
-      display:flex;align-items:center;justify-content:space-between;padding:8px 0
+    .chat-name{
+      font-weight:600; color:var(--text); overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
-    .s-user{display:flex;align-items:center;gap:10px}
-    .s-user .mini{width:34px;height:34px;border-radius:50%;overflow:hidden}
-    .follow{color:var(--blue);font-weight:600;cursor:pointer}
-    .footer{
-      color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6
+    .chat-time{color:var(--muted); font-size:12px}
+    .chat-preview{
+      color:var(--muted); font-size:14px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
-
-    /* Toast */
-    .toast{
-      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-      background:var(--card);border:1px solid var(--line);color:var(--text);
-      padding:10px 14px;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);
-      opacity:0;pointer-events:none;transition:opacity .25s ease
+    .unread .chat-time{color:var(--accent)}
+    .main{
+      display:flex; flex-direction:column; background:var(--panel-2);
     }
-    .toast.show{opacity:1}
+    .conv-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 16px; background:var(--panel-2); border-bottom:1px solid var(--divider);
+    }
+    .conv-peer{display:flex; align-items:center; gap:12px; min-width:0}
+    .peer-info{min-width:0}
+    .peer-name{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .peer-status{color:var(--muted); font-size:12px}
+    .board-wrap{
+      position:relative; flex:1; overflow:auto; background:
+        linear-gradient(#0b141a 0 0) padding-box,
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512"><defs><pattern id="p" width="64" height="64" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="2" fill="%232a3942"/></pattern></defs><rect width="100%" height="100%" fill="transparent"/><rect width="100%" height="100%" fill="url(%23p)"/></svg>') center/256px repeat;
+      scrollbar-color: var(--scroll) transparent; scrollbar-width: thin;
+      padding:24px 16px 12px;
+    }
+    .day-divider{
+      display:inline-block; padding:6px 12px; border-radius:999px;
+      background:rgba(0,0,0,0.2); color:var(--text); font-size:12px; margin:0 auto 12px;
+    }
+    .msg{
+      max-width:min(70%, 720px);
+      padding:8px 10px 6px 10px; border-radius:12px; margin:6px 0;
+      position:relative; color:var(--text); line-height:1.35;
+      box-shadow:0 1px 0 rgba(0,0,0,0.15);
+    }
+    .from-me{
+      background:var(--bubble-me); margin-left:auto; border-top-right-radius:4px;
+    }
+    .from-them{
+      background:var(--bubble-them); margin-right:auto; border-top-left-radius:4px;
+    }
+    .tail:after{
+      content:""; position:absolute; bottom:0; width:12px; height:12px;
+      background:inherit; clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
+    .from-me.tail:after{ right:-4px; transform:skewX(-8deg) translateY(-2px); }
+    .from-them.tail:after{ left:-4px; transform:skewX(8deg) translateY(-2px); }
+    .meta{
+      display:inline-flex; gap:6px; align-items:center; color:var(--muted);
+      font-size:11px; margin-left:8px;
+    }
+    .input-bar{
+      display:flex; align-items:center; gap:8px; padding:8px 12px;
+      background:var(--panel-2); border-top:1px solid var(--divider);
+    }
+    .compose{
+      flex:1; display:flex; align-items:center; gap:8px;
+      background:var(--panel); border-radius:8px; padding:6px 10px;
+    }
+    .compose input{
+      flex:1; border:none; outline:none; background:transparent; color:var(--text);
+      padding:8px 6px;
+    }
+    .send{
+      background:var(--accent); color:#fff; border:none; border-radius:8px;
+      padding:10px 14px; cursor:pointer;
+    }
+    .send:active{transform:translateY(1px)}
+    .pill{
+      display:inline-block; padding:2px 8px; border-radius:999px;
+      font-size:11px; background:var(--accent); color:#0b141a;
+    }
+    .hidden{display:none !important}
+    /* Responsive */
+    @media (max-width: 980px){
+      .app{grid-template-columns: 1fr}
+      .sidebar{position:absolute; z-index:3; width:100%; max-width:420px; height:100vh; transform:translateX(0); transition:.25s ease}
+      .sidebar.hidden{transform:translateX(-100%)}
+      .main{z-index:2}
+    }
   </style>
 </head>
-<body>
-  <header class="nav">
-    <div class="nav-inner">
-      <div class="brand" aria-label="Logo">Ultra Instagram</div>
-      <div class="spacer"></div>
-      <label class="search" aria-label="Search">
-        <span aria-hidden="true">🔎</span>
-        <input placeholder="Search" />
-      </label>
-      <div class="actions">
-        <button class="btn" id="themeToggle" aria-label="Toggle theme">Toggle theme</button>
-        <button class="btn blue">Log in</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <section class="main">
-      <div class="stories" aria-label="Stories">
-        <!-- Sample stories -->
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">alex</div>
-        </div>
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">maria</div>
-        </div>
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">chen</div>
-        </div>
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">ravi</div>
-        </div>
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">zara</div>
-        </div>
-        <div class="story">
-          <div class="avatar"><img alt="story avatar" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&auto=format&fit=crop" /></div>
-          <div class="handle">leo</div>
-        </div>
-      </div>
-
-      <!-- Example post card -->
-      <article class="card" aria-label="Post">
-        <div class="card-head">
-          <div class="mini"><img alt="user" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" /></div>
-          <div>
-            <div class="name">alex</div>
-            <div class="subtle">Ultra • Original audio</div>
-          </div>
-          <div class="more">•••</div>
-        </div>
-        <div class="media">
-          <img alt="post media" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" />
-        </div>
-        <div class="card-actions">
-          <div class="left-actions">
-            <button class="icon-btn like" aria-label="Like">♡</button>
-            <button class="icon-btn comment" aria-label="Comment">💬</button>
-            <button class="icon-btn share" aria-label="Share">📤</button>
-          </div>
-          <div class="right-actions">
-            <button class="icon-btn save" aria-label="Save">🔖</button>
-          </div>
-        </div>
-        <div class="meta">
-          <div class="likes"><span id="likeCount">1,024</span> likes</div>
-          <div class="caption"><span class="user">alex</span>Sunset runs hit different.</div>
-          <div class="time">2 HOURS AGO</div>
-        </div>
-        <form class="comment-box" onsubmit="return false;" aria-label="Add comment">
-          <input id="commentInput" placeholder="Add a comment..." />
-          <button id="postComment" disabled>Post</button>
-        </form>
-      </article>
-
-      <!-- Another sample post -->
-      <article class="card" aria-label="Post">
-        <div class="card-head">
-          <div class="mini"><img alt="user" src="https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&auto=format&fit=crop" /></div>
-          <div>
-            <div class="name">maria</div>
-            <div class="subtle">Suggested for you</div>
-          </div>
-          <div class="more">•••</div>
-        </div>
-        <div class="media">
-          <img alt="post media" src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop" />
-        </div>
-        <div class="card-actions">
-          <div class="left-actions">
-            <button class="icon-btn like" aria-label="Like">♡</button>
-            <button class="icon-btn comment" aria-label="Comment">💬</button>
-            <button class="icon-btn share" aria-label="Share">📤</button>
-          </div>
-          <div class="right-actions">
-            <button class="icon-btn save" aria-label="Save">🔖</button>
-          </div>
-        </div>
-        <div class="meta">
-          <div class="likes"><span>2,391</span> likes</div>
-          <div class="caption"><span class="user">maria</span>Weekend hike essentials 🥾⛰️</div>
-          <div class="time">1 DAY AGO</div>
-        </div>
-        <form class="comment-box" onsubmit="return false;" aria-label="Add comment">
-          <input placeholder="Add a comment..." />
-          <button disabled>Post</button>
-        </form>
-      </article>
-    </section>
-
-    <aside class="side">
-      <div class="card side-card">
+<body data-theme="dark">
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-header">
         <div class="me">
-          <div class="mini" style="width:44px;height:44px;border-radius:50%;overflow:hidden">
-            <img alt="me" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=200&auto=format&fit=crop" />
-          </div>
+          <div class="avatar"><img alt="me" src="https://i.pravatar.cc/100?img=13"/></div>
           <div>
-            <div style="font-weight:600">ultra.dev</div>
-            <div class="subtle">Ultra account</div>
+            <div style="font-weight:600">Alex</div>
+            <div style="font-size:12px; color:var(--muted)">online</div>
           </div>
-          <div class="spacer"></div>
-          <a class="follow" href="#">Switch</a>
+        </div>
+        <div class="tools">
+          <div class="icon-btn" title="Status">◎</div>
+          <div class="icon-btn" title="New chat">✚</div>
+          <div class="icon-btn" title="Menu" id="toggleTheme">☼</div>
         </div>
       </div>
 
-      <div class="suggestions">
-        <div class="s-title">
-          <div class="subtle">Suggested for you</div>
-          <a class="subtle" href="#">See All</a>
-        </div>
-
-        <div class="s-item">
-          <div class="s-user">
-            <div class="mini"><img alt="u" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" /></div>
-            <div>
-              <div style="font-weight:600">alex</div>
-              <div class="subtle">Follows you</div>
-            </div>
-          </div>
-          <div class="follow">Follow</div>
-        </div>
-
-        <div class="s-item">
-          <div class="s-user">
-            <div class="mini"><img alt="u" src="https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&auto=format&fit=crop" /></div>
-            <div>
-              <div style="font-weight:600">maria</div>
-              <div class="subtle">New to Ultra</div>
-            </div>
-          </div>
-          <div class="follow">Follow</div>
-        </div>
-
-        <div class="s-item">
-          <div class="s-user">
-            <div class="mini"><img alt="u" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=200&auto=format&fit=crop" /></div>
-            <div>
-              <div style="font-weight:600">ravi</div>
-              <div class="subtle">Popular</div>
-            </div>
-          </div>
-          <div class="follow">Follow</div>
+      <div class="notif">
+        <div class="icon-btn" style="background:#53bdeb;color:#0b141a;font-weight:700">i</div>
+        <div style="font-size:14px">
+          Get notified of new messages — enable desktop notifications
         </div>
       </div>
 
-      <div class="footer">
-        About • Help • Press • API • Jobs • Privacy • Terms • Locations • Language<br/>
-        © 2025 ULTRA
+      <div class="search">
+        <span class="glass">🔎</span>
+        <input id="chatSearch" placeholder="Search or start new chat" />
+      </div>
+
+      <div class="chats" id="chatList">
+        <!-- Chats injected by JS -->
       </div>
     </aside>
-  </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Action completed</div>
+    <!-- Main conversation -->
+    <main class="main">
+      <div class="conv-header">
+        <div class="conv-peer">
+          <div class="icon-btn" id="backToList" title="Back" style="display:none">←</div>
+          <div class="avatar" id="peerAvatar"></div>
+          <div class="peer-info">
+            <div class="peer-name" id="peerName">Select a chat</div>
+            <div class="peer-status" id="peerStatus">No messages yet</div>
+          </div>
+        </div>
+        <div class="tools">
+          <div class="icon-btn" title="Search in chat">🔍</div>
+          <div class="icon-btn" title="Calls">📞</div>
+          <div class="icon-btn" title="More">⋮</div>
+        </div>
+      </div>
+
+      <div class="board-wrap" id="board">
+        <div class="day-divider" id="dayDivider">Today</div>
+        <!-- Messages injected by JS -->
+      </div>
+
+      <div class="input-bar">
+        <div class="compose">
+          <div class="icon-btn" id="emojiBtn" title="Emoji">😊</div>
+          <input id="messageInput" placeholder="Type a message" />
+          <div class="icon-btn" title="Attach">📎</div>
+          <div class="icon-btn" title="Mic">🎤</div>
+        </div>
+        <button class="send" id="sendBtn">Send</button>
+      </div>
+    </main>
+  </div>
 
   <script>
-    // Theme toggle with localStorage
-    (function initTheme(){
-      const saved = localStorage.getItem('ultra-theme');
-      if(saved === 'dark'){ document.documentElement.classList.add('dark'); }
-    })();
-    document.getElementById('themeToggle').addEventListener('click',()=>{
-      document.documentElement.classList.toggle('dark');
-      localStorage.setItem('ultra-theme', document.documentElement.classList.contains('dark')?'dark':'light');
-      showToast('Theme updated');
-    });
-
-    // Simple like handler for the first card (demo)
-    const likeBtns = document.querySelectorAll('.card .like');
-    likeBtns.forEach((btn,idx)=>{
-      btn.addEventListener('click',()=>{
-        btn.classList.toggle('liked');
-        // Only demo update on the first card's like count
-        if(idx===0){
-          const likeCountEl = document.getElementById('likeCount');
-          const raw = likeCountEl.dataset.raw || "1024";
-          let n = Number(raw);
-          n = btn.classList.contains('liked') ? n+1 : Math.max(0,n-1);
-          likeCountEl.dataset.raw = String(n);
-          likeCountEl.textContent = n.toLocaleString();
-        }
-      });
-    });
-
-    // Comment box activation + fake post
-    const commentInput = document.getElementById('commentInput');
-    const postBtn = document.getElementById('postComment');
-    commentInput.addEventListener('input',()=>{
-      postBtn.disabled = commentInput.value.trim().length === 0;
-    });
-    postBtn.addEventListener('click',()=>{
-      const text = commentInput.value.trim();
-      if(!text) return;
-      commentInput.value = '';
-      postBtn.disabled = true;
-      showToast('Comment added');
-    });
-
-    // Share / Save demo
-    document.querySelectorAll('.share').forEach(b=>b.addEventListener('click', async ()=>{
-      try{
-        await navigator.clipboard.writeText(location.href);
-        showToast('Link copied');
-      }catch(e){
-        showToast('Unable to copy');
+    // Mock data
+    const chats = [
+      {
+        id: 'c1', name: 'Jordan', avatar: 'https://i.pravatar.cc/100?img=5',
+        preview: 'Are we still on for tomorrow?', time: '10:02',
+        unread: 2,
+        messages: [
+          {from:'them', text:'Hey! Meeting at 10?', time:'09:58'},
+          {from:'me', text:'Sure, see you there.', time:'10:00'},
+          {from:'them', text:'Are we still on for tomorrow?', time:'10:02'},
+        ]
+      },
+      {
+        id: 'c2', name: 'Team Design', avatar: 'https://i.pravatar.cc/100?img=32',
+        preview: 'Shared the Figma link.', time: '09:21',
+        unread: 0,
+        messages: [
+          {from:'them', text:'Shared the Figma link.', time:'09:21'},
+          {from:'me', text:'Got it, thanks!', time:'09:22'},
+        ]
+      },
+      {
+        id: 'c3', name: 'Maya', avatar: 'https://i.pravatar.cc/100?img=47',
+        preview: 'Lunch today?', time: '08:05',
+        unread: 1,
+        messages: [
+          {from:'them', text:'Lunch today?', time:'08:05'},
+        ]
+      },
+      {
+        id: 'c4', name: 'Dev Squad', avatar: 'https://i.pravatar.cc/100?img=15',
+        preview: 'Pushed the hotfix.', time: 'Yesterday',
+        unread: 0,
+        messages: [
+          {from:'them', text:'Pushed the hotfix.', time:'17:41'},
+          {from:'me', text:'Deployed to staging.', time:'17:55'},
+          {from:'them', text:'QA is green.', time:'18:12'},
+        ]
       }
-    }));
-    document.querySelectorAll('.save').forEach(b=>b.addEventListener('click', ()=>{
-      b.classList.toggle('liked');
-      showToast(b.classList.contains('liked')?'Saved':'Unsaved');
-    }));
+    ];
 
-    // Simple toast
-    let toastTimer;
-    function showToast(msg){
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(()=>t.classList.remove('show'),1400);
+    // Elements
+    const chatList = document.getElementById('chatList');
+    const chatSearch = document.getElementById('chatSearch');
+    const peerAvatar = document.getElementById('peerAvatar');
+    const peerName = document.getElementById('peerName');
+    const peerStatus = document.getElementById('peerStatus');
+    const board = document.getElementById('board');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const toggleTheme = document.getElementById('toggleTheme');
+    const sidebar = document.getElementById('sidebar');
+    const backToList = document.getElementById('backToList');
+
+    let currentChatId = null;
+    let theme = 'dark';
+
+    function renderChatList(filter=''){
+      chatList.innerHTML = '';
+      const q = filter.trim().toLowerCase();
+      chats
+        .filter(c => !q || c.name.toLowerCase().includes(q) || c.preview.toLowerCase().includes(q))
+        .forEach(c => {
+          const item = document.createElement('div');
+          item.className = 'chat-item' + (c.unread ? ' unread':'');
+          item.dataset.id = c.id;
+          item.innerHTML = `
+            <div class="avatar"><img src="${c.avatar}" alt="${c.name}"/></div>
+            <div class="chat-meta">
+              <div class="chat-row">
+                <div class="chat-name">${c.name}</div>
+                <div class="chat-time">${c.time}</div>
+              </div>
+              <div class="chat-row" style="gap:8px">
+                <div class="chat-preview">${c.preview}</div>
+                ${c.unread ? `<span class="pill">${c.unread}</span>` : ''}
+              </div>
+            </div>
+          `;
+          item.addEventListener('click', () => openChat(c.id));
+          chatList.appendChild(item);
+        });
     }
+
+    function openChat(id){
+      currentChatId = id;
+      const c = chats.find(x => x.id === id);
+      if(!c) return;
+      // Clear unread
+      c.unread = 0;
+      renderChatList(chatSearch.value);
+
+      // Header
+      peerAvatar.innerHTML = `<img alt="${c.name}" src="${c.avatar}" />`;
+      peerName.textContent = c.name;
+      peerStatus.textContent = 'online';
+
+      // Messages
+      board.innerHTML = `<div class="day-divider">Today</div>`;
+      c.messages.forEach(m => {
+        const div = document.createElement('div');
+        const side = m.from === 'me' ? 'from-me' : 'from-them';
+        div.className = `msg ${side} tail`;
+        div.innerHTML = `
+          <span>${escapeHtml(m.text)}</span>
+          <span class="meta">${m.time}</span>
+        `;
+        board.appendChild(div);
+      });
+      board.scrollTop = board.scrollHeight;
+
+      // Mobile UX
+      if (window.innerWidth <= 980){
+        sidebar.classList.add('hidden');
+        backToList.style.display = 'inline-grid';
+      }
+    }
+
+    function sendMessage(){
+      const text = messageInput.value.trim();
+      if(!text || !currentChatId) return;
+      const c = chats.find(x => x.id === currentChatId);
+      if(!c) return;
+
+      // Push my message
+      const time = formatTime(new Date());
+      c.messages.push({from:'me', text, time});
+      c.preview = text;
+      c.time = time;
+
+      const node = document.createElement('div');
+      node.className = 'msg from-me tail';
+      node.innerHTML = `<span>${escapeHtml(text)}</span><span class="meta">${time}</span>`;
+      board.appendChild(node);
+      board.scrollTop = board.scrollHeight;
+
+      messageInput.value = '';
+
+      // Simulate reply
+      setTimeout(() => {
+        const replyText = autoReply(text);
+        const rtime = formatTime(new Date());
+        c.messages.push({from:'them', text: replyText, time: rtime});
+        c.preview = replyText;
+        c.time = rtime;
+
+        // Show if still in same chat
+        if(currentChatId === c.id){
+          const reply = document.createElement('div');
+          reply.className = 'msg from-them tail';
+          reply.innerHTML = `<span>${escapeHtml(replyText)}</span><span class="meta">${rtime}</span>`;
+          board.appendChild(reply);
+          board.scrollTop = board.scrollHeight;
+        } else {
+          c.unread = (c.unread || 0) + 1;
+          renderChatList(chatSearch.value);
+        }
+      }, 600);
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function formatTime(d){
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `${hh}:${mm}`;
+    }
+    function autoReply(text){
+      const lower = text.toLowerCase();
+      if (lower.includes('hi') || lower.includes('hello')) return 'Hello! 👋';
+      if (lower.includes('time')) return 'Anytime after 3 PM works for me.';
+      if (lower.includes('link')) return 'Here you go: figma.com/file/xyz';
+      if (lower.includes('ok') || lower.includes('okay')) return 'Great!';
+      return 'Sounds good.';
+    }
+
+    // Search
+    chatSearch.addEventListener('input', e => renderChatList(e.target.value));
+
+    // Send handlers
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Theme toggle
+    toggleTheme.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', theme);
+    });
+
+    // Emoji stub
+    document.getElementById('emojiBtn').addEventListener('click', () => {
+      messageInput.value += ' 🙂';
+      messageInput.focus();
+    });
+
+    // Back to list (mobile)
+    backToList.addEventListener('click', () => {
+      sidebar.classList.remove('hidden');
+      backToList.style.display = 'none';
+    });
+
+    // Initial render
+    renderChatList();
   </script>
 </body>
 </html>
