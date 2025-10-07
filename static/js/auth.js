@@ -44,3 +44,26 @@
 function closeModal() {
   document.getElementById("popupModal").style.display = "none";
 }
+
+
+
+// Show contact popup
+const contactBtn = document.getElementById('contactBtn');
+const contactPopup = document.getElementById('contactPopup');
+const closePopup = document.getElementById('closePopup');
+const overlay = document.getElementById('overlay');
+
+contactBtn.addEventListener('click', () => {
+    contactPopup.style.display = 'block';
+    overlay.style.display = 'block';
+});
+
+closePopup.addEventListener('click', () => {
+    contactPopup.style.display = 'none';
+    overlay.style.display = 'none';
+});
+
+overlay.addEventListener('click', () => {
+    contactPopup.style.display = 'none';
+    overlay.style.display = 'none';
+});

@@ -174,13 +174,55 @@ body{
 .chip:active{ transform:translateY(1px) }
 
 .menu{
-  width:26px;height:26px;border-radius:8px;border:1px solid var(--muted);
-  background:#fff; position:relative;
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  border:1px solid var(--muted);
+  background:#fff; 
+  position:relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.menu-content{
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  min-width: 150px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.menu-content a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+  transition: background-color 0.3s;
+}
+.hamburger-menu{
+  position: relative;
+  display: inline-block;
+}
+.menu-content a:hover{
+  background-color: #f0f0f0;
 }
 .menu::before, .menu::after{
-  content:""; position:absolute; left:6px; right:6px; height:2px; background:#98a3ad; border-radius:2px;
+  content:""; 
+  position:absolute; 
+  left:6px; right:6px; 
+  height:2px; 
+  background:#98a3ad; 
+  border-radius:2px;
 }
-.menu::before{ top:8px } .menu::after{ bottom:8px }
+.menu::before{ 
+  top:8px
+ } 
+.menu::after{ 
+  bottom:8px 
+}
 
 .card{
   margin-top:16px;

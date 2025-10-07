@@ -131,3 +131,18 @@ previewBtn.addEventListener('click', () => {
   isPreviewVisible = !isPreviewVisible;
   videoPreview.style.display = isPreviewVisible ? 'block' : 'none';
 });
+
+
+//hamburger Menu
+const menu=document.getElementById('menu');
+const menuContent=document.getElementById('menu-content');
+
+menu.addEventListener('click',(e)=>{
+  menuContent.style.display=menuContent.style.display==='block'?'none':'block';
+});
+
+window.addEventListener('click',(e)=>{
+  if(!menu.contains(e.target)&&!menuContent.contains(e.target)){
+    menuContent.style.display='none';
+  }
+})

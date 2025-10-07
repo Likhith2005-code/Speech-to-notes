@@ -85,6 +85,14 @@ def register():
 
     return render_template("register.html")
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
