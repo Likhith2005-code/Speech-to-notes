@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultra YouTube</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f0f0f;
+      --bg-soft:#181818;
+      --text:#f1f1f1;
+      --muted:#aaaaaa;
+      --chip:#222;
+      --chip-active:#fff;
+      --chip-active-bg:#3d3d3d;
+      --border:#2a2a2a;
+      --accent:#ff0033;
+    }
+    [data-theme="light"]{
+      --bg:#ffffff;
+      --bg-soft:#f7f7f7;
+      --text:#0f0f0f;
+      --muted:#606060;
+      --chip:#efefef;
+      --chip-active:#0f0f0f;
+      --chip-active-bg:#e2e2e2;
+      --border:#e6e6e6;
+      --accent:#cc002b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    /* Header */
+    .header{
+      position:sticky; top:0; z-index:1000;
+      display:flex; align-items:center; gap:12px;
+      padding:8px 16px;
+      background:var(--bg);
+      border-bottom:1px solid var(--border);
+    }
+    .left, .center, .right{display:flex; align-items:center}
+    .left{gap:12px; min-width:180px}
+    .menu-btn{
+      border:none; background:transparent; color:var(--text);
+      width:40px; height:40px; border-radius:20px; cursor:pointer;
+    }
+    .menu-btn:hover{background:var(--bg-soft)}
+    .brand{
+      display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text);
+    }
+    .brand .material-icons{color:#ff0000}
+    .brand span{font-weight:700; letter-spacing:0.3px}
+
+    .center{
+      flex:1; justify-content:center; gap:8px; min-width:240px;
+    }
+    .search-wrap{
+      display:flex; align-items:center; flex:1; max-width:700px;
+    }
+    .search-input{
+      flex:1; height:40px; padding:0 14px; border:1px solid var(--border);
+      border-right:none; border-radius:20px 0 0 20px; background:var(--bg); color:var(--text);
+      outline:none;
+    }
+    .search-btn{
+      height:40px; width:64px; border:1px solid var(--border); border-left:none;
+      border-radius:0 20px 20px 0; background:var(--bg-soft); color:var(--text);
+      cursor:pointer;
+    }
+    .mic-btn{
+      margin-left:8px; height:40px; width:40px; border:none; border-radius:20px;
+      background:var(--bg-soft); color:var(--text); cursor:pointer;
+    }
+
+    .right{gap:8px; min-width:160px; justify-content:flex-end}
+    .icon-btn{
+      height:40px; width:40px; border:none; border-radius:20px; background:transparent; color:var(--text); cursor:pointer;
+    }
+    .icon-btn:hover{background:var(--bg-soft)}
+    .avatar{
+      height:32px; width:32px; border-radius:16px; background:linear-gradient(135deg,#ff8a00,#e52e71);
+      display:inline-block;
+    }
+
+    /* Shell layout */
+    .shell{
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      gap:0;
+    }
+    .shell.collapsed{
+      grid-template-columns: 80px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      position:sticky; top:56px; height:calc(100vh - 56px); overflow:auto; padding:12px 8px;
+      border-right:1px solid var(--border); background:var(--bg);
+    }
+    .side-group{padding:8px 0; border-bottom:1px solid var(--border)}
+    .side-item{
+      display:flex; align-items:center; gap:16px; padding:10px 12px; border-radius:10px; cursor:pointer; color:var(--text);
+    }
+    .side-item:hover{background:var(--bg-soft)}
+    .side-item .label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+    .collapsed .label{display:none}
+
+    /* Chips row */
+    .chips{
+      position:sticky; top:56px; z-index:10;
+      display:flex; gap:10px; padding:12px 16px; background:var(--bg); border-bottom:1px solid var(--border);
+      overflow:auto;
+    }
+    .chip{
+      padding:8px 12px; border-radius:8px; background:var(--chip); color:var(--text); white-space:nowrap; cursor:pointer; border:1px solid var(--border);
+    }
+    .chip.active{background:var(--chip-active-bg); color:var(--chip-active)}
+
+    /* Content */
+    .content{padding:16px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:16px;
+    }
+    @media (max-width:1200px){.grid{grid-template-columns: repeat(3, minmax(0,1fr));}}
+    @media (max-width:900px){.grid{grid-template-columns: repeat(2, minmax(0,1fr));}}
+    @media (max-width:600px){
+      .grid{grid-template-columns: 1fr;}
+      .center{display:none;}
+      .shell{grid-template-columns: 1fr;}
+      .sidebar{display:none;}
+      .chips{top:56px}
+    }
+
+    .card{cursor:pointer}
+    .thumb{
+      position:relative; width:100%; aspect-ratio:16/9; background:#222; border-radius:12px; overflow:hidden; border:1px solid var(--border);
+    }
+    .thumb img{width:100%; height:100%; object-fit:cover; display:block}
+    .badge{
+      position:absolute; bottom:8px; right:8px; padding:2px 6px; border-radius:4px; background:rgba(0,0,0,0.8); color:#fff; font-size:12px;
+    }
+    .meta{
+      display:grid; grid-template-columns: 40px 1fr; gap:12px; padding:10px 4px;
+    }
+    .meta .channel{
+      height:40px; width:40px; border-radius:20px; background:linear-gradient(135deg,#3a7bd5,#00d2ff);
+    }
+    .title{font-weight:600; line-height:1.3; margin:2px 0 4px 0}
+    .sub{color:var(--muted); font-size:14px}
+
+    /* Tooltip helper */
+    .tooltipped{position:relative}
+    .tooltipped:hover::after{
+      content:attr(data-tip);
+      position:absolute; bottom:-34px; left:50%; transform:translateX(-50%);
+      background:rgba(0,0,0,0.9); color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; white-space:nowrap;
+      pointer-events:none;
+    }
+
+    /* Focus styles for a11y */
+    :where(button, a, input){outline:none}
+    :where(button, a, input):focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+    /* Dialog */
+    dialog{
+      border:none; border-radius:12px; padding:0; overflow:hidden; background:var(--bg); color:var(--text);
+      box-shadow:0 10px 40px rgba(0,0,0,0.5);
+      width:min(920px, 96vw);
+    }
+    .watch{
+      display:grid; grid-template-columns: 1fr 360px; gap:16px;
+    }
+    @media (max-width:900px){.watch{grid-template-columns: 1fr}}
+    .watch .video{
+      aspect-ratio:16/9; background:#000;
+    }
+    .watch .pane{padding:16px; border-left:1px solid var(--border)}
+    .watch .pane h3{margin:0 0 8px 0}
+    .watch .actions{display:flex; gap:8px; margin:8px 0 16px}
+    .btn{
+      padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); cursor:pointer;
+    }
+    .btn.primary{background:#f1f1f1; color:#111}
+    .btn.ghost{background:transparent}
+    .suggest{
+      display:grid; gap:12px;
+    }
+    .suggest .row{
+      display:grid; grid-template-columns: 160px 1fr; gap:12px;
+    }
+    .suggest .row .t{aspect-ratio:16/9; background:#222; border-radius:8px; overflow:hidden}
+    .close-x{
+      position:absolute; top:8px; right:8px; border:none; background:transparent; color:var(--text); cursor:pointer; height:40px; width:40px; border-radius:20px;
+    }
+    .close-x:hover{background:var(--bg-soft)}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" role="banner">
+    <div class="left">
+      <button id="toggleSidebar" class="menu-btn tooltipped" aria-label="Toggle menu" data-tip="Toggle menu">
+        <span class="material-icons">menu</span>
+      </button>
+      <a class="brand" href="#" aria-label="Ultra YouTube Home">
+        <span class="material-icons">smart_display</span>
+        <span>UltraTube</span>
+      </a>
+    </div>
+    <div class="center" role="search">
+      <div class="search-wrap" aria-label="Search">
+        <input id="searchInput" class="search-input" type="search" placeholder="Search" aria-label="Search query" />
+        <button id="searchBtn" class="search-btn tooltipped" aria-label="Search" data-tip="Search">
+          <span class="material-icons">search</span>
+        </button>
+      </div>
+      <button class="mic-btn tooltipped" aria-label="Voice search" data-tip="Voice search">
+        <span class="material-icons">mic</span>
+      </button>
+    </div>
+    <div class="right">
+      <button id="themeBtn" class="icon-btn tooltipped" aria-label="Toggle theme" data-tip="Toggle theme (t)">
+        <span class="material-icons">brightness_6</span>
+      </button>
+      <button class="icon-btn tooltipped" aria-label="Create" data-tip="Create">
+        <span class="material-icons">video_call</span>
+      </button>
+      <button class="icon-btn tooltipped" aria-label="Notifications" data-tip="Notifications">
+        <span class="material-icons">notifications</span>
+      </button>
+      <span class="avatar" aria-label="Profile"></span>
+    </div>
+  </header>
+
+  <!-- Main shell -->
+  <div id="shell" class="shell">
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Sidebar navigation">
+      <div class="side-group">
+        <div class="side-item"><span class="material-icons">home</span><span class="label">Home</span></div>
+        <div class="side-item"><span class="material-icons">play_circle_outline</span><span class="label">Shorts</span></div>
+        <div class="side-item"><span class="material-icons">subscriptions</span><span class="label">Subscriptions</span></div>
+      </div>
+      <div class="side-group">
+        <div class="side-item"><span class="material-icons">video_library</span><span class="label">Library</span></div>
+        <div class="side-item"><span class="material-icons">history</span><span class="label">History</span></div>
+        <div class="side-item"><span class="material-icons">watch_later</span><span class="label">Watch later</span></div>
+        <div class="side-item"><span class="material-icons">thumb_up</span><span class="label">Liked videos</span></div>
+      </div>
+      <div class="side-group">
+        <div class="side-item"><span class="material-icons">settings</span><span class="label">Settings</span></div>
+        <div class="side-item"><span class="material-icons">flag</span><span class="label">Report history</span></div>
+        <div class="side-item"><span class="material-icons">help_outline</span><span class="label">Help</span></div>
+        <div class="side-item"><span class="material-icons">feedback</span><span class="label">Send feedback</span></div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main>
+      <div class="chips" role="tablist" aria-label="Topics">
+        <button class="chip active">All</button>
+        <button class="chip">Music</button>
+        <button class="chip">Gaming</button>
+        <button class="chip">Live</button>
+        <button class="chip">Code</button>
+        <button class="chip">AI</button>
+        <button class="chip">Podcasts</button>
+        <button class="chip">News</button>
+        <button class="chip">Sports</button>
+        <button class="chip">Trailers</button>
+      </div>
+
+      <section class="content" aria-label="Video grid">
+        <div id="grid" class="grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Watch dialog -->
+  <dialog id="watchDialog">
+    <button class="close-x" aria-label="Close">
+      <span class="material-icons">close</span>
+    </button>
+    <div class="watch">
+      <div class="video" id="player"></div>
+      <div class="pane">
+        <h3 id="watchTitle">Video title</h3>
+        <div class="sub" id="watchMeta">Channel • 1.2M views • 2 days ago</div>
+        <div class="actions">
+          <button class="btn"><span class="material-icons" style="vertical-align:middle">thumb_up</span> Like</button>
+          <button class="btn"><span class="material-icons" style="vertical-align:middle">thumb_down</span> Dislike</button>
+          <button class="btn"><span class="material-icons" style="vertical-align:middle">reply</span> Share</button>
+          <button class="btn ghost"><span class="material-icons" style="vertical-align:middle">more_horiz</span></button>
+        </div>
+        <div class="suggest" id="suggest"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // Seed data
+    const videos = Array.from({length: 24}).map((_,i)=>({
+      id: 'VID'+(i+1),
+      title: [
+        'Master modern CSS grid',
+        'JavaScript animations from scratch',
+        'AI tools to speed up coding',
+        'Build a full-stack app in 1 hour',
+        'Top 10 VS Code extensions',
+        'Responsive UI patterns',
+        'Dark mode best practices',
+        'Design systems in 2025',
+        'Vanilla JS components',
+        'Web performance tuning',
+        'TypeScript crash course',
+        'Deploy like a pro',
+      ][i%12] + ' #' + (i+1),
+      channel: ['DevBoost','CodeFlow','Ultra Tech','Frontend Lab','AI Forge','ShipIt'][i%6],
+      views: ((Math.random()*900+100)|0)+'K views',
+      age: (Math.random()*29+1|0)+' days ago',
+      duration: ['4:12','7:45','12:03','24:59','8:01','16:20'][i%6],
+      thumb: `https://picsum.photos/seed/ultra${i+3}/640/360`,
+      topic: ['All','Music','Gaming','Live','Code','AI','Podcasts','News','Sports','Trailers'][ (i%9)+1 ]
+    }));
+
+    // Theme
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('ultraTheme') || 'dark';
+    if(savedTheme==='light'){root.setAttribute('data-theme','light')}
+    function toggleTheme(){
+      const next = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
+      if(next==='light'){root.setAttribute('data-theme','light')} else {root.removeAttribute('data-theme')}
+      localStorage.setItem('ultraTheme', next);
+    }
+
+    // Sidebar collapse
+    const shell = document.getElementById('shell');
+    const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    toggleSidebarBtn.addEventListener('click',()=>{
+      shell.classList.toggle('collapsed');
+    });
+
+    // Chips filter
+    const chips = document.querySelectorAll('.chip');
+    let currentFilter = 'All';
+    chips.forEach(ch=>{
+      ch.addEventListener('click',()=>{
+        chips.forEach(c=>c.classList.remove('active'));
+        ch.classList.add('active');
+        currentFilter = ch.textContent.trim();
+        renderGrid();
+      });
+    });
+
+    // Grid render
+    const grid = document.getElementById('grid');
+    function cardTemplate(v){
+      return `
+        <article class="card" data-id="${v.id}" tabindex="0" aria-label="${v.title}">
+          <div class="thumb">
+            <img loading="lazy" src="${v.thumb}" alt="${v.title}">
+            <span class="badge">${v.duration}</span>
+          </div>
+          <div class="meta">
+            <div class="channel" aria-hidden="true"></div>
+            <div>
+              <div class="title">${v.title}</div>
+              <div class="sub">${v.channel} • ${v.views} • ${v.age}</div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+    function renderGrid(query=''){
+      const q = query.toLowerCase();
+      const list = videos.filter(v => (currentFilter==='All' || v.topic===currentFilter))
+                         .filter(v => !q || v.title.toLowerCase().includes(q) || v.channel.toLowerCase().includes(q));
+      grid.innerHTML = list.map(cardTemplate).join('');
+      // Bind open handlers
+      grid.querySelectorAll('.card').forEach(card=>{
+        card.addEventListener('click',()=>openWatch(card.dataset.id));
+        card.addEventListener('keypress',(e)=>{ if(e.key==='Enter') openWatch(card.dataset.id); });
+      });
+    }
+
+    // Search
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    function doSearch(){
+      renderGrid(searchInput.value.trim());
+    }
+    searchBtn.addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+
+    // Theme button + shortcuts
+    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+    window.addEventListener('keydown', (e)=>{
+      if(e.target.matches('input, textarea')) return;
+      if(e.key.toLowerCase()==='t'){ toggleTheme(); }
+      if(e.key==='/' ){ e.preventDefault(); searchInput.focus(); }
+      if(e.key==='[' ){ shell.classList.add('collapsed'); }
+      if(e.key===']' ){ shell.classList.remove('collapsed'); }
+    });
+
+    // Watch dialog logic
+    const watchDialog = document.getElementById('watchDialog');
+    const player = document.getElementById('player');
+    const watchTitle = document.getElementById('watchTitle');
+    const watchMeta = document.getElementById('watchMeta');
+    const suggest = document.getElementById('suggest');
+    watchDialog.querySelector('.close-x').addEventListener('click', ()=>watchDialog.close());
+    watchDialog.addEventListener('close', ()=>{ player.innerHTML=''; });
+
+    function openWatch(id){
+      const v = videos.find(x=>x.id===id) || videos[0];
+      watchTitle.textContent = v.title;
+      watchMeta.textContent = `${v.channel} • ${v.views} • ${v.age}`;
+      // Fake embedded player placeholder
+      player.innerHTML = `
+        <iframe title="${v.title}" width="100%" height="100%" style="border:0"
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      `;
+      // Suggestions
+      const others = videos.filter(x=>x.id!==id).slice(0,8);
+      suggest.innerHTML = others.map(o=>`
+        <div class="row" data-id="${o.id}">
+          <div class="t"><img src="${o.thumb}" alt="${o.title}" style="width:100%;height:100%;object-fit:cover"></div>
+          <div>
+            <div class="title" style="font-size:14px">${o.title}</div>
+            <div class="sub">${o.channel} • ${o.views}</div>
+          </div>
+        </div>
+      `).join('');
+      suggest.querySelectorAll('.row').forEach(r=>{
+        r.addEventListener('click', ()=>openWatch(r.dataset.id));
+      });
+
+      // Show dialog
+      if(typeof watchDialog.showModal === 'function'){ watchDialog.showModal(); }
+      else { watchDialog.setAttribute('open',''); }
+    }
+
+    // Initial render
+    renderGrid();
+  </script>
+</body>
+</html>
