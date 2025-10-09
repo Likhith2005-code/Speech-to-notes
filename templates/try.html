@@ -1,459 +1,656 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ultra YouTube</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0f0f0f;
-      --bg-soft:#181818;
-      --text:#f1f1f1;
-      --muted:#aaaaaa;
-      --chip:#222;
-      --chip-active:#fff;
-      --chip-active-bg:#3d3d3d;
-      --border:#2a2a2a;
-      --accent:#ff0033;
-    }
-    [data-theme="light"]{
-      --bg:#ffffff;
-      --bg-soft:#f7f7f7;
-      --text:#0f0f0f;
-      --muted:#606060;
-      --chip:#efefef;
-      --chip-active:#0f0f0f;
-      --chip-active-bg:#e2e2e2;
-      --border:#e6e6e6;
-      --accent:#cc002b;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
-      background:var(--bg);
-      color:var(--text);
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ultra Telegram — Prototype</title>
+<style>
+  :root{
+    --bg:#f5f7fb;
+    --panel:#ffffff;
+    --muted:#7b8594;
+    --accent:#2b8cff;
+    --accent-2:#6a5cff;
+    --incoming:#e9f3ff;
+    --outgoing:#d6f5d6;
+    --glass: rgba(255,255,255,0.6);
+    --shadow: 0 6px 18px rgba(22,28,37,0.08);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  :root.dark{
+    --bg:#0b1220;
+    --panel:#0f1724;
+    --muted:#9aa4b2;
+    --accent:#5aa1ff;
+    --accent-2:#8a76ff;
+    --incoming:#162430;
+    --outgoing:#14321a;
+    --glass: rgba(255,255,255,0.03);
+    --shadow: none;
+  }
 
-    /* Header */
-    .header{
-      position:sticky; top:0; z-index:1000;
-      display:flex; align-items:center; gap:12px;
-      padding:8px 16px;
-      background:var(--bg);
-      border-bottom:1px solid var(--border);
-    }
-    .left, .center, .right{display:flex; align-items:center}
-    .left{gap:12px; min-width:180px}
-    .menu-btn{
-      border:none; background:transparent; color:var(--text);
-      width:40px; height:40px; border-radius:20px; cursor:pointer;
-    }
-    .menu-btn:hover{background:var(--bg-soft)}
-    .brand{
-      display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--text);
-    }
-    .brand .material-icons{color:#ff0000}
-    .brand span{font-weight:700; letter-spacing:0.3px}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    height:100%;
+    background: linear-gradient(180deg,var(--bg),#e9eef9 60%);
+    display:flex;
+    align-items:stretch;
+    color:var(--muted);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
 
-    .center{
-      flex:1; justify-content:center; gap:8px; min-width:240px;
-    }
-    .search-wrap{
-      display:flex; align-items:center; flex:1; max-width:700px;
-    }
-    .search-input{
-      flex:1; height:40px; padding:0 14px; border:1px solid var(--border);
-      border-right:none; border-radius:20px 0 0 20px; background:var(--bg); color:var(--text);
-      outline:none;
-    }
-    .search-btn{
-      height:40px; width:64px; border:1px solid var(--border); border-left:none;
-      border-radius:0 20px 20px 0; background:var(--bg-soft); color:var(--text);
-      cursor:pointer;
-    }
-    .mic-btn{
-      margin-left:8px; height:40px; width:40px; border:none; border-radius:20px;
-      background:var(--bg-soft); color:var(--text); cursor:pointer;
-    }
+  /* App layout */
+  .app{
+    margin:auto;
+    width:100%;
+    max-width:1200px;
+    height:88vh;
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:18px;
+    padding:18px;
+  }
 
-    .right{gap:8px; min-width:160px; justify-content:flex-end}
-    .icon-btn{
-      height:40px; width:40px; border:none; border-radius:20px; background:transparent; color:var(--text); cursor:pointer;
-    }
-    .icon-btn:hover{background:var(--bg-soft)}
-    .avatar{
-      height:32px; width:32px; border-radius:16px; background:linear-gradient(135deg,#ff8a00,#e52e71);
-      display:inline-block;
-    }
+  /* Sidebar */
+  .sidebar{
+    background:linear-gradient(180deg,var(--panel),var(--glass));
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    border:1px solid rgba(0,0,0,0.03);
+  }
+  .sidebar .top{
+    padding:14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .avatar{
+    width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+    box-shadow:0 6px 16px rgba(42, 138, 255, 0.18);
+  }
+  .app-title{font-weight:700;color:var(--muted);line-height:1}
+  .app-sub{font-size:12px;color:var(--muted);opacity:0.8}
 
-    /* Shell layout */
-    .shell{
-      display:grid;
-      grid-template-columns: 260px 1fr;
-      gap:0;
-    }
-    .shell.collapsed{
-      grid-template-columns: 80px 1fr;
-    }
+  .search{
+    padding:10px 14px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+    border-top:1px solid rgba(0,0,0,0.03);
+    border-bottom:1px solid rgba(0,0,0,0.03);
+  }
+  .search input{
+    width:100%;
+    border:0;background:transparent;padding:8px 10px;border-radius:10px;
+    outline:none;color:var(--muted);
+  }
+  .list{
+    overflow:auto;padding:8px;
+  }
 
-    /* Sidebar */
-    .sidebar{
-      position:sticky; top:56px; height:calc(100vh - 56px); overflow:auto; padding:12px 8px;
-      border-right:1px solid var(--border); background:var(--bg);
-    }
-    .side-group{padding:8px 0; border-bottom:1px solid var(--border)}
-    .side-item{
-      display:flex; align-items:center; gap:16px; padding:10px 12px; border-radius:10px; cursor:pointer; color:var(--text);
-    }
-    .side-item:hover{background:var(--bg-soft)}
-    .side-item .label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .contact{
+    display:flex;gap:10px;padding:10px;border-radius:10px;align-items:center;cursor:pointer;
+    transition:background .14s;
+  }
+  .contact:hover{background:rgba(0,0,0,0.02)}
+  .contact.active{background:linear-gradient(90deg, rgba(43,140,255,0.07), rgba(106,92,255,0.03));border-left:3px solid var(--accent);padding-left:7px}
+  .contact .c-avatar{width:44px;height:44px;border-radius:10px;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff}
+  .contact .c-info{flex:1;min-width:0}
+  .c-name{font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .c-last{font-size:12px;color:var(--muted);opacity:0.7}
+  .badge{background:var(--accent);color:#fff;padding:4px 8px;border-radius:999px;font-size:12px}
 
-    .collapsed .label{display:none}
+  /* Chat panel */
+  .chat{
+    background:linear-gradient(180deg,var(--panel),var(--glass));
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(0,0,0,0.03);
+  }
+  .chat .header{
+    padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(0,0,0,0.03);
+  }
+  .chat .header .name{font-weight:700;color:var(--muted)}
+  .chat .header .meta{font-size:13px;color:var(--muted);opacity:0.75}
 
-    /* Chips row */
-    .chips{
-      position:sticky; top:56px; z-index:10;
-      display:flex; gap:10px; padding:12px 16px; background:var(--bg); border-bottom:1px solid var(--border);
-      overflow:auto;
-    }
-    .chip{
-      padding:8px 12px; border-radius:8px; background:var(--chip); color:var(--text); white-space:nowrap; cursor:pointer; border:1px solid var(--border);
-    }
-    .chip.active{background:var(--chip-active-bg); color:var(--chip-active)}
+  .messages{
+    padding:18px;
+    display:flex;flex-direction:column;gap:10px;
+    flex:1;overflow:auto;background:
+      linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.01) 100%);
+  }
+  .msg-row{display:flex;gap:10px;align-items:flex-end;max-width:85%}
+  .msg-row.me{margin-left:auto;flex-direction:row-reverse}
+  .bubble{
+    padding:10px 12px;border-radius:12px;line-height:1.3;font-size:14px;color:#122;
+    box-shadow:0 2px 8px rgba(16,24,40,0.04);max-width:680px;word-wrap:break-word;
+  }
+  .bubble.in{background:var(--incoming);color:var(--muted)}
+  .bubble.out{background:var(--outgoing);color:#063a00}
+  .meta-row{display:flex;gap:8px;font-size:12px;color:var(--muted);opacity:0.8;margin-top:6px}
+  .timestamp{font-size:11px;opacity:0.7}
 
-    /* Content */
-    .content{padding:16px}
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap:16px;
-    }
-    @media (max-width:1200px){.grid{grid-template-columns: repeat(3, minmax(0,1fr));}}
-    @media (max-width:900px){.grid{grid-template-columns: repeat(2, minmax(0,1fr));}}
-    @media (max-width:600px){
-      .grid{grid-template-columns: 1fr;}
-      .center{display:none;}
-      .shell{grid-template-columns: 1fr;}
-      .sidebar{display:none;}
-      .chips{top:56px}
-    }
+  .composer{
+    padding:12px;display:flex;gap:10px;border-top:1px solid rgba(0,0,0,0.03);align-items:flex-end;
+  }
+  .composer .tools{display:flex;gap:8px;align-items:center}
+  .composer textarea{
+    flex:1;min-height:44px;max-height:140px;border-radius:12px;padding:10px;border:1px solid rgba(0,0,0,0.05);
+    resize:none;outline:none;background:transparent;color:var(--muted);
+    font-size:14px;
+  }
+  .btn{
+    background:var(--accent);color:#fff;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:600;
+    box-shadow:0 6px 18px rgba(43,140,255,0.12);
+  }
+  .icon-btn{background:transparent;border:0;padding:8px;border-radius:8px;cursor:pointer;color:var(--muted)}
+  .emoji-picker{position:absolute;right:20px;bottom:86px;background:var(--panel);border-radius:10px;padding:8px;display:grid;grid-template-columns:repeat(6,30px);gap:6px;box-shadow:var(--shadow)}
+  .emoji{cursor:pointer;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;padding:4px;border-radius:6px}
+  .small{font-size:12px;color:var(--muted)}
 
-    .card{cursor:pointer}
-    .thumb{
-      position:relative; width:100%; aspect-ratio:16/9; background:#222; border-radius:12px; overflow:hidden; border:1px solid var(--border);
-    }
-    .thumb img{width:100%; height:100%; object-fit:cover; display:block}
-    .badge{
-      position:absolute; bottom:8px; right:8px; padding:2px 6px; border-radius:4px; background:rgba(0,0,0,0.8); color:#fff; font-size:12px;
-    }
-    .meta{
-      display:grid; grid-template-columns: 40px 1fr; gap:12px; padding:10px 4px;
-    }
-    .meta .channel{
-      height:40px; width:40px; border-radius:20px; background:linear-gradient(135deg,#3a7bd5,#00d2ff);
-    }
-    .title{font-weight:600; line-height:1.3; margin:2px 0 4px 0}
-    .sub{color:var(--muted); font-size:14px}
+  /* message actions */
+  .msg-actions{display:flex;gap:8px;margin-left:8px}
+  .reaction{cursor:pointer;padding:4px;border-radius:6px;font-size:14px}
 
-    /* Tooltip helper */
-    .tooltipped{position:relative}
-    .tooltipped:hover::after{
-      content:attr(data-tip);
-      position:absolute; bottom:-34px; left:50%; transform:translateX(-50%);
-      background:rgba(0,0,0,0.9); color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; white-space:nowrap;
-      pointer-events:none;
-    }
+  /* mobile */
+  @media (max-width:860px){
+    .app{grid-template-columns:1fr;max-width:960px;height:92vh}
+    .sidebar{order:2}
+    .chat{order:1}
+    .avatar{width:40px;height:40px}
+  }
 
-    /* Focus styles for a11y */
-    :where(button, a, input){outline:none}
-    :where(button, a, input):focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-
-    /* Dialog */
-    dialog{
-      border:none; border-radius:12px; padding:0; overflow:hidden; background:var(--bg); color:var(--text);
-      box-shadow:0 10px 40px rgba(0,0,0,0.5);
-      width:min(920px, 96vw);
-    }
-    .watch{
-      display:grid; grid-template-columns: 1fr 360px; gap:16px;
-    }
-    @media (max-width:900px){.watch{grid-template-columns: 1fr}}
-    .watch .video{
-      aspect-ratio:16/9; background:#000;
-    }
-    .watch .pane{padding:16px; border-left:1px solid var(--border)}
-    .watch .pane h3{margin:0 0 8px 0}
-    .watch .actions{display:flex; gap:8px; margin:8px 0 16px}
-    .btn{
-      padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--bg-soft); color:var(--text); cursor:pointer;
-    }
-    .btn.primary{background:#f1f1f1; color:#111}
-    .btn.ghost{background:transparent}
-    .suggest{
-      display:grid; gap:12px;
-    }
-    .suggest .row{
-      display:grid; grid-template-columns: 160px 1fr; gap:12px;
-    }
-    .suggest .row .t{aspect-ratio:16/9; background:#222; border-radius:8px; overflow:hidden}
-    .close-x{
-      position:absolute; top:8px; right:8px; border:none; background:transparent; color:var(--text); cursor:pointer; height:40px; width:40px; border-radius:20px;
-    }
-    .close-x:hover{background:var(--bg-soft)}
-  </style>
+  /* tiny helper */
+  .muted{color:var(--muted);font-size:13px}
+  .flex{display:flex;align-items:center}
+</style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header" role="banner">
-    <div class="left">
-      <button id="toggleSidebar" class="menu-btn tooltipped" aria-label="Toggle menu" data-tip="Toggle menu">
-        <span class="material-icons">menu</span>
-      </button>
-      <a class="brand" href="#" aria-label="Ultra YouTube Home">
-        <span class="material-icons">smart_display</span>
-        <span>UltraTube</span>
-      </a>
-    </div>
-    <div class="center" role="search">
-      <div class="search-wrap" aria-label="Search">
-        <input id="searchInput" class="search-input" type="search" placeholder="Search" aria-label="Search query" />
-        <button id="searchBtn" class="search-btn tooltipped" aria-label="Search" data-tip="Search">
-          <span class="material-icons">search</span>
+<div class="app" id="app">
+  <div class="sidebar" aria-label="Contacts sidebar">
+    <div class="top">
+      <div class="avatar" id="appAvatar">UT</div>
+      <div>
+        <div class="app-title">Ultra Telegram</div>
+        <div class="app-sub">Secure prototype</div>
+      </div>
+      <div style="margin-left:auto" class="flex">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">
+          <!-- moon/sun icon -->
+          <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
         </button>
       </div>
-      <button class="mic-btn tooltipped" aria-label="Voice search" data-tip="Voice search">
-        <span class="material-icons">mic</span>
-      </button>
     </div>
-    <div class="right">
-      <button id="themeBtn" class="icon-btn tooltipped" aria-label="Toggle theme" data-tip="Toggle theme (t)">
-        <span class="material-icons">brightness_6</span>
-      </button>
-      <button class="icon-btn tooltipped" aria-label="Create" data-tip="Create">
-        <span class="material-icons">video_call</span>
-      </button>
-      <button class="icon-btn tooltipped" aria-label="Notifications" data-tip="Notifications">
-        <span class="material-icons">notifications</span>
-      </button>
-      <span class="avatar" aria-label="Profile"></span>
+
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="contactSearch" placeholder="Search contacts or messages" aria-label="Search contacts" />
     </div>
-  </header>
 
-  <!-- Main shell -->
-  <div id="shell" class="shell">
-    <!-- Sidebar -->
-    <aside class="sidebar" aria-label="Sidebar navigation">
-      <div class="side-group">
-        <div class="side-item"><span class="material-icons">home</span><span class="label">Home</span></div>
-        <div class="side-item"><span class="material-icons">play_circle_outline</span><span class="label">Shorts</span></div>
-        <div class="side-item"><span class="material-icons">subscriptions</span><span class="label">Subscriptions</span></div>
-      </div>
-      <div class="side-group">
-        <div class="side-item"><span class="material-icons">video_library</span><span class="label">Library</span></div>
-        <div class="side-item"><span class="material-icons">history</span><span class="label">History</span></div>
-        <div class="side-item"><span class="material-icons">watch_later</span><span class="label">Watch later</span></div>
-        <div class="side-item"><span class="material-icons">thumb_up</span><span class="label">Liked videos</span></div>
-      </div>
-      <div class="side-group">
-        <div class="side-item"><span class="material-icons">settings</span><span class="label">Settings</span></div>
-        <div class="side-item"><span class="material-icons">flag</span><span class="label">Report history</span></div>
-        <div class="side-item"><span class="material-icons">help_outline</span><span class="label">Help</span></div>
-        <div class="side-item"><span class="material-icons">feedback</span><span class="label">Send feedback</span></div>
-      </div>
-    </aside>
-
-    <!-- Main content -->
-    <main>
-      <div class="chips" role="tablist" aria-label="Topics">
-        <button class="chip active">All</button>
-        <button class="chip">Music</button>
-        <button class="chip">Gaming</button>
-        <button class="chip">Live</button>
-        <button class="chip">Code</button>
-        <button class="chip">AI</button>
-        <button class="chip">Podcasts</button>
-        <button class="chip">News</button>
-        <button class="chip">Sports</button>
-        <button class="chip">Trailers</button>
-      </div>
-
-      <section class="content" aria-label="Video grid">
-        <div id="grid" class="grid"></div>
-      </section>
-    </main>
+    <div class="list" id="contactsList" role="list">
+      <!-- contacts injected -->
+    </div>
   </div>
 
-  <!-- Watch dialog -->
-  <dialog id="watchDialog">
-    <button class="close-x" aria-label="Close">
-      <span class="material-icons">close</span>
-    </button>
-    <div class="watch">
-      <div class="video" id="player"></div>
-      <div class="pane">
-        <h3 id="watchTitle">Video title</h3>
-        <div class="sub" id="watchMeta">Channel • 1.2M views • 2 days ago</div>
-        <div class="actions">
-          <button class="btn"><span class="material-icons" style="vertical-align:middle">thumb_up</span> Like</button>
-          <button class="btn"><span class="material-icons" style="vertical-align:middle">thumb_down</span> Dislike</button>
-          <button class="btn"><span class="material-icons" style="vertical-align:middle">reply</span> Share</button>
-          <button class="btn ghost"><span class="material-icons" style="vertical-align:middle">more_horiz</span></button>
+  <main class="chat" aria-label="Chat panel">
+    <div class="header">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="c-avatar" id="chatAvatar" style="width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent-2));">A</div>
+        <div>
+          <div class="name" id="chatName">Select a chat</div>
+          <div class="meta small" id="chatMeta">Last seen recently</div>
         </div>
-        <div class="suggest" id="suggest"></div>
+      </div>
+      <div style="margin-left:auto" class="flex">
+        <button class="icon-btn" id="newChatBtn" title="New Chat">＋ New</button>
       </div>
     </div>
-  </dialog>
 
-  <script>
-    // Seed data
-    const videos = Array.from({length: 24}).map((_,i)=>({
-      id: 'VID'+(i+1),
-      title: [
-        'Master modern CSS grid',
-        'JavaScript animations from scratch',
-        'AI tools to speed up coding',
-        'Build a full-stack app in 1 hour',
-        'Top 10 VS Code extensions',
-        'Responsive UI patterns',
-        'Dark mode best practices',
-        'Design systems in 2025',
-        'Vanilla JS components',
-        'Web performance tuning',
-        'TypeScript crash course',
-        'Deploy like a pro',
-      ][i%12] + ' #' + (i+1),
-      channel: ['DevBoost','CodeFlow','Ultra Tech','Frontend Lab','AI Forge','ShipIt'][i%6],
-      views: ((Math.random()*900+100)|0)+'K views',
-      age: (Math.random()*29+1|0)+' days ago',
-      duration: ['4:12','7:45','12:03','24:59','8:01','16:20'][i%6],
-      thumb: `https://picsum.photos/seed/ultra${i+3}/640/360`,
-      topic: ['All','Music','Gaming','Live','Code','AI','Podcasts','News','Sports','Trailers'][ (i%9)+1 ]
-    }));
+    <div class="messages" id="messages" aria-live="polite">
+      <div class="muted" style="text-align:center;margin-top:50px">No chat selected — choose a contact or create a new chat.</div>
+    </div>
 
-    // Theme
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem('ultraTheme') || 'dark';
-    if(savedTheme==='light'){root.setAttribute('data-theme','light')}
-    function toggleTheme(){
-      const next = root.getAttribute('data-theme')==='light' ? 'dark' : 'light';
-      if(next==='light'){root.setAttribute('data-theme','light')} else {root.removeAttribute('data-theme')}
-      localStorage.setItem('ultraTheme', next);
-    }
+    <div class="composer" id="composer">
+      <div class="tools" style="position:relative">
+        <button class="icon-btn" id="emojiBtn" title="Emoji">😊</button>
+        <button class="icon-btn" id="attachBtn" title="Attach">📎</button>
+      </div>
+      <textarea id="input" placeholder="Type a message — Enter to send, Shift+Enter for newline" aria-label="Message input"></textarea>
+      <button class="btn" id="sendBtn">Send</button>
+    </div>
+  </main>
+</div>
 
-    // Sidebar collapse
-    const shell = document.getElementById('shell');
-    const toggleSidebarBtn = document.getElementById('toggleSidebar');
-    toggleSidebarBtn.addEventListener('click',()=>{
-      shell.classList.toggle('collapsed');
-    });
+<!-- tiny templates & data -->
+<script>
+/* ========= Ultra Telegram - Single File JS ========= */
 
-    // Chips filter
-    const chips = document.querySelectorAll('.chip');
-    let currentFilter = 'All';
-    chips.forEach(ch=>{
-      ch.addEventListener('click',()=>{
-        chips.forEach(c=>c.classList.remove('active'));
-        ch.classList.add('active');
-        currentFilter = ch.textContent.trim();
-        renderGrid();
+// Sample data
+const SAMPLE = [
+  { id: 'c1', name: 'Aria Thomas', avatar: 'AT', last: 'Hey! you free later?', unread: 2, lastTime: Date.now()-1000*60*60*4 },
+  { id: 'c2', name: 'Dev Squad', avatar: 'DS', last: 'Deployed to staging', unread: 0, lastTime: Date.now()-1000*60*30 },
+  { id: 'c3', name: 'Mom', avatar: 'M', last: 'Dinner at 7?', unread: 1, lastTime: Date.now()-1000*60*60*24 },
+];
+
+// Storage helpers
+const STORAGE_KEY = 'ultra-telegram-v1';
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) {
+      // initialize with sample conversations having one message each
+      const convs = {};
+      SAMPLE.forEach((c,i)=>{
+        convs[c.id] = {
+          contact:c,
+          messages:[
+            { id: `${c.id}-m1`, from: i===0 ? 'them' : (i===1?'them':'them'), text:c.last, ts:c.lastTime, read: false }
+          ]
+        };
       });
-    });
-
-    // Grid render
-    const grid = document.getElementById('grid');
-    function cardTemplate(v){
-      return `
-        <article class="card" data-id="${v.id}" tabindex="0" aria-label="${v.title}">
-          <div class="thumb">
-            <img loading="lazy" src="${v.thumb}" alt="${v.title}">
-            <span class="badge">${v.duration}</span>
-          </div>
-          <div class="meta">
-            <div class="channel" aria-hidden="true"></div>
-            <div>
-              <div class="title">${v.title}</div>
-              <div class="sub">${v.channel} • ${v.views} • ${v.age}</div>
-            </div>
-          </div>
-        </article>
-      `;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ convs, selected: 'c1', theme: localStorage.getItem('ultra-theme') || 'light' }));
+      return JSON.parse(localStorage.getItem(STORAGE_KEY));
     }
-    function renderGrid(query=''){
-      const q = query.toLowerCase();
-      const list = videos.filter(v => (currentFilter==='All' || v.topic===currentFilter))
-                         .filter(v => !q || v.title.toLowerCase().includes(q) || v.channel.toLowerCase().includes(q));
-      grid.innerHTML = list.map(cardTemplate).join('');
-      // Bind open handlers
-      grid.querySelectorAll('.card').forEach(card=>{
-        card.addEventListener('click',()=>openWatch(card.dataset.id));
-        card.addEventListener('keypress',(e)=>{ if(e.key==='Enter') openWatch(card.dataset.id); });
-      });
-    }
+    return JSON.parse(raw);
+  }catch(e){
+    console.error('loadState error',e); return null;
+  }
+}
+function saveState(state){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
 
-    // Search
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    function doSearch(){
-      renderGrid(searchInput.value.trim());
-    }
-    searchBtn.addEventListener('click', doSearch);
-    searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
+// Format time
+function fmtTime(ts){
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  return sameDay ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : d.toLocaleDateString();
+}
 
-    // Theme button + shortcuts
-    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-    window.addEventListener('keydown', (e)=>{
-      if(e.target.matches('input, textarea')) return;
-      if(e.key.toLowerCase()==='t'){ toggleTheme(); }
-      if(e.key==='/' ){ e.preventDefault(); searchInput.focus(); }
-      if(e.key==='[' ){ shell.classList.add('collapsed'); }
-      if(e.key===']' ){ shell.classList.remove('collapsed'); }
-    });
+/* App state */
+let STATE = loadState();
+if(!STATE) STATE = { convs: {}, selected: null, theme: 'light' };
 
-    // Watch dialog logic
-    const watchDialog = document.getElementById('watchDialog');
-    const player = document.getElementById('player');
-    const watchTitle = document.getElementById('watchTitle');
-    const watchMeta = document.getElementById('watchMeta');
-    const suggest = document.getElementById('suggest');
-    watchDialog.querySelector('.close-x').addEventListener('click', ()=>watchDialog.close());
-    watchDialog.addEventListener('close', ()=>{ player.innerHTML=''; });
+// DOM refs
+const contactsList = document.getElementById('contactsList');
+const messagesEl = document.getElementById('messages');
+const chatName = document.getElementById('chatName');
+const chatMeta = document.getElementById('chatMeta');
+const chatAvatar = document.getElementById('chatAvatar');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const emojiBtn = document.getElementById('emojiBtn');
+const attachBtn = document.getElementById('attachBtn');
+const emojiPickerId = 'emojiPicker';
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const contactSearch = document.getElementById('contactSearch');
+const newChatBtn = document.getElementById('newChatBtn');
 
-    function openWatch(id){
-      const v = videos.find(x=>x.id===id) || videos[0];
-      watchTitle.textContent = v.title;
-      watchMeta.textContent = `${v.channel} • ${v.views} • ${v.age}`;
-      // Fake embedded player placeholder
-      player.innerHTML = `
-        <iframe title="${v.title}" width="100%" height="100%" style="border:0"
-          src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      `;
-      // Suggestions
-      const others = videos.filter(x=>x.id!==id).slice(0,8);
-      suggest.innerHTML = others.map(o=>`
-        <div class="row" data-id="${o.id}">
-          <div class="t"><img src="${o.thumb}" alt="${o.title}" style="width:100%;height:100%;object-fit:cover"></div>
-          <div>
-            <div class="title" style="font-size:14px">${o.title}</div>
-            <div class="sub">${o.channel} • ${o.views}</div>
-          </div>
+// simple emoji set
+const EMOJIS = ['😀','😄','😂','😊','😍','🤔','😮','😢','👍','🔥','🚀','🎉','🤝','🙌','💡','✌️'];
+
+// initialize theme
+(function initTheme(){
+  const prefer = STATE.theme || (localStorage.getItem('ultra-theme') || 'light');
+  if(prefer === 'dark') document.documentElement.classList.add('dark');
+  updateThemeIcon();
+})();
+
+function updateThemeIcon(){
+  const dark = document.documentElement.classList.contains('dark');
+  themeIcon.innerHTML = dark
+    ? '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>' // moon
+    : '<path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M12 7a5 5 0 100 10 5 5 0 000-10z"></path>'; // sun-ish
+}
+
+// render contacts
+function renderContacts(filter=''){
+  contactsList.innerHTML = '';
+  const convs = Object.values(STATE.convs);
+  // sort by last message timestamp desc
+  convs.sort((a,b)=>{
+    const ta = a.messages[a.messages.length-1]?.ts || 0;
+    const tb = b.messages[b.messages.length-1]?.ts || 0;
+    return tb - ta;
+  });
+  convs.forEach(cnv=>{
+    const contact = cnv.contact;
+    const lastMsg = cnv.messages[cnv.messages.length-1];
+    const lastText = lastMsg ? lastMsg.text : '';
+    const li = document.createElement('div');
+    li.className = 'contact' + (STATE.selected === contact.id ? ' active' : '');
+    li.setAttribute('role','listitem');
+    li.innerHTML = `
+      <div class="c-avatar" style="background: linear-gradient(135deg, ${hashColor(contact.name)}, ${shiftColor(hashColor(contact.name))});">${contact.avatar}</div>
+      <div class="c-info">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="c-name">${contact.name}</div>
+          <div style="margin-left:auto;font-size:12px;color:var(--muted);opacity:0.75">${lastMsg ? fmtTime(lastMsg.ts) : ''}</div>
         </div>
-      `).join('');
-      suggest.querySelectorAll('.row').forEach(r=>{
-        r.addEventListener('click', ()=>openWatch(r.dataset.id));
-      });
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="c-last">${lastText.length>40? lastText.slice(0,40)+'…' : lastText}</div>
+          ${contact.unread ? `<div style="margin-left:auto"><span class="badge">${contact.unread}</span></div>` : ''}
+        </div>
+      </div>
+    `;
+    if(filter && !(contact.name.toLowerCase().includes(filter.toLowerCase()) || lastText.toLowerCase().includes(filter.toLowerCase()))){
+      // skip showing
+      return;
+    }
+    li.addEventListener('click', ()=>{ selectChat(contact.id); });
+    contactsList.appendChild(li);
+  });
+}
 
-      // Show dialog
-      if(typeof watchDialog.showModal === 'function'){ watchDialog.showModal(); }
-      else { watchDialog.setAttribute('open',''); }
+// select chat
+function selectChat(id){
+  if(!STATE.convs[id]) return;
+  STATE.selected = id;
+  // mark messages as read
+  STATE.convs[id].contact.unread = 0;
+  STATE.convs[id].messages.forEach(m=>m.read = true);
+  saveState(STATE);
+  renderContacts(contactSearch.value);
+  renderChat();
+}
+
+// render chat panel
+function renderChat(){
+  messagesEl.innerHTML = '';
+  const sel = STATE.selected;
+  if(!sel || !STATE.convs[sel]) {
+    chatName.textContent = 'Select a chat';
+    chatMeta.textContent = 'No chat selected';
+    chatAvatar.textContent = 'A';
+    messagesEl.innerHTML = '<div class="muted" style="text-align:center;margin-top:50px">No chat selected — choose a contact or create a new chat.</div>';
+    return;
+  }
+  const cnv = STATE.convs[sel];
+  chatName.textContent = cnv.contact.name;
+  chatMeta.textContent = cnv.contact.last || 'Active';
+  chatAvatar.textContent = cnv.contact.avatar;
+  chatAvatar.style.background = `linear-gradient(135deg, ${hashColor(cnv.contact.name)}, ${shiftColor(hashColor(cnv.contact.name))})`;
+
+  cnv.messages.forEach(msg=>{
+    const row = document.createElement('div');
+    row.className = 'msg-row' + (msg.from === 'me' ? ' me' : '');
+    row.dataset.mid = msg.id;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble ' + (msg.from === 'me' ? 'out' : 'in');
+    bubble.innerHTML = `<div>${escapeHtml(msg.text)}</div>
+      <div class="meta-row"><div class="timestamp">${fmtTime(msg.ts)}</div>
+      ${msg.from==='me' ? `<div class="small" style="margin-left:6px">${msg.read? '✓✓' : '✓'}</div>` : ''}
+      </div>`;
+    row.appendChild(bubble);
+
+    // message actions
+    const actions = document.createElement('div');
+    actions.className = 'msg-actions';
+    const reactBtn = document.createElement('button');
+    reactBtn.className = 'icon-btn reaction';
+    reactBtn.title = 'React';
+    reactBtn.innerText = '👍';
+    reactBtn.addEventListener('click', ()=> {
+      // naive reaction append
+      msg.reaction = msg.reaction === '👍' ? null : '👍';
+      saveState(STATE);
+      renderChat();
+    });
+    actions.appendChild(reactBtn);
+
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'icon-btn';
+    moreBtn.title = 'More';
+    moreBtn.innerHTML = '⋯';
+    moreBtn.addEventListener('click', ()=> showMsgMenu(msg, row));
+    actions.appendChild(moreBtn);
+
+    row.appendChild(actions);
+
+    // show reaction if exists
+    if(msg.reaction){
+      const R = document.createElement('div');
+      R.className = 'small';
+      R.style.marginLeft = '8px';
+      R.textContent = msg.reaction;
+      row.appendChild(R);
     }
 
-    // Initial render
-    renderGrid();
-  </script>
+    messagesEl.appendChild(row);
+  });
+
+  // scroll to bottom
+  setTimeout(()=> messagesEl.scrollTop = messagesEl.scrollHeight, 40);
+}
+
+// message menu
+function showMsgMenu(msg, row){
+  // small quick menu: edit / delete / copy timestamp
+  const menu = document.createElement('div');
+  menu.style.position='absolute';
+  menu.style.background = getComputedStyle(document.documentElement).getPropertyValue('--panel');
+  menu.style.padding='8px';
+  menu.style.borderRadius='8px';
+  menu.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)';
+  menu.style.zIndex=9999;
+  menu.style.fontSize='13px';
+  menu.style.color=getComputedStyle(document.documentElement).getPropertyValue('--muted');
+  const edit = document.createElement('div'); edit.textContent='Edit message'; edit.style.padding='6px'; edit.style.cursor='pointer';
+  const del = document.createElement('div'); del.textContent='Delete message'; del.style.padding='6px'; del.style.cursor='pointer';
+  const ts = document.createElement('div'); ts.textContent='Copy timestamp'; ts.style.padding='6px'; ts.style.cursor='pointer';
+  menu.appendChild(edit); menu.appendChild(del); menu.appendChild(ts);
+
+  document.body.appendChild(menu);
+  const rect = row.getBoundingClientRect();
+  menu.style.left = (rect.right - menu.offsetWidth - 20) + 'px';
+  menu.style.top = (rect.top + window.scrollY - 10) + 'px';
+
+  const removeMenu = ()=> { if(menu && menu.parentNode) menu.parentNode.removeChild(menu); };
+
+  edit.addEventListener('click', ()=>{
+    removeMenu();
+    if(msg.from !== 'me'){ alert('You can only edit your own messages in this prototype.'); return; }
+    const newText = prompt('Edit message:', msg.text);
+    if(newText != null){ msg.text = newText; msg.edited = true; msg.ts = Date.now(); saveState(STATE); renderChat(); }
+  });
+  del.addEventListener('click', ()=>{
+    removeMenu();
+    if(confirm('Delete this message?')){
+      const cnv = STATE.convs[STATE.selected];
+      cnv.messages = cnv.messages.filter(m=>m.id !== msg.id);
+      saveState(STATE);
+      renderChat();
+    }
+  });
+  ts.addEventListener('click', ()=>{
+    navigator.clipboard?.writeText(new Date(msg.ts).toString());
+    removeMenu();
+    alert('Timestamp copied to clipboard.');
+  });
+
+  document.addEventListener('click', function onDoc(e){
+    if(!menu.contains(e.target)) { removeMenu(); document.removeEventListener('click', onDoc); }
+  });
+}
+
+// send message
+function sendMessage(text, attach=false){
+  const sel = STATE.selected;
+  if(!sel) { alert('Select a chat first.'); return; }
+  const cnv = STATE.convs[sel];
+  const id = `${sel}-m${Date.now()}`;
+  const msg = { id, from:'me', text, ts: Date.now(), read:false };
+  cnv.messages.push(msg);
+  cnv.contact.last = text;
+  cnv.contact.lastTime = msg.ts;
+  // simulate remote reply for demo
+  saveState(STATE);
+  renderContacts(contactSearch.value);
+  renderChat();
+  // simulate reply after short delay
+  setTimeout(()=>simulateReply(sel), 700 + Math.random()*1400);
+}
+
+// simulate a reply (toy)
+function simulateReply(sel){
+  const cnv = STATE.convs[sel];
+  if(!cnv) return;
+  const repli = [
+    "Nice!",
+    "Haha 😂",
+    "On it.",
+    "Perfect — thanks!",
+    "Let's do this tomorrow.",
+    "Can you share details?",
+    "Love it 🔥"
+  ];
+  const text = repli[Math.floor(Math.random()*repli.length)];
+  const id = `${sel}-m${Date.now()}`;
+  const msg = { id, from: 'them', text, ts: Date.now(), read:false };
+  cnv.messages.push(msg);
+  cnv.contact.last = text;
+  cnv.contact.lastTime = msg.ts;
+  cnv.contact.unread = (cnv.contact.unread||0) + 1;
+  saveState(STATE);
+  renderContacts(contactSearch.value);
+  // if the chat is currently selected, mark read and render
+  if(STATE.selected === sel){
+    cnv.messages.forEach(m=>m.read = true);
+    cnv.contact.unread = 0;
+  }
+  renderChat();
+}
+
+// helper: escape html
+function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+// tiny color generator based on name
+function hashColor(name){
+  // deterministic pastel hues
+  let h = 0;
+  for(let i=0;i<name.length;i++) h = name.charCodeAt(i) + ((h<<5)-h);
+  const hue = Math.abs(h) % 360;
+  return `hsl(${hue} 80% 55%)`;
+}
+function shiftColor(c){
+  // produce second color by altering lightness
+  return c.replace('55%)','65%)');
+}
+
+/* UI events */
+sendBtn.addEventListener('click', ()=>{
+  const val = input.value.trim();
+  if(!val) return;
+  sendMessage(val);
+  input.value = '';
+  input.focus();
+});
+
+// enter behavior
+input.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendBtn.click();
+  }
+});
+
+// emoji picker toggle
+let emojiOpen = false;
+emojiBtn.addEventListener('click', (e)=>{
+  emojiOpen = !emojiOpen;
+  if(emojiOpen) openEmojiPicker(); else closeEmojiPicker();
+});
+function openEmojiPicker(){
+  closeEmojiPicker();
+  const picker = document.createElement('div');
+  picker.id = emojiPickerId;
+  picker.className = 'emoji-picker';
+  EMOJIS.forEach(em=>{
+    const b = document.createElement('div');
+    b.className = 'emoji';
+    b.textContent = em;
+    b.addEventListener('click', ()=>{ input.value += em; input.focus(); closeEmojiPicker(); });
+    picker.appendChild(b);
+  });
+  document.body.appendChild(picker);
+  // position near emojiBtn
+  const rect = emojiBtn.getBoundingClientRect();
+  picker.style.left = (rect.right - picker.offsetWidth) + 'px';
+  picker.style.top = (rect.top + window.scrollY - picker.offsetHeight - 8) + 'px';
+}
+function closeEmojiPicker(){
+  const old = document.getElementById(emojiPickerId);
+  if(old) old.remove();
+  emojiOpen = false;
+}
+
+// attach (simulated)
+attachBtn.addEventListener('click', ()=>{
+  const file = prompt('Simulate attach: enter a short filename (e.g., report.pdf)');
+  if(file){
+    sendMessage(`[file: ${file}]`, true);
+  }
+});
+
+// theme toggle
+themeToggle.addEventListener('click', ()=>{
+  const dark = document.documentElement.classList.toggle('dark');
+  STATE.theme = dark ? 'dark' : 'light';
+  localStorage.setItem('ultra-theme', STATE.theme);
+  updateThemeIcon();
+  saveState(STATE);
+});
+
+// search
+contactSearch.addEventListener('input', (e)=> renderContacts(e.target.value) );
+
+// new chat
+newChatBtn.addEventListener('click', ()=>{
+  const nm = prompt('New chat — enter contact name:');
+  if(!nm) return;
+  const id = 'c' + Math.floor(Math.random()*1000000);
+  const contact = { id, name: nm, avatar: nm.split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase(), unread:0, lastTime: Date.now() };
+  STATE.convs[id] = { contact, messages: [ { id: `${id}-m1`, from:'them', text: 'Hey, I joined Ultra Telegram!', ts: Date.now(), read: false } ]};
+  STATE.selected = id;
+  saveState(STATE);
+  renderContacts(contactSearch.value);
+  renderChat();
+});
+
+// initial render
+(function bootstrap(){
+  // ensure sample convs present if none
+  const k = Object.keys(STATE.convs).length;
+  if(k === 0){
+    SAMPLE.forEach((c)=>{
+      STATE.convs[c.id] = { contact: c, messages:[ { id: `${c.id}-m1`, from:'them', text:c.last, ts:c.lastTime, read:false } ] };
+    });
+    STATE.selected = SAMPLE[0].id;
+    saveState(STATE);
+  }
+  renderContacts();
+  if(!STATE.selected) STATE.selected = Object.keys(STATE.convs)[0];
+  renderChat();
+})();
+
+/* Accessibility: focus composer */
+input.addEventListener('focus', ()=> {
+  // small visual cue if needed
+});
+
+/* Save on unload */
+window.addEventListener('beforeunload', ()=> saveState(STATE));
+
+</script>
 </body>
 </html>
