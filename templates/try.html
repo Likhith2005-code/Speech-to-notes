@@ -3,514 +3,626 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Netflix — Demo</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<title>Ultra Messenger — Single File</title>
 <style>
   :root{
-    --bg:#071021;
-    --card:#0f1720;
-    --muted:#9aa7b3;
-    --accent:#e50914; /* Netflix red */
-    --glass: rgba(255,255,255,0.04);
-    --glass-2: rgba(255,255,255,0.02);
+    --bg:#0f1724;
+    --panel:#0b1220;
+    --muted:#98a0b3;
+    --accent:#6ee7b7;
+    --accent-2:#60a5fa;
+    --me:#1f2a44;
+    --them:#111827;
+    --glass: rgba(255,255,255,0.03);
+    --success: #10b981;
+    --danger: #ef4444;
+    --max-width:1100px;
     --radius:12px;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
     margin:0;
-    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: linear-gradient(180deg,#051223 0%, #071021 40%, #02050a 100%);
-    color:#e6eef6;
+    background:linear-gradient(180deg,#071029 0%, #071018 60%), var(--bg);
+    color:#e6eef8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
     -webkit-font-smoothing:antialiased;
     -moz-osx-font-smoothing:grayscale;
-    overflow-y:scroll;
   }
 
-  /* Header */
-  header{
-    position:sticky;
-    top:0;
-    z-index:60;
-    backdrop-filter: blur(8px);
-    background: linear-gradient(180deg, rgba(5,10,20,0.7), rgba(5,10,20,0.2));
-    padding:12px 24px;
+  .app {
+    width:100%;
+    max-width: var(--max-width);
+    height: calc(100vh - 40px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 14px;
+    display:grid;
+    grid-template-columns: 320px 1fr;
+    overflow:hidden;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+
+  /* Sidebar */
+  .sidebar{
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border-right: 1px solid rgba(255,255,255,0.03);
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .brand{
     display:flex;
     align-items:center;
-    gap:18px;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+    gap:12px;
   }
   .logo{
+    width:46px;height:46px;border-radius:10px;
+    display:grid;place-items:center;font-weight:700;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    color: #042028; font-size:16px;
+    box-shadow: 0 4px 12px rgba(96,165,250,0.12), inset 0 -2px 6px rgba(0,0,0,0.15);
+  }
+  .brand h1{font-size:16px;margin:0}
+  .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+  .searchbox{
     display:flex;
+    gap:8px;
     align-items:center;
+    background:var(--glass);
+    padding:8px;
+    border-radius:10px;
+  }
+  .searchbox input{
+    border:0;background:transparent;color:inherit;outline:none;width:100%;
+    font-size:13px;
+  }
+
+  .conversations{
+    overflow:auto;
+    padding-right:6px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .conv-item{
+    display:flex;
     gap:10px;
+    align-items:center;
+    padding:10px;
+    border-radius:10px;
     cursor:pointer;
   }
-  .logo .mark{
-    width:38px;height:38px;border-radius:6px;
-    background:linear-gradient(135deg,var(--accent), #FF3B3B);
-    display:flex;align-items:center;justify-content:center;font-weight:900;color:white;
-    box-shadow: 0 6px 20px rgba(229,9,20,0.18);
-  }
-  .logo h1{margin:0;font-size:18px;letter-spacing:0.4px}
-  nav{display:flex;gap:12px;align-items:center;margin-left:8px}
-  nav a{color:var(--muted);text-decoration:none;font-size:14px;padding:8px;border-radius:8px}
-  nav a:hover{color:white;background:var(--glass)}
-  .spacer{flex:1}
-  .search{
-    position:relative;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:var(--glass-2);
-    border-radius:999px;
-    padding:8px 12px;
-    min-width:220px;
-    max-width:480px;
-  }
-  .search input{
-    background:transparent;border:0;outline:0;color:inherit;font-size:14px;width:100%;
-  }
-  .user{
-    display:flex;gap:12px;align-items:center;margin-left:12px;
-  }
+  .conv-item:hover{background: rgba(255,255,255,0.015)}
+  .conv-item.active{background: linear-gradient(90deg, rgba(96,165,250,0.08), rgba(110,231,183,0.03)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);}
   .avatar{
-    width:40px;height:40px;border-radius:8px;background:linear-gradient(180deg,#2b2f36,#1a1f26);display:flex;align-items:center;justify-content:center;font-weight:700;color:#e6eef6;
+    width:44px;height:44px;border-radius:10px;background:#0b1220;display:grid;place-items:center;font-weight:700;
+    color:var(--accent-2);
+    flex:0 0 44px;
+  }
+  .conv-main{flex:1;min-width:0}
+  .conv-main h3{margin:0;font-size:14px}
+  .conv-main p{margin:4px 0 0 0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .conv-meta{font-size:12px;color:var(--muted);flex-shrink:0}
+
+  .footer-short{
+    margin-top:auto;
+    font-size:12px;color:var(--muted);
+    display:flex;justify-content:space-between;align-items:center;
   }
 
-  /* Hero carousel */
-  .hero{
-    position:relative;
-    margin:18px 24px;
-    border-radius:14px;
-    overflow:hidden;
-    min-height:380px;
+  /* Chat area */
+  .chat{
     display:flex;
-    align-items:flex-end;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    flex-direction:column;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
   }
-  .hero .slide{
-    position:absolute;inset:0;background-size:cover;background-position:center center;transition:opacity 0.8s ease, transform 0.8s ease;opacity:0;
-    transform:scale(1.03);
+  .chat-header{
+    display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.02);
   }
-  .hero .slide.active{opacity:1;transform:scale(1)}
-  .hero .overlay{
-    position:relative;z-index:3;padding:34px 40px;background:linear-gradient(180deg, transparent 20%, rgba(2,6,10,0.7) 55%, rgba(2,6,10,0.95) 100%);
-    width:100%;
-    display:flex;align-items:flex-end;gap:24px;
-  }
-  .hero .meta{max-width:740px}
-  .hero h2{margin:0 0 8px 0;font-size:36px;letter-spacing:-0.6px}
-  .hero p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
-  .hero .cta{margin-top:16px;display:flex;gap:12px}
-  .btn{
-    border:0;padding:12px 16px;border-radius:8px;font-weight:600;cursor:pointer;
-    display:inline-flex;gap:10px;align-items:center;justify-content:center;
-  }
-  .btn.play{background:white;color:#071021}
-  .btn.info{background:transparent;border:1px solid rgba(255,255,255,0.12);color:white}
+  .chat-header .title{font-size:16px;margin:0}
+  .chat-header .sub{font-size:12px;color:var(--muted)}
+  .header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
 
-  /* Page content */
-  .container{padding:18px 24px 80px}
-  .row{margin-bottom:20px}
-  .row h3{margin:6px 8px 12px 8px}
-  .cards{
-    display:grid;
-    grid-template-columns: repeat(auto-fill,minmax(140px,1fr));
+  .messages{
+    padding:18px;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
     gap:12px;
-    align-items:start;
+    background-image: linear-gradient(transparent 0 48px, rgba(255,255,255,0.00) 48px);
+    flex:1;
   }
-  .card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:10px;overflow:hidden;position:relative;cursor:pointer;
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
-    min-height:210px;
+  .day-sep{
+    display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;
+    justify-content:center;
   }
-  .card:hover{transform:translateY(-8px);box-shadow: 0 20px 50px rgba(2,6,10,0.6)}
-  .poster{
-    width:100%;padding-top:56.25%; /* 16:9 */
-    background-size:cover;background-position:center;
+  .bubble{
+    max-width:68%;
+    padding:12px 14px;
+    border-radius:14px;
+    position:relative;
+    line-height:1.35;
+    font-size:14px;
+    word-break:break-word;
   }
-  .card .meta{
-    padding:10px;
+  .msg.me{align-self:flex-end;background:linear-gradient(180deg,var(--me),#16243b); color:#cfeef0;border-bottom-right-radius:6px}
+  .msg.them{align-self:flex-start;background:linear-gradient(180deg,var(--them),#0f1724); color:#e6eef8;border-bottom-left-radius:6px}
+  .meta{
+    display:flex;gap:8px;align-items:center;margin-top:6px;font-size:12px;color:var(--muted);
   }
-  .title{font-weight:700;font-size:14px;margin:0 0 6px 0}
-  .sub{font-size:12px;color:var(--muted)}
+  .msg-row{display:flex;gap:8px;align-items:flex-end;}
+  .msg-row.me{justify-content:flex-end}
+  .msg-actions{
+    display:flex;gap:6px;margin-left:6px;
+    opacity:0;transition:opacity .12s;
+  }
+  .msg:hover .msg-actions{opacity:1}
+  .action-btn{background:transparent;border:0;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px}
+  .action-btn:hover{background:rgba(255,255,255,0.02)}
 
-  /* hover overlay quick actions */
-  .card .hover-actions{
-    position:absolute;left:10px;right:10px;bottom:70px;opacity:0;pointer-events:none;transition:opacity 0.18s ease;
-    display:flex;gap:8px;
+  .composer{
+    padding:12px 16px;border-top:1px solid rgba(255,255,255,0.02);display:flex;gap:12px;align-items:center;
   }
-  .card:hover .hover-actions{opacity:1;pointer-events:auto}
-  .pill{background:rgba(0,0,0,0.55);padding:8px;border-radius:999px;font-size:13px}
-
-  /* modal */
-  .modal-backdrop{
-    position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:120;
+  .input{
+    background:transparent;border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;flex:1;min-height:44px;display:flex;gap:8px;align-items:center;
   }
-  .modal{
-    width:min(1000px,95%);background:#06070a;border-radius:12px;overflow:hidden;
-    box-shadow:0 40px 120px rgba(0,0,0,0.7);
+  .input textarea{flex:1;border:0;background:transparent;color:inherit;outline:none;resize:none;font-size:14px;padding:6px 4px}
+  .send-btn{
+    background:linear-gradient(90deg,var(--accent-2),var(--accent));padding:10px 14px;border-radius:10px;border:0;color:#042028;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 18px rgba(6,32,63,0.45);
   }
-  .modal .player{
-    aspect-ratio:16/9;background:linear-gradient(90deg,#111,#000);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
-  }
-  .modal .meta{padding:18px}
-  .close-btn{position:absolute;right:18px;top:18px;background:rgba(0,0,0,0.3);border-radius:8px;padding:8px;cursor:pointer;border:0;color:white}
 
   /* small screens */
-  @media (max-width:720px){
-    .hero{min-height:260px}
-    .hero h2{font-size:22px}
-    .cards{grid-template-columns: repeat(auto-fill,minmax(120px,1fr))}
-    header{padding:10px 14px}
-    .search{display:none}
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr; height:calc(100vh - 20px)}
+    .sidebar{display:none}
   }
 
-  /* tiny details */
-  .muted-note{color:var(--muted);font-size:13px;margin-top:8px}
-  .controls{
-    display:flex;gap:8px;align-items:center;
+  /* nice small UI touches */
+  .small{
+    font-size:12px;color:var(--muted)
   }
-  .carousel-dots{
-    position:absolute;left:24px;bottom:20px;display:flex;gap:8px;z-index:5;
-  }
-  .carousel-dots button{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.18);border:0}
-  .carousel-dots button.active{background:white}
+  .file-preview{display:flex;gap:8px;align-items:center}
+  .preview-thumb{width:58px;height:44px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.03)}
+  .pill{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:12px}
 </style>
 </head>
 <body>
-
-<header role="banner" aria-label="Ultra Netflix header">
-  <div class="logo" onclick="location.reload()">
-    <div class="mark">UN</div>
-    <h1>Ultra Netflix</h1>
-  </div>
-
-  <nav aria-label="Main navigation">
-    <a href="#" onclick="event.preventDefault()">Home</a>
-    <a href="#" onclick="event.preventDefault()">TV Shows</a>
-    <a href="#" onclick="event.preventDefault()">Movies</a>
-    <a href="#" onclick="event.preventDefault()">My List</a>
-  </nav>
-
-  <div class="spacer"></div>
-
-  <div class="search" role="search" aria-label="Site search">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden style="opacity:.8"><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/></svg>
-    <input id="searchInput" placeholder="Search movies, actors, genres..." aria-label="Search movies">
-  </div>
-
-  <div class="user" role="navigation" aria-label="User">
-    <button class="btn info" onclick="toggleNightMode()" title="Toggle theme">Night</button>
-    <div class="avatar" title="Profile">L</div>
-  </div>
-</header>
-
-<main>
-  <section class="hero" aria-label="Featured carousel">
-    <!-- slides inserted by JS -->
-    <div class="overlay">
-      <div class="meta">
-        <h2 id="heroTitle">Loading...</h2>
-        <p id="heroDesc">Loading description...</p>
-        <div class="cta">
-          <button class="btn play" id="heroPlayBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 3v18l15-9L5 3z" fill="currentColor"/></svg> Play</button>
-          <button class="btn info" id="heroMoreBtn">More info</button>
+  <div class="app" role="application" aria-label="Ultra Messenger app">
+    <aside class="sidebar" aria-label="Sidebar with conversations">
+      <div class="brand" role="banner">
+        <div class="logo" aria-hidden="true">UM</div>
+        <div>
+          <h1>Ultra Messenger</h1>
+          <p class="small">Fast, local & privacy-friendly</p>
         </div>
-        <div class="muted-note">Recommended for you • 4k HDR available</div>
       </div>
-    </div>
-    <div class="carousel-dots" id="dots"></div>
-  </section>
 
-  <div class="container" id="content">
-    <!-- rows inserted by JS -->
-  </div>
-</main>
+      <div class="searchbox" title="Search conversations or messages">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+        <input id="global-search" placeholder="Search messages or contacts..." aria-label="Search messages or contacts">
+      </div>
 
-<!-- modal for player/details -->
-<div class="modal-backdrop" id="backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Player window">
-    <button class="close-btn" id="closeModal" aria-label="Close player">✕</button>
-    <div class="player" id="playerArea">Playing: —</div>
-    <div class="meta">
-      <h3 id="playerTitle">Title</h3>
-      <p id="playerDesc" class="muted-note">Description</p>
-    </div>
+      <div class="conversations" id="conversations" role="list" aria-label="Conversation list">
+        <!-- conversation items rendered here -->
+      </div>
+
+      <div class="footer-short">
+        <div class="small">Local-only · no servers</div>
+        <div class="pill">v1.0</div>
+      </div>
+    </aside>
+
+    <main class="chat" aria-live="polite">
+      <header class="chat-header">
+        <div class="avatar" id="chat-avatar" aria-hidden="true">AL</div>
+        <div>
+          <h2 class="title" id="chat-title">Alex</h2>
+          <div class="sub small" id="chat-sub">Online</div>
+        </div>
+        <div class="header-actions" role="toolbar" aria-label="Chat actions">
+          <button id="btn-clear" class="action-btn" title="Clear conversation">Clear</button>
+          <button id="btn-export" class="action-btn" title="Export conversation">Export</button>
+        </div>
+      </header>
+
+      <section class="messages" id="messages" tabindex="0" aria-label="Messages">
+        <!-- messages rendered here -->
+      </section>
+
+      <form class="composer" id="composer" onsubmit="return false" aria-label="Message composer">
+        <label for="file-input" class="action-btn" title="Attach image">
+          📎
+        </label>
+        <input id="file-input" type="file" accept="image/*" style="display:none" />
+        <div class="input" role="textbox" aria-multiline="true">
+          <textarea id="message-input" placeholder="Write a message..." rows="1" aria-label="Write a message"></textarea>
+        </div>
+        <button id="send-btn" class="send-btn" aria-label="Send message" title="Send message">Send</button>
+      </form>
+    </main>
   </div>
-</div>
 
 <script>
-/* ============= Sample Data ============= */
-const movies = [
-  {
-    id:1, title: "The Last Ember",
-    year:2024,
-    desc: "A reluctant hero must ignite hope when the city of Ardent goes dark.",
-    genres:["Action","Adventure"],
-    poster:"https://images.unsplash.com/photo-1542204165-4abde1d0a1cb?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=0a1abf1a5b6d9f8c4aef1fb9e3f0b2ad"
-  },
-  {
-    id:2, title: "Midnight Choir",
-    year:2023,
-    desc: "A choir's harmonies awaken secrets buried in the town's cemetery.",
-    genres:["Horror","Mystery"],
-    poster:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=3879f0f6a4a2c3bb0f6a5ef7b3c2c840"
-  },
-  {
-    id:3, title: "Orbitals",
-    year:2025,
-    desc: "A small crew tests humanity's limits on the first commercial orbital habitats.",
-    genres:["Sci-Fi","Drama"],
-    poster:"https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a45f2b0f6a2d5d0d3c8d45faaf7a3cb"
-  },
-  {
-    id:4, title: "Neon Runners",
-    year:2022,
-    desc: "Under a neon sky, illegal courier races become the city's most watched sport.",
-    genres:["Action","Sport"],
-    poster:"https://images.unsplash.com/photo-1495562569060-2eec283d3391?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=21a3cf2bc3f89f7db4f6c2c4df0a866a"
-  },
-  {
-    id:5, title: "Window Seat",
-    year:2021,
-    desc: "A quiet look at the lives changed by a single overnight flight.",
-    genres:["Drama","Romance"],
-    poster:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=7b0d3d21d8b7b8f0d2b4a2d9b5f5a6d4"
-  },
-  {
-    id:6, title: "Coded Hearts",
-    year:2020,
-    desc: "Two programmers fall in love while working on a world-changing algorithm.",
-    genres:["Romance","Sci-Fi"],
-    poster:"https://images.unsplash.com/photo-1518779578993-ec3579fee39f?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=0d9b4b6fb8c7e1d2b3a4c1f2b6a9d3d8"
-  },
-  {
-    id:7, title: "Green Horizon",
-    year:2024,
-    desc: "A community fights to reclaim a forest under threat from corporate expansion.",
-    genres:["Documentary"],
-    poster:"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=8883b3f8f3d9fbbd9ae6b2b3c2a4f1c2"
+/*
+ Ultra Messenger
+ Single-file demo: UI + behavior
+*/
+(() => {
+  // Utilities
+  const qs = s => document.querySelector(s);
+  const qsa = s => Array.from(document.querySelectorAll(s));
+  const formatTime = ts => {
+    const d = new Date(ts);
+    const hh = d.getHours().toString().padStart(2,'0');
+    const mm = d.getMinutes().toString().padStart(2,'0');
+    return hh + ':' + mm;
   }
-];
+  const uid = () => Math.random().toString(36).slice(2,9);
 
-/* featured slides: we will use the first 3 as hero slides */
-const heroSlides = movies.slice(0,3);
+  // DOM
+  const conversationsEl = qs('#conversations');
+  const messagesEl = qs('#messages');
+  const inputEl = qs('#message-input');
+  const sendBtn = qs('#send-btn');
+  const fileInput = qs('#file-input');
+  const searchInput = qs('#global-search');
+  const chatTitle = qs('#chat-title');
+  const chatSub = qs('#chat-sub');
+  const chatAvatar = qs('#chat-avatar');
+  const btnClear = qs('#btn-clear');
+  const btnExport = qs('#btn-export');
 
-/* ============= Build UI ============= */
-const heroEl = document.querySelector('.hero');
-const heroTitle = document.getElementById('heroTitle');
-const heroDesc = document.getElementById('heroDesc');
-const heroPlayBtn = document.getElementById('heroPlayBtn');
-const heroMoreBtn = document.getElementById('heroMoreBtn');
-const dotsEl = document.getElementById('dots');
+  // Data model in localStorage
+  const STORAGE_KEY = 'ultramessenger.v1';
+  let store = {
+    conversations: [],
+    selectedId: null
+  };
 
-let activeHero = 0;
-let heroInterval;
-
-/* create slides */
-heroSlides.forEach((s, idx) => {
-  const slide = document.createElement('div');
-  slide.className = 'slide';
-  slide.style.backgroundImage = `linear-gradient(180deg, rgba(2,6,10,0.1), rgba(2,6,10,0.6)), url(${s.poster})`;
-  slide.dataset.index = idx;
-  if(idx === 0) slide.classList.add('active');
-  heroEl.insertBefore(slide, heroEl.querySelector('.overlay'));
-
-  const btn = document.createElement('button');
-  btn.title = `Go to slide ${idx+1}`;
-  btn.addEventListener('click', ()=> setHero(idx));
-  if(idx===0) btn.classList.add('active');
-  dotsEl.appendChild(btn);
-});
-
-function setHero(i){
-  const slides = document.querySelectorAll('.slide');
-  slides.forEach(s => s.classList.remove('active'));
-  slides[i].classList.add('active');
-  activeHero = i;
-  updateHeroMeta();
-  // update dots
-  [...dotsEl.children].forEach((b,idx)=> b.classList.toggle('active', idx===i));
-}
-
-function updateHeroMeta(){
-  const s = heroSlides[activeHero];
-  heroTitle.textContent = s.title + ' ('+s.year+')';
-  heroDesc.textContent = s.desc;
-}
-function startHeroAuto(){
-  heroInterval = setInterval(()=> {
-    let next = (activeHero+1) % heroSlides.length;
-    setHero(next);
-  }, 5000);
-}
-function stopHeroAuto(){
-  clearInterval(heroInterval);
-}
-updateHeroMeta();
-startHeroAuto();
-
-/* pause on hover */
-heroEl.addEventListener('mouseenter', stopHeroAuto);
-heroEl.addEventListener('mouseleave', startHeroAuto);
-
-/* ============= Build content rows ============= */
-const content = document.getElementById('content');
-
-function createRow(title, items){
-  const row = document.createElement('section');
-  row.className = 'row';
-  const h = document.createElement('h3');
-  h.textContent = title;
-  row.appendChild(h);
-
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  items.forEach(m=>{
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.tabIndex = 0;
-    card.setAttribute('role','button');
-    card.setAttribute('aria-label', m.title + ', open details');
-
-    const poster = document.createElement('div');
-    poster.className = 'poster';
-    poster.style.backgroundImage = `url(${m.poster})`;
-    card.appendChild(poster);
-
-    const hoverWrap = document.createElement('div');
-    hoverWrap.className = 'hover-actions';
-    const playPill = document.createElement('button');
-    playPill.className = 'pill';
-    playPill.textContent = '▶ Play';
-    playPill.onclick = (e)=> { e.stopPropagation(); openPlayer(m); };
-    const infoPill = document.createElement('button');
-    infoPill.className = 'pill';
-    infoPill.textContent = 'ℹ️ Info';
-    infoPill.onclick = (e)=> { e.stopPropagation(); openDetails(m); };
-    hoverWrap.appendChild(playPill);
-    hoverWrap.appendChild(infoPill);
-    card.appendChild(hoverWrap);
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    const t = document.createElement('div'); t.className = 'title'; t.textContent = m.title;
-    const s = document.createElement('div'); s.className = 'sub'; s.textContent = m.year + ' • ' + m.genres.join(', ');
-    meta.appendChild(t); meta.appendChild(s);
-    card.appendChild(meta);
-
-    // click opens details
-    card.addEventListener('click', ()=> openDetails(m));
-    // keyboard support
-    card.addEventListener('keydown', (ev)=>{
-      if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openDetails(m); }
-    });
-
-    grid.appendChild(card);
-  });
-
-  row.appendChild(grid);
-  return row;
-}
-
-/* create a couple of rows */
-content.appendChild(createRow('Popular on Ultra', movies));
-content.appendChild(createRow('Trending Now', movies.slice().reverse()));
-content.appendChild(createRow('Because you watched "Orbitals"', movies.filter(m => m.genres.includes('Sci-Fi'))));
-
-/* ============= Modal / Player ============= */
-const backdrop = document.getElementById('backdrop');
-const playerArea = document.getElementById('playerArea');
-const playerTitle = document.getElementById('playerTitle');
-const playerDesc = document.getElementById('playerDesc');
-const closeModalBtn = document.getElementById('closeModal');
-const heroPlay = document.getElementById('heroPlayBtn');
-const heroMore = document.getElementById('heroMoreBtn');
-
-function openPlayer(item){
-  backdrop.style.display = 'flex';
-  backdrop.setAttribute('aria-hidden','false');
-  playerArea.textContent = 'Playing — ' + item.title;
-  playerTitle.textContent = item.title + ' • ' + item.year;
-  playerDesc.textContent = item.desc;
-  // simulate video by showing an animated spinner or text
-  document.body.style.overflow = 'hidden';
-}
-function openDetails(item){
-  // show details in modal
-  backdrop.style.display = 'flex';
-  backdrop.setAttribute('aria-hidden','false');
-  playerArea.textContent = 'Trailer • ' + item.title;
-  playerTitle.textContent = item.title + ' • ' + item.year;
-  playerDesc.textContent = item.desc + ' • Genres: ' + item.genres.join(', ');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal(){
-  backdrop.style.display = 'none';
-  backdrop.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-}
-closeModalBtn.addEventListener('click', closeModal);
-backdrop.addEventListener('click', (e)=> { if(e.target === backdrop) closeModal(); });
-document.addEventListener('keydown', (e)=> { if(e.key === 'Escape') closeModal(); });
-
-/* wire hero play/more */
-heroPlayBtn.addEventListener('click', ()=> openPlayer(heroSlides[activeHero]));
-heroMoreBtn.addEventListener('click', ()=> openDetails(heroSlides[activeHero]));
-
-/* ============= Search ============= */
-const searchInput = document.getElementById('searchInput');
-searchInput.addEventListener('input', (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if(!q){
-    // reset rows
-    content.innerHTML = '';
-    content.appendChild(createRow('Popular on Ultra', movies));
-    content.appendChild(createRow('Trending Now', movies.slice().reverse()));
-    content.appendChild(createRow('Because you watched "Orbitals"', movies.filter(m => m.genres.includes('Sci-Fi'))));
-    return;
+  // Seed example if empty
+  function seed() {
+    const sampleConv = {
+      id: 'conv-alex',
+      name: 'Alex Johnson',
+      initials: 'AJ',
+      lastSeen: Date.now() - 1000*60*7,
+      messages: [
+        { id: uid(), sender: 'them', text: "Hey — did you try the new demo?", ts: Date.now() - 1000*60*60 },
+        { id: uid(), sender: 'me', text: "Not yet. Let's try it now!", ts: Date.now() - 1000*60*57 },
+        { id: uid(), sender: 'them', text: "Cool — I'll send a screenshot.", ts: Date.now() - 1000*60*55 }
+      ]
+    };
+    const other = {
+      id: 'conv-zoe',
+      name: 'Zoe Chen',
+      initials: 'ZC',
+      lastSeen: Date.now() - 1000*60*60*24,
+      messages: [
+        { id: uid(), sender:'them', text: "Meeting at 3pm? Confirm.", ts: Date.now() - 1000*60*60*6 }
+      ]
+    };
+    store.conversations = [sampleConv, other];
+    store.selectedId = sampleConv.id;
+    save();
   }
-  // filter
-  const filtered = movies.filter(m => (m.title + ' ' + m.desc + ' ' + m.genres.join(' ')).toLowerCase().includes(q));
-  content.innerHTML = '';
-  content.appendChild(createRow(`Search results for "${q}"`, filtered.length ? filtered : []));
-});
 
-/* Night mode toggle demonstration (only toggles minor palette) */
-function toggleNightMode(){
-  document.body.classList.toggle('dim');
-  // small playful effect
-  const b = document.querySelector('header');
-  b.animate([{transform:'translateY(-6px)'},{transform:'translateY(0)'}], {duration:220});
-}
-
-/* Accessibility: focus trap basic (for simplicity) */
-backdrop.addEventListener('keydown', (e)=> {
-  if(e.key === 'Tab'){
-    // keep focus inside modal generically
-    const focusables = backdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if(focusables.length){
-      const first = focusables[0];
-      const last = focusables[focusables.length -1];
-      if(e.shiftKey && document.activeElement === first){ last.focus(); e.preventDefault(); }
-      else if(!e.shiftKey && document.activeElement === last){ first.focus(); e.preventDefault(); }
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); }
+  function load(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw){
+      try{
+        store = JSON.parse(raw);
+      }catch(e){
+        console.error('corrupt store, resetting', e);
+        localStorage.removeItem(STORAGE_KEY);
+        seed();
+      }
+    } else {
+      seed();
     }
   }
-});
 
-/* small enhancement: lazy load posters (progressive) — prefetch small inline tinted backgrounds */
-document.addEventListener('DOMContentLoaded', ()=>{
-  document.querySelectorAll('.poster').forEach(p=>{
-    const img = new Image();
-    const url = p.style.backgroundImage.slice(5,-2);
-    img.src = url;
-    img.onload = ()=> p.style.backgroundImage = `url(${url})`;
+  // Rendering
+  function renderConversations(filter=''){
+    conversationsEl.innerHTML = '';
+    const list = store.conversations
+      .map(c => ({
+        ...c,
+        lastMsg: c.messages[c.messages.length-1],
+        lastTs: c.messages.length ? c.messages[c.messages.length-1].ts : c.lastSeen
+      }))
+      .sort((a,b) => b.lastTs - a.lastTs);
+
+    const filtered = list.filter(c => {
+      const q = filter.trim().toLowerCase();
+      if(!q) return true;
+      if (c.name.toLowerCase().includes(q)) return true;
+      return c.messages.some(m => (m.text || '').toLowerCase().includes(q));
+    });
+
+    for(const conv of filtered){
+      const item = document.createElement('div');
+      item.className = 'conv-item' + (conv.id===store.selectedId ? ' active' : '');
+      item.dataset.id = conv.id;
+      item.setAttribute('role','listitem');
+
+      item.innerHTML = `
+        <div class="avatar" aria-hidden="true">${conv.initials || conv.name.split(' ').map(s=>s[0]).join('').slice(0,2)}</div>
+        <div class="conv-main">
+          <h3>${escapeHtml(conv.name)}</h3>
+          <p>${conv.lastMsg ? escapeHtml(truncate(conv.lastMsg.text || '[attachment]', 46)) : '<span class="small">No messages</span>'}</p>
+        </div>
+        <div class="conv-meta small">${conv.lastMsg ? formatTime(conv.lastMsg.ts) : ''}</div>
+      `;
+      item.addEventListener('click', () => {
+        store.selectedId = conv.id; save(); renderAll();
+      });
+      conversationsEl.appendChild(item);
+    }
+  }
+
+  function renderMessages(scrollToBottom=true){
+    messagesEl.innerHTML = '';
+    const conv = store.conversations.find(c => c.id === store.selectedId);
+    if(!conv){ messagesEl.innerHTML = '<div class="small">No conversation selected</div>'; return; }
+
+    chatTitle.textContent = conv.name;
+    chatAvatar.textContent = conv.initials || conv.name.split(' ').map(s=>s[0]).join('').slice(0,2);
+    chatSub.textContent = 'Online · last active ' + new Date(conv.lastSeen).toLocaleString();
+
+    // Group by day
+    let lastDay = null;
+    conv.messages.forEach(msg => {
+      const d = new Date(msg.ts);
+      const day = d.toDateString();
+      if (day !== lastDay){
+        lastDay = day;
+        const sep = document.createElement('div');
+        sep.className = 'day-sep';
+        sep.textContent = d.toLocaleDateString();
+        messagesEl.appendChild(sep);
+      }
+
+      const row = document.createElement('div');
+      row.className = 'msg-row ' + (msg.sender === 'me' ? 'me' : 'them');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble msg ' + (msg.sender === 'me' ? 'me' : 'them');
+      bubble.innerHTML = renderMessageBody(msg);
+
+      const meta = document.createElement('div');
+      meta.className = 'meta small';
+      meta.innerHTML = `<span>${formatTime(msg.ts)}</span>`;
+
+      // actions
+      const actions = document.createElement('div');
+      actions.className = 'msg-actions';
+      actions.innerHTML = `
+        <button class="action-btn" title="Edit">✏️</button>
+        <button class="action-btn" title="Delete">🗑️</button>
+        <button class="action-btn" title="Copy">📋</button>
+      `;
+      // wire actions
+      const [editBtn, delBtn, copyBtn] = actions.querySelectorAll('button');
+      editBtn.addEventListener('click', () => startEdit(msg.id));
+      delBtn.addEventListener('click', () => {
+        if(confirm('Delete this message?')){
+          deleteMessage(msg.id);
+        }
+      });
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText(msg.text || '[attachment]').then(()=> alert('Copied'));
+      });
+
+      bubble.appendChild(meta);
+      bubble.appendChild(actions);
+      row.appendChild(bubble);
+      messagesEl.appendChild(row);
+    });
+
+    if(scrollToBottom){
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+  }
+
+  function renderMessageBody(msg){
+    // supports text and optional image dataURL
+    let html = '';
+    if (msg.image){
+      html += `<div class="file-preview"><img class="preview-thumb" src="${msg.image}" alt="Attached image"></div>`;
+    }
+    if (msg.text){
+      html += `<div>${escapeHtml(msg.text).replace(/\n/g,'<br>')}</div>`;
+    }
+    return html || '<em>(empty)</em>';
+  }
+
+  function renderAll(){
+    renderConversations(searchInput.value);
+    renderMessages();
+  }
+
+  // Actions
+  function addMessage(convId, message){
+    const conv = store.conversations.find(c => c.id === convId);
+    if(!conv) return;
+    conv.messages.push(message);
+    conv.lastSeen = message.ts;
+    save();
+    renderAll();
+  }
+
+  function deleteMessage(msgId){
+    const conv = store.conversations.find(c => c.id === store.selectedId);
+    if(!conv) return;
+    conv.messages = conv.messages.filter(m => m.id !== msgId);
+    save(); renderAll();
+  }
+
+  function startEdit(msgId){
+    const conv = store.conversations.find(c => c.id === store.selectedId);
+    const msg = conv.messages.find(m => m.id === msgId);
+    if(!msg) return;
+    // populate composer with message text for edit
+    inputEl.value = msg.text || '';
+    inputEl.focus();
+    // change send button to "Save"
+    sendBtn.textContent = 'Save';
+    sendBtn.dataset.editing = msgId;
+  }
+
+  function applyEdit(convId, msgId, newText){
+    const conv = store.conversations.find(c => c.id === convId);
+    const msg = conv.messages.find(m => m.id === msgId);
+    if(!msg) return;
+    msg.text = newText;
+    msg.edited = true;
+    msg.ts = Date.now(); // update timestamp to now
+    save();
+    renderAll();
+    sendBtn.textContent = 'Send';
+    delete sendBtn.dataset.editing;
+  }
+
+  function sendMessageFromComposer(imageData=null){
+    const text = inputEl.value.trim();
+    const isEditing = sendBtn.dataset.editing;
+    if (isEditing){
+      applyEdit(store.selectedId, isEditing, inputEl.value);
+      inputEl.value = '';
+      return;
+    }
+
+    if (!text && !imageData) return;
+    const message = {
+      id: uid(),
+      sender: 'me',
+      text: text || '',
+      image: imageData || null,
+      ts: Date.now()
+    };
+    addMessage(store.selectedId, message);
+    inputEl.value = '';
+    fileInput.value = '';
+
+    // simulate a typing reply for demo if sending to "them"
+    simulateReply(store.selectedId);
+  }
+
+  function simulateReply(convId){
+    // A quick simulated reply — not necessary but makes UI feel alive.
+    // Keep it short and optional
+    const conv = store.conversations.find(c => c.id === convId);
+    if(!conv) return;
+    // show typing indicator
+    const typingId = 'typing-' + uid();
+    const typingMsg = { id: typingId, sender: 'them', text: '...', ts: Date.now() };
+    conv.messages.push(typingMsg);
+    save(); renderAll();
+    setTimeout(() => {
+      // replace typing with an actual reply
+      conv.messages = conv.messages.filter(m => m.id !== typingId);
+      conv.messages.push({ id: uid(), sender:'them', text: randomReply(), ts: Date.now() });
+      save(); renderAll();
+    }, 900 + Math.random()*1600);
+  }
+
+  function randomReply(){
+    const replies = [
+      "Nice — that looks good!",
+      "Got it, thanks!",
+      "I'll check and get back to you.",
+      "Haha love it 😄",
+      "Let's discuss this in the meeting."
+    ];
+    return replies[Math.floor(Math.random()*replies.length)];
+  }
+
+  // File attachment handling (images only)
+  fileInput.addEventListener('change', ev => {
+    const file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    if(!file.type.startsWith('image/')) { alert('Only images are supported in this demo.'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      // put image into composer and send immediately to simulate attachment send
+      sendMessageFromComposer(reader.result);
+    };
+    reader.readAsDataURL(file);
   });
-});
+
+  // Send handlers
+  sendBtn.addEventListener('click', () => sendMessageFromComposer());
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+  });
+
+  // Search
+  searchInput.addEventListener('input', () => {
+    renderConversations(searchInput.value);
+  });
+
+  // Clear conv
+  btnClear.addEventListener('click', () => {
+    if(!store.selectedId) return;
+    if(!confirm('Clear all messages in this conversation?')) return;
+    const conv = store.conversations.find(c => c.id === store.selectedId);
+    conv.messages = [];
+    conv.lastSeen = Date.now();
+    save(); renderAll();
+  });
+
+  // Export conv as JSON
+  btnExport.addEventListener('click', () => {
+    const conv = store.conversations.find(c => c.id === store.selectedId);
+    if(!conv) return alert('No conversation selected');
+    const blob = new Blob([JSON.stringify(conv, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${conv.name.replace(/\s+/g,'_')}_conversation.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Helpers
+  function escapeHtml(s=''){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function truncate(s, n=40){ if(!s) return ''; return s.length > n ? s.slice(0,n-1)+'…' : s; }
+
+  // Initial load
+  load();
+  renderAll();
+
+  // Allow keyboard navigation to focus message list to scroll with arrows
+  messagesEl.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowDown') messagesEl.scrollBy({top:80,behavior:'smooth'});
+    if(e.key === 'ArrowUp') messagesEl.scrollBy({top:-80,behavior:'smooth'});
+  });
+
+  // For demonstration: click conversation area to create a new conversation
+  conversationsEl.addEventListener('dblclick', () => {
+    const name = prompt('New conversation name?');
+    if(!name) return;
+    const conv = { id: 'conv-'+uid(), name, initials: name.split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase(), lastSeen: Date.now(), messages: [] };
+    store.conversations.push(conv);
+    store.selectedId = conv.id;
+    save(); renderAll();
+  });
+
+})();
 </script>
 </body>
 </html>
