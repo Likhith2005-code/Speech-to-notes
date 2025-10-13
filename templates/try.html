@@ -1,627 +1,457 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Messenger — Single File</title>
+<title>Ultra Free Fire — Mini Arena</title>
 <style>
   :root{
-    --bg:#0f1724;
-    --panel:#0b1220;
-    --muted:#98a0b3;
-    --accent:#6ee7b7;
-    --accent-2:#60a5fa;
-    --me:#1f2a44;
-    --them:#111827;
-    --glass: rgba(255,255,255,0.03);
-    --success: #10b981;
-    --danger: #ef4444;
-    --max-width:1100px;
-    --radius:12px;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    --bg:#0b0f1a; --panel:#111828; --accent:#00e0ff; --accent2:#ff3b3b; --text:#e8eef9; --muted:#9fb0cc;
+    --zone:#39ff14; --zone-dmg:#ff5c5c;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:linear-gradient(180deg,#071029 0%, #071018 60%), var(--bg);
-    color:#e6eef8;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
+  html,body{height:100%;margin:0;background:radial-gradient(1000px 600px at 50% 20%,#131b2c 0%,#0b0f1a 60%,#080b12 100%);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+  #wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100%}
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 16px;color:var(--text);background:linear-gradient(180deg,#0f1524 0%,rgba(15,21,36,0) 100%);
+    border-bottom:1px solid #1b2540
+  }
+  .brand{display:flex;gap:10px;align-items:center}
+  .chip{padding:4px 10px;border:1px solid #243155;border-radius:999px;color:var(--muted);font-size:12px}
+  .title{
+    letter-spacing:1px;
+    color:transparent;
+    background:linear-gradient(90deg,#00e0ff 0%,#39ff14 50%,#00e0ff 100%);
+    -webkit-background-clip:text;background-clip:text;font-weight:800;font-size:18px
   }
 
-  .app {
-    width:100%;
-    max-width: var(--max-width);
-    height: calc(100vh - 40px);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius: 14px;
-    display:grid;
-    grid-template-columns: 320px 1fr;
-    overflow:hidden;
-    box-shadow: 0 10px 30px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+  #hud{
+    position:fixed;top:64px;left:16px;right:16px;display:flex;gap:12px;flex-wrap:wrap;pointer-events:none
+  }
+  .panel{
+    pointer-events:auto;
+    background:linear-gradient(180deg,#0f1526 0%,#0c1220 100%);
+    border:1px solid #1d2a49;border-radius:12px;color:var(--text);padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.35)
+  }
+  .stat{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:#1b2746;border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%}
+  .hp i{background:linear-gradient(90deg,#23ff6b,#39ff14)}
+  .shield i{background:linear-gradient(90deg,#00b3ff,#00e0ff)}
+  .zone i{background:linear-gradient(90deg,var(--zone),#7dffb0)}
+
+  #gameBox{position:relative;margin:16px auto;max-width:1100px;aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:1px solid #223055}
+  #game{
+    width:100%;height:100%;display:block;background:
+      radial-gradient(800px 500px at 60% 30%,rgba(0,224,255,.06),transparent 60%),
+      repeating-linear-gradient(45deg,rgba(57,255,20,.03) 0 12px,rgba(0,224,255,.03) 12px 24px),
+      #0a0f1b;
+    outline:none
   }
 
-  /* Sidebar */
-  .sidebar{
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-    border-right: 1px solid rgba(255,255,255,0.03);
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+  #lobby{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(10,15,27,.6),rgba(10,15,27,.85));
+    backdrop-filter:blur(6px)
   }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
+  .card{
+    width:min(560px,92%);padding:22px;border-radius:16px;border:1px solid #1f2c4c;
+    background:linear-gradient(180deg,rgba(16,22,40,.9),rgba(10,15,27,.9));
+    color:var(--text);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)
   }
-  .logo{
-    width:46px;height:46px;border-radius:10px;
-    display:grid;place-items:center;font-weight:700;
-    background: linear-gradient(135deg,var(--accent),var(--accent-2));
-    color: #042028; font-size:16px;
-    box-shadow: 0 4px 12px rgba(96,165,250,0.12), inset 0 -2px 6px rgba(0,0,0,0.15);
+  .slogan{margin:4px 0 12px;font-size:13px;color:var(--muted)}
+  .big{font-size:26px;font-weight:800;letter-spacing:.6px;color:var(--text)}
+  .btnRow{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+  button.play{
+    cursor:pointer;padding:12px 18px;border-radius:12px;border:1px solid #146a7b;
+    background:linear-gradient(90deg,rgba(0,224,255,.18),rgba(57,255,20,.18));
+    color:var(--text);font-weight:700;letter-spacing:.5px;transition:.15s transform, .15s filter
   }
-  .brand h1{font-size:16px;margin:0}
-  .brand p{margin:0;font-size:12px;color:var(--muted)}
-
-  .searchbox{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    background:var(--glass);
-    padding:8px;
-    border-radius:10px;
-  }
-  .searchbox input{
-    border:0;background:transparent;color:inherit;outline:none;width:100%;
-    font-size:13px;
+  button.play:hover{transform:translateY(-1px);filter:brightness(1.1)}
+  button.ghost{
+    cursor:pointer;padding:12px 16px;border-radius:12px;border:1px dashed #27406e;background:rgba(15,22,40,.35);color:var(--muted)
   }
 
-  .conversations{
-    overflow:auto;
-    padding-right:6px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
-  .conv-item{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    padding:10px;
-    border-radius:10px;
-    cursor:pointer;
-  }
-  .conv-item:hover{background: rgba(255,255,255,0.015)}
-  .conv-item.active{background: linear-gradient(90deg, rgba(96,165,250,0.08), rgba(110,231,183,0.03)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);}
-  .avatar{
-    width:44px;height:44px;border-radius:10px;background:#0b1220;display:grid;place-items:center;font-weight:700;
-    color:var(--accent-2);
-    flex:0 0 44px;
-  }
-  .conv-main{flex:1;min-width:0}
-  .conv-main h3{margin:0;font-size:14px}
-  .conv-main p{margin:4px 0 0 0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  .conv-meta{font-size:12px;color:var(--muted);flex-shrink:0}
-
-  .footer-short{
-    margin-top:auto;
-    font-size:12px;color:var(--muted);
-    display:flex;justify-content:space-between;align-items:center;
+  #toast{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    padding:10px 14px;border-radius:12px;border:1px solid #21406a;background:#0f182c;color:var(--text);
+    box-shadow:0 10px 30px rgba(0,0,0,.4);font-size:14px;display:none
   }
 
-  /* Chat area */
-  .chat{
-    display:flex;
-    flex-direction:column;
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-  }
-  .chat-header{
-    display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.02);
-  }
-  .chat-header .title{font-size:16px;margin:0}
-  .chat-header .sub{font-size:12px;color:var(--muted)}
-  .header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-
-  .messages{
-    padding:18px;
-    overflow:auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    background-image: linear-gradient(transparent 0 48px, rgba(255,255,255,0.00) 48px);
-    flex:1;
-  }
-  .day-sep{
-    display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px;
-    justify-content:center;
-  }
-  .bubble{
-    max-width:68%;
-    padding:12px 14px;
-    border-radius:14px;
-    position:relative;
-    line-height:1.35;
-    font-size:14px;
-    word-break:break-word;
-  }
-  .msg.me{align-self:flex-end;background:linear-gradient(180deg,var(--me),#16243b); color:#cfeef0;border-bottom-right-radius:6px}
-  .msg.them{align-self:flex-start;background:linear-gradient(180deg,var(--them),#0f1724); color:#e6eef8;border-bottom-left-radius:6px}
-  .meta{
-    display:flex;gap:8px;align-items:center;margin-top:6px;font-size:12px;color:var(--muted);
-  }
-  .msg-row{display:flex;gap:8px;align-items:flex-end;}
-  .msg-row.me{justify-content:flex-end}
-  .msg-actions{
-    display:flex;gap:6px;margin-left:6px;
-    opacity:0;transition:opacity .12s;
-  }
-  .msg:hover .msg-actions{opacity:1}
-  .action-btn{background:transparent;border:0;color:var(--muted);cursor:pointer;padding:6px;border-radius:6px}
-  .action-btn:hover{background:rgba(255,255,255,0.02)}
-
-  .composer{
-    padding:12px 16px;border-top:1px solid rgba(255,255,255,0.02);display:flex;gap:12px;align-items:center;
-  }
-  .input{
-    background:transparent;border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;flex:1;min-height:44px;display:flex;gap:8px;align-items:center;
-  }
-  .input textarea{flex:1;border:0;background:transparent;color:inherit;outline:none;resize:none;font-size:14px;padding:6px 4px}
-  .send-btn{
-    background:linear-gradient(90deg,var(--accent-2),var(--accent));padding:10px 14px;border-radius:10px;border:0;color:#042028;font-weight:700;cursor:pointer;
-    box-shadow:0 6px 18px rgba(6,32,63,0.45);
-  }
-
-  /* small screens */
-  @media (max-width:900px){
-    .app{grid-template-columns:1fr; height:calc(100vh - 20px)}
-    .sidebar{display:none}
-  }
-
-  /* nice small UI touches */
-  .small{
-    font-size:12px;color:var(--muted)
-  }
-  .file-preview{display:flex;gap:8px;align-items:center}
-  .preview-thumb{width:58px;height:44px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.03)}
-  .pill{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:12px}
+  /* Crosshair & cursor */
+  body {cursor: crosshair}
 </style>
 </head>
 <body>
-  <div class="app" role="application" aria-label="Ultra Messenger app">
-    <aside class="sidebar" aria-label="Sidebar with conversations">
-      <div class="brand" role="banner">
-        <div class="logo" aria-hidden="true">UM</div>
-        <div>
-          <h1>Ultra Messenger</h1>
-          <p class="small">Fast, local & privacy-friendly</p>
-        </div>
-      </div>
+<div id="wrap">
+  <header>
+    <div class="brand">
+      <div class="title">ULTRA FREE FIRE</div>
+      <div class="chip">Mini Arena</div>
+    </div>
+    <div class="chip">HTML • CSS • JS</div>
+  </header>
 
-      <div class="searchbox" title="Search conversations or messages">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
-        <input id="global-search" placeholder="Search messages or contacts..." aria-label="Search messages or contacts">
-      </div>
-
-      <div class="conversations" id="conversations" role="list" aria-label="Conversation list">
-        <!-- conversation items rendered here -->
-      </div>
-
-      <div class="footer-short">
-        <div class="small">Local-only · no servers</div>
-        <div class="pill">v1.0</div>
-      </div>
-    </aside>
-
-    <main class="chat" aria-live="polite">
-      <header class="chat-header">
-        <div class="avatar" id="chat-avatar" aria-hidden="true">AL</div>
-        <div>
-          <h2 class="title" id="chat-title">Alex</h2>
-          <div class="sub small" id="chat-sub">Online</div>
-        </div>
-        <div class="header-actions" role="toolbar" aria-label="Chat actions">
-          <button id="btn-clear" class="action-btn" title="Clear conversation">Clear</button>
-          <button id="btn-export" class="action-btn" title="Export conversation">Export</button>
-        </div>
-      </header>
-
-      <section class="messages" id="messages" tabindex="0" aria-label="Messages">
-        <!-- messages rendered here -->
-      </section>
-
-      <form class="composer" id="composer" onsubmit="return false" aria-label="Message composer">
-        <label for="file-input" class="action-btn" title="Attach image">
-          📎
-        </label>
-        <input id="file-input" type="file" accept="image/*" style="display:none" />
-        <div class="input" role="textbox" aria-multiline="true">
-          <textarea id="message-input" placeholder="Write a message..." rows="1" aria-label="Write a message"></textarea>
-        </div>
-        <button id="send-btn" class="send-btn" aria-label="Send message" title="Send message">Send</button>
-      </form>
-    </main>
+  <div id="hud">
+    <div class="panel" style="min-width:220px">
+      <div class="stat">HP</div>
+      <div class="bar hp"><i id="hpFill" style="width:100%"></i></div>
+      <div class="stat" style="margin-top:6px">Shield</div>
+      <div class="bar shield"><i id="shFill" style="width:50%"></i></div>
+    </div>
+    <div class="panel" style="min-width:220px">
+      <div class="stat">Safe Zone</div>
+      <div class="bar zone"><i id="zoneFill" style="width:100%"></i></div>
+      <div class="stat" style="margin-top:6px">Enemies: <span id="enemyCount">0</span></div>
+    </div>
+    <div class="panel" style="min-width:160px">
+      <div class="stat">Time: <span id="clock">00:00</span></div>
+      <div class="stat">Ammo: <span id="ammo">∞</span></div>
+    </div>
   </div>
 
+  <main id="gameBox">
+    <canvas id="game" width="1280" height="720" tabindex="0"></canvas>
+
+    <div id="lobby" aria-hidden="false">
+      <div class="card">
+        <div class="big">Welcome to Ultra Free Fire</div>
+        <p class="slogan">Practice arena with shrinking zone, simple bots, and click-to-shoot.</p>
+        <ul style="text-align:left;color:var(--muted);font-size:14px;line-height:1.5;margin:0 auto 10px;max-width:460px">
+          <li>Move: WASD or Arrow keys</li>
+          <li>Aim: Mouse pointer</li>
+          <li>Shoot: Left click</li>
+          <li>Survive inside the safe zone</li>
+        </ul>
+        <div class="btnRow">
+          <button class="play" id="btnPlay">Play</button>
+          <button class="ghost" id="btnHow">How it works</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+</div>
+
 <script>
-/*
- Ultra Messenger
- Single-file demo: UI + behavior
-*/
-(() => {
-  // Utilities
-  const qs = s => document.querySelector(s);
-  const qsa = s => Array.from(document.querySelectorAll(s));
-  const formatTime = ts => {
-    const d = new Date(ts);
-    const hh = d.getHours().toString().padStart(2,'0');
-    const mm = d.getMinutes().toString().padStart(2,'0');
-    return hh + ':' + mm;
-  }
-  const uid = () => Math.random().toString(36).slice(2,9);
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
 
-  // DOM
-  const conversationsEl = qs('#conversations');
-  const messagesEl = qs('#messages');
-  const inputEl = qs('#message-input');
-  const sendBtn = qs('#send-btn');
-  const fileInput = qs('#file-input');
-  const searchInput = qs('#global-search');
-  const chatTitle = qs('#chat-title');
-  const chatSub = qs('#chat-sub');
-  const chatAvatar = qs('#chat-avatar');
-  const btnClear = qs('#btn-clear');
-  const btnExport = qs('#btn-export');
+  // World/state
+  const W = canvas.width, H = canvas.height;
+  const rand = (a,b)=>Math.random()*(b-a)+a;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp = (a,b,t)=>a+(b-a)*t;
 
-  // Data model in localStorage
-  const STORAGE_KEY = 'ultramessenger.v1';
-  let store = {
-    conversations: [],
-    selectedId: null
+  const state = {
+    running:false,
+    time:0,
+    dt:0,
+    last:0,
+    keys:new Set(),
+    mouse:{x:W/2,y:H/2,down:false},
+    player:{
+      x:W*0.5, y:H*0.6, r:16, speed:240,
+      hp:100, shield:50, fireRate:7, lastShot:0
+    },
+    bullets:[],
+    enemies:[],
+    zone:{x:W/2,y:H/2,r:Math.min(W,H)*0.42, shrinkTo:Math.min(W,H)*0.12, t:0, duration:120},
+    damage:{
+      bullet:34,
+      enemyTouch:8,
+      outZonePerSec:10
+    }
   };
 
-  // Seed example if empty
-  function seed() {
-    const sampleConv = {
-      id: 'conv-alex',
-      name: 'Alex Johnson',
-      initials: 'AJ',
-      lastSeen: Date.now() - 1000*60*7,
-      messages: [
-        { id: uid(), sender: 'them', text: "Hey — did you try the new demo?", ts: Date.now() - 1000*60*60 },
-        { id: uid(), sender: 'me', text: "Not yet. Let's try it now!", ts: Date.now() - 1000*60*57 },
-        { id: uid(), sender: 'them', text: "Cool — I'll send a screenshot.", ts: Date.now() - 1000*60*55 }
-      ]
-    };
-    const other = {
-      id: 'conv-zoe',
-      name: 'Zoe Chen',
-      initials: 'ZC',
-      lastSeen: Date.now() - 1000*60*60*24,
-      messages: [
-        { id: uid(), sender:'them', text: "Meeting at 3pm? Confirm.", ts: Date.now() - 1000*60*60*6 }
-      ]
-    };
-    store.conversations = [sampleConv, other];
-    store.selectedId = sampleConv.id;
-    save();
+  // UI elements
+  const hpFill = document.getElementById('hpFill');
+  const shFill = document.getElementById('shFill');
+  const zoneFill = document.getElementById('zoneFill');
+  const enemyCount = document.getElementById('enemyCount');
+  const clockEl = document.getElementById('clock');
+  const ammoEl = document.getElementById('ammo');
+  const lobby = document.getElementById('lobby');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg,ms=1400){
+    toast.textContent = msg;
+    toast.style.display='block';
+    clearTimeout(showToast._t);
+    showToast._t=setTimeout(()=>toast.style.display='none',ms);
   }
 
-  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); }
-  function load(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw){
-      try{
-        store = JSON.parse(raw);
-      }catch(e){
-        console.error('corrupt store, resetting', e);
-        localStorage.removeItem(STORAGE_KEY);
-        seed();
-      }
-    } else {
-      seed();
-    }
-  }
+  // Controls
+  window.addEventListener('keydown',e=>{
+    state.keys.add(e.key.toLowerCase());
+    if(e.key===' '){ e.preventDefault(); }
+  });
+  window.addEventListener('keyup',e=>state.keys.delete(e.key.toLowerCase()));
+  canvas.addEventListener('mousemove',e=>{
+    const rect = canvas.getBoundingClientRect();
+    state.mouse.x = (e.clientX - rect.left) * (canvas.width/rect.width);
+    state.mouse.y = (e.clientY - rect.top) * (canvas.height/rect.height);
+  });
+  canvas.addEventListener('mousedown',()=>state.mouse.down=true);
+  canvas.addEventListener('mouseup',()=>state.mouse.down=false);
 
-  // Rendering
-  function renderConversations(filter=''){
-    conversationsEl.innerHTML = '';
-    const list = store.conversations
-      .map(c => ({
-        ...c,
-        lastMsg: c.messages[c.messages.length-1],
-        lastTs: c.messages.length ? c.messages[c.messages.length-1].ts : c.lastSeen
-      }))
-      .sort((a,b) => b.lastTs - a.lastTs);
-
-    const filtered = list.filter(c => {
-      const q = filter.trim().toLowerCase();
-      if(!q) return true;
-      if (c.name.toLowerCase().includes(q)) return true;
-      return c.messages.some(m => (m.text || '').toLowerCase().includes(q));
-    });
-
-    for(const conv of filtered){
-      const item = document.createElement('div');
-      item.className = 'conv-item' + (conv.id===store.selectedId ? ' active' : '');
-      item.dataset.id = conv.id;
-      item.setAttribute('role','listitem');
-
-      item.innerHTML = `
-        <div class="avatar" aria-hidden="true">${conv.initials || conv.name.split(' ').map(s=>s[0]).join('').slice(0,2)}</div>
-        <div class="conv-main">
-          <h3>${escapeHtml(conv.name)}</h3>
-          <p>${conv.lastMsg ? escapeHtml(truncate(conv.lastMsg.text || '[attachment]', 46)) : '<span class="small">No messages</span>'}</p>
-        </div>
-        <div class="conv-meta small">${conv.lastMsg ? formatTime(conv.lastMsg.ts) : ''}</div>
-      `;
-      item.addEventListener('click', () => {
-        store.selectedId = conv.id; save(); renderAll();
+  // Spawning enemies
+  function spawnEnemies(n=8){
+    state.enemies.length=0;
+    for(let i=0;i<n;i++){
+      let angle = rand(0,Math.PI*2);
+      let rr = rand(state.zone.r*0.6, state.zone.r*0.95);
+      let x = state.zone.x + Math.cos(angle)*rr;
+      let y = state.zone.y + Math.sin(angle)*rr;
+      state.enemies.push({
+        x,y,r:14,hp:60,speed:100,aggroDist:280, color:'#ff5959'
       });
-      conversationsEl.appendChild(item);
     }
   }
 
-  function renderMessages(scrollToBottom=true){
-    messagesEl.innerHTML = '';
-    const conv = store.conversations.find(c => c.id === store.selectedId);
-    if(!conv){ messagesEl.innerHTML = '<div class="small">No conversation selected</div>'; return; }
+  // Shooting
+  function canShoot(){
+    const cd = 1/state.player.fireRate;
+    return (state.time - state.player.lastShot) >= cd;
+  }
+  function shoot(){
+    if(!canShoot()) return;
+    state.player.lastShot = state.time;
+    const dx = state.mouse.x - state.player.x;
+    const dy = state.mouse.y - state.player.y;
+    const ang = Math.atan2(dy,dx);
+    const speed = 560;
+    state.bullets.push({
+      x: state.player.x + Math.cos(ang)*state.player.r,
+      y: state.player.y + Math.sin(ang)*state.player.r,
+      vx: Math.cos(ang)*speed,
+      vy: Math.sin(ang)*speed,
+      life: 1.2
+    });
+  }
 
-    chatTitle.textContent = conv.name;
-    chatAvatar.textContent = conv.initials || conv.name.split(' ').map(s=>s[0]).join('').slice(0,2);
-    chatSub.textContent = 'Online · last active ' + new Date(conv.lastSeen).toLocaleString();
+  // Damage application with shields first
+  function applyDamage(amount){
+    let leftover = amount;
+    if(state.player.shield>0){
+      const used = Math.min(state.player.shield,leftover);
+      state.player.shield -= used;
+      leftover -= used;
+    }
+    if(leftover>0){
+      state.player.hp = Math.max(0, state.player.hp - leftover);
+    }
+  }
 
-    // Group by day
-    let lastDay = null;
-    conv.messages.forEach(msg => {
-      const d = new Date(msg.ts);
-      const day = d.toDateString();
-      if (day !== lastDay){
-        lastDay = day;
-        const sep = document.createElement('div');
-        sep.className = 'day-sep';
-        sep.textContent = d.toLocaleDateString();
-        messagesEl.appendChild(sep);
-      }
+  // Update
+  function update(dt){
+    state.time += dt;
 
-      const row = document.createElement('div');
-      row.className = 'msg-row ' + (msg.sender === 'me' ? 'me' : 'them');
+    // Input
+    const p = state.player;
+    let mx=0,my=0;
+    if(state.keys.has('w')||state.keys.has('arrowup')) my -= 1;
+    if(state.keys.has('s')||state.keys.has('arrowdown')) my += 1;
+    if(state.keys.has('a')||state.keys.has('arrowleft')) mx -= 1;
+    if(state.keys.has('d')||state.keys.has('arrowright')) mx += 1;
 
-      const bubble = document.createElement('div');
-      bubble.className = 'bubble msg ' + (msg.sender === 'me' ? 'me' : 'them');
-      bubble.innerHTML = renderMessageBody(msg);
+    const len = Math.hypot(mx,my)||1;
+    mx/=len; my/=len;
+    p.x = clamp(p.x + mx*p.speed*dt, 0+p.r, W-p.r);
+    p.y = clamp(p.y + my*p.speed*dt, 0+p.r, H-p.r);
 
-      const meta = document.createElement('div');
-      meta.className = 'meta small';
-      meta.innerHTML = `<span>${formatTime(msg.ts)}</span>`;
+    if(state.mouse.down) shoot();
 
-      // actions
-      const actions = document.createElement('div');
-      actions.className = 'msg-actions';
-      actions.innerHTML = `
-        <button class="action-btn" title="Edit">✏️</button>
-        <button class="action-btn" title="Delete">🗑️</button>
-        <button class="action-btn" title="Copy">📋</button>
-      `;
-      // wire actions
-      const [editBtn, delBtn, copyBtn] = actions.querySelectorAll('button');
-      editBtn.addEventListener('click', () => startEdit(msg.id));
-      delBtn.addEventListener('click', () => {
-        if(confirm('Delete this message?')){
-          deleteMessage(msg.id);
+    // Bullets
+    for(let i=state.bullets.length-1;i>=0;i--){
+      const b = state.bullets[i];
+      b.x += b.vx*dt; b.y += b.vy*dt; b.life -= dt;
+      if(b.life<=0 || b.x<0 || b.y<0 || b.x>W || b.y>H) { state.bullets.splice(i,1); continue; }
+      // Collision with enemies
+      for(let j=state.enemies.length-1;j>=0;j--){
+        const e = state.enemies[j];
+        const d = Math.hypot(e.x-b.x,e.y-b.y);
+        if(d < e.r+3){
+          e.hp -= state.damage.bullet;
+          state.bullets.splice(i,1);
+          if(e.hp<=0){ state.enemies.splice(j,1); showToast('Enemy down'); }
+          break;
         }
-      });
-      copyBtn.addEventListener('click', () => {
-        navigator.clipboard?.writeText(msg.text || '[attachment]').then(()=> alert('Copied'));
-      });
+      }
+    }
 
-      bubble.appendChild(meta);
-      bubble.appendChild(actions);
-      row.appendChild(bubble);
-      messagesEl.appendChild(row);
-    });
+    // Enemies AI
+    for(const e of state.enemies){
+      const d = Math.hypot(p.x-e.x,p.y-e.y);
+      if(d<e.aggroDist){
+        const dx = (p.x - e.x)/d, dy = (p.y - e.y)/d;
+        e.x += dx*e.speed*dt; e.y += dy*e.speed*dt;
+      }else{
+        // idle drift
+        e.x += Math.sin(state.time*0.5+e.y*0.01)*15*dt;
+        e.y += Math.cos(state.time*0.6+e.x*0.01)*15*dt;
+      }
+      // touch damage
+      if(d < p.r + e.r){
+        applyDamage(state.damage.enemyTouch*dt);
+      }
+      e.x = clamp(e.x, 0+e.r, W-e.r);
+      e.y = clamp(e.y, 0+e.r, H-e.r);
+    }
 
-    if(scrollToBottom){
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+    // Zone shrinking
+    const z = state.zone;
+    z.t = clamp(z.t + dt, 0, z.duration);
+    const tNorm = z.t / z.duration;
+    const targetR = lerp(z.r, z.shrinkTo, 0.002); // smooth frame shrink
+    z.r = lerp(Math.min(W,H)*0.42, z.shrinkTo, tNorm);
+    z.r = Math.max(z.shrinkTo, targetR);
+
+    // Zone damage if outside
+    const distToCenter = Math.hypot(p.x - z.x, p.y - z.y);
+    if(distToCenter > z.r){
+      applyDamage(state.damage.outZonePerSec*dt);
+    }
+
+    // Win/Lose
+    if(p.hp<=0){
+      endRound(false);
+    } else if(state.enemies.length===0){
+      endRound(true);
     }
   }
 
-  function renderMessageBody(msg){
-    // supports text and optional image dataURL
-    let html = '';
-    if (msg.image){
-      html += `<div class="file-preview"><img class="preview-thumb" src="${msg.image}" alt="Attached image"></div>`;
-    }
-    if (msg.text){
-      html += `<div>${escapeHtml(msg.text).replace(/\n/g,'<br>')}</div>`;
-    }
-    return html || '<em>(empty)</em>';
+  function endRound(victory){
+    state.running=false;
+    lobby.style.display='flex';
+    lobby.setAttribute('aria-hidden','false');
+    const text = victory ? 'Victory! All enemies eliminated.' : 'Defeat! Try again.';
+    lobby.querySelector('.big').textContent = text;
+    showToast(victory ? 'Winner Winner!' : 'Back to lobby');
   }
 
-  function renderAll(){
-    renderConversations(searchInput.value);
-    renderMessages();
+  // Draw helpers
+  function circle(x,y,r,color,stroke,sw=2){
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    if(color){ ctx.fillStyle=color; ctx.fill(); }
+    if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); }
   }
 
-  // Actions
-  function addMessage(convId, message){
-    const conv = store.conversations.find(c => c.id === convId);
-    if(!conv) return;
-    conv.messages.push(message);
-    conv.lastSeen = message.ts;
-    save();
-    renderAll();
-  }
+  function draw(){
+    // Background grid / vignette handled in CSS; add subtle noise
+    // Zone
+    const z = state.zone;
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+    ctx.shadowColor='rgba(57,255,20,.35)';
+    ctx.shadowBlur=20;
+    circle(z.x,z.y,z.r,'rgba(57,255,20,.06)','rgba(57,255,20,.6)',3);
+    ctx.restore();
 
-  function deleteMessage(msgId){
-    const conv = store.conversations.find(c => c.id === store.selectedId);
-    if(!conv) return;
-    conv.messages = conv.messages.filter(m => m.id !== msgId);
-    save(); renderAll();
-  }
-
-  function startEdit(msgId){
-    const conv = store.conversations.find(c => c.id === store.selectedId);
-    const msg = conv.messages.find(m => m.id === msgId);
-    if(!msg) return;
-    // populate composer with message text for edit
-    inputEl.value = msg.text || '';
-    inputEl.focus();
-    // change send button to "Save"
-    sendBtn.textContent = 'Save';
-    sendBtn.dataset.editing = msgId;
-  }
-
-  function applyEdit(convId, msgId, newText){
-    const conv = store.conversations.find(c => c.id === convId);
-    const msg = conv.messages.find(m => m.id === msgId);
-    if(!msg) return;
-    msg.text = newText;
-    msg.edited = true;
-    msg.ts = Date.now(); // update timestamp to now
-    save();
-    renderAll();
-    sendBtn.textContent = 'Send';
-    delete sendBtn.dataset.editing;
-  }
-
-  function sendMessageFromComposer(imageData=null){
-    const text = inputEl.value.trim();
-    const isEditing = sendBtn.dataset.editing;
-    if (isEditing){
-      applyEdit(store.selectedId, isEditing, inputEl.value);
-      inputEl.value = '';
-      return;
+    // Bullets
+    ctx.fillStyle='#9be7ff';
+    for(const b of state.bullets){
+      ctx.beginPath(); ctx.arc(b.x,b.y,3,0,Math.PI*2); ctx.fill();
     }
 
-    if (!text && !imageData) return;
-    const message = {
-      id: uid(),
-      sender: 'me',
-      text: text || '',
-      image: imageData || null,
-      ts: Date.now()
-    };
-    addMessage(store.selectedId, message);
-    inputEl.value = '';
-    fileInput.value = '';
+    // Enemies
+    for(const e of state.enemies){
+      circle(e.x,e.y,e.r,'#2a0d12','#ff5959',2);
+      // enemy hp bar
+      const w = 24, h = 4, px = e.x - w/2, py = e.y - e.r - 10;
+      ctx.fillStyle='#18223b'; ctx.fillRect(px,py,w,h);
+      ctx.fillStyle='#ff5959'; ctx.fillRect(px,py, w*(e.hp/60), h);
+    }
 
-    // simulate a typing reply for demo if sending to "them"
-    simulateReply(store.selectedId);
+    // Player
+    const p = state.player;
+    // Aim line
+    ctx.strokeStyle='rgba(0,224,255,.25)';
+    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(state.mouse.x,state.mouse.y); ctx.stroke();
+    circle(p.x,p.y,p.r,'#0f1e2e','#00e0ff',3);
+
+    // Muzzle flash hint when recently fired
+    if(state.time - p.lastShot < 0.07){
+      const dx = state.mouse.x - p.x, dy = state.mouse.y - p.y;
+      const ang = Math.atan2(dy,dx);
+      const fx = p.x + Math.cos(ang)*(p.r+6);
+      const fy = p.y + Math.sin(ang)*(p.r+6);
+      circle(fx,fy,6,'rgba(255,245,180,.9)','rgba(255,220,120,.9)',1);
+    }
   }
 
-  function simulateReply(convId){
-    // A quick simulated reply — not necessary but makes UI feel alive.
-    // Keep it short and optional
-    const conv = store.conversations.find(c => c.id === convId);
-    if(!conv) return;
-    // show typing indicator
-    const typingId = 'typing-' + uid();
-    const typingMsg = { id: typingId, sender: 'them', text: '...', ts: Date.now() };
-    conv.messages.push(typingMsg);
-    save(); renderAll();
-    setTimeout(() => {
-      // replace typing with an actual reply
-      conv.messages = conv.messages.filter(m => m.id !== typingId);
-      conv.messages.push({ id: uid(), sender:'them', text: randomReply(), ts: Date.now() });
-      save(); renderAll();
-    }, 900 + Math.random()*1600);
+  // UI update
+  function ui(){
+    hpFill.style.width = `${clamp(state.player.hp,0,100)}%`;
+    shFill.style.width = `${clamp(state.player.shield,0,100)}%`;
+    const z = state.zone;
+    const zProgress = 100*(1 - z.t/z.duration);
+    zoneFill.style.width = `${clamp(zProgress,0,100)}%`;
+    enemyCount.textContent = state.enemies.length.toString();
+    // clock
+    const t = Math.floor(state.time);
+    const mm = String(Math.floor(t/60)).padStart(2,'0');
+    const ss = String(t%60).padStart(2,'0');
+    clockEl.textContent = `${mm}:${ss}`;
+    ammoEl.textContent = '∞';
   }
 
-  function randomReply(){
-    const replies = [
-      "Nice — that looks good!",
-      "Got it, thanks!",
-      "I'll check and get back to you.",
-      "Haha love it 😄",
-      "Let's discuss this in the meeting."
-    ];
-    return replies[Math.floor(Math.random()*replies.length)];
+  function loop(now){
+    if(!state.running){ return; }
+    const t = now/1000;
+    state.dt = Math.min(0.033, t - state.last);
+    state.last = t;
+
+    update(state.dt);
+    ctx.clearRect(0,0,W,H);
+    draw();
+    ui();
+    requestAnimationFrame(loop);
   }
 
-  // File attachment handling (images only)
-  fileInput.addEventListener('change', ev => {
-    const file = ev.target.files && ev.target.files[0];
-    if(!file) return;
-    if(!file.type.startsWith('image/')) { alert('Only images are supported in this demo.'); return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      // put image into composer and send immediately to simulate attachment send
-      sendMessageFromComposer(reader.result);
-    };
-    reader.readAsDataURL(file);
+  function startGame(){
+    // reset
+    state.player.x=W*0.5; state.player.y=H*0.6;
+    state.player.hp=100; state.player.shield=50; state.player.lastShot=0;
+    state.bullets.length=0;
+    state.zone.x=W/2; state.zone.y=H/2; state.zone.r=Math.min(W,H)*0.42;
+    state.zone.t=0; state.zone.duration=120;
+    spawnEnemies(10);
+    state.time=0; state.last=performance.now()/1000;
+    state.running=true;
+    lobby.style.display='none';
+    lobby.setAttribute('aria-hidden','true');
+    canvas.focus();
+    showToast('Drop in!');
+    requestAnimationFrame(loop);
+  }
+
+  // Buttons
+  document.getElementById('btnPlay').addEventListener('click', startGame);
+  document.getElementById('btnHow').addEventListener('click', ()=>{
+    showToast('Move: WASD/Arrows • Aim: Mouse • Shoot: Click');
   });
 
-  // Send handlers
-  sendBtn.addEventListener('click', () => sendMessageFromComposer());
-  inputEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendBtn.click();
+  // Accessibility: start with keyboard Enter/Space on lobby
+  lobby.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' '){
+      e.preventDefault(); startGame();
     }
   });
 
-  // Search
-  searchInput.addEventListener('input', () => {
-    renderConversations(searchInput.value);
+  // Resize handling (keep internal resolution constant for simplicity)
+  const box = document.getElementById('gameBox');
+  const obs = new ResizeObserver(()=>{
+    // canvas CSS scales via box size; internal res fixed for consistency
   });
+  obs.observe(box);
 
-  // Clear conv
-  btnClear.addEventListener('click', () => {
-    if(!store.selectedId) return;
-    if(!confirm('Clear all messages in this conversation?')) return;
-    const conv = store.conversations.find(c => c.id === store.selectedId);
-    conv.messages = [];
-    conv.lastSeen = Date.now();
-    save(); renderAll();
-  });
-
-  // Export conv as JSON
-  btnExport.addEventListener('click', () => {
-    const conv = store.conversations.find(c => c.id === store.selectedId);
-    if(!conv) return alert('No conversation selected');
-    const blob = new Blob([JSON.stringify(conv, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${conv.name.replace(/\s+/g,'_')}_conversation.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  });
-
-  // Helpers
-  function escapeHtml(s=''){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function truncate(s, n=40){ if(!s) return ''; return s.length > n ? s.slice(0,n-1)+'…' : s; }
-
-  // Initial load
-  load();
-  renderAll();
-
-  // Allow keyboard navigation to focus message list to scroll with arrows
-  messagesEl.addEventListener('keydown', (e) => {
-    if(e.key === 'ArrowDown') messagesEl.scrollBy({top:80,behavior:'smooth'});
-    if(e.key === 'ArrowUp') messagesEl.scrollBy({top:-80,behavior:'smooth'});
-  });
-
-  // For demonstration: click conversation area to create a new conversation
-  conversationsEl.addEventListener('dblclick', () => {
-    const name = prompt('New conversation name?');
-    if(!name) return;
-    const conv = { id: 'conv-'+uid(), name, initials: name.split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase(), lastSeen: Date.now(), messages: [] };
-    store.conversations.push(conv);
-    store.selectedId = conv.id;
-    save(); renderAll();
-  });
-
+  // Pre-populate enemies and UI at rest
+  spawnEnemies(8);
+  ctx.clearRect(0,0,W,H);
+  draw(); ui();
 })();
 </script>
 </body>
