@@ -1,458 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Free Fire — Mini Arena</title>
-<style>
-  :root{
-    --bg:#0b0f1a; --panel:#111828; --accent:#00e0ff; --accent2:#ff3b3b; --text:#e8eef9; --muted:#9fb0cc;
-    --zone:#39ff14; --zone-dmg:#ff5c5c;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:radial-gradient(1000px 600px at 50% 20%,#131b2c 0%,#0b0f1a 60%,#080b12 100%);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-  #wrap{display:grid;grid-template-rows:auto 1fr auto;min-height:100%}
-  header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:10px 16px;color:var(--text);background:linear-gradient(180deg,#0f1524 0%,rgba(15,21,36,0) 100%);
-    border-bottom:1px solid #1b2540
-  }
-  .brand{display:flex;gap:10px;align-items:center}
-  .chip{padding:4px 10px;border:1px solid #243155;border-radius:999px;color:var(--muted);font-size:12px}
-  .title{
-    letter-spacing:1px;
-    color:transparent;
-    background:linear-gradient(90deg,#00e0ff 0%,#39ff14 50%,#00e0ff 100%);
-    -webkit-background-clip:text;background-clip:text;font-weight:800;font-size:18px
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultra ChatGPT</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+    }
 
-  #hud{
-    position:fixed;top:64px;left:16px;right:16px;display:flex;gap:12px;flex-wrap:wrap;pointer-events:none
-  }
-  .panel{
-    pointer-events:auto;
-    background:linear-gradient(180deg,#0f1526 0%,#0c1220 100%);
-    border:1px solid #1d2a49;border-radius:12px;color:var(--text);padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.35)
-  }
-  .stat{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
-  .bar{height:8px;background:#1b2746;border-radius:99px;overflow:hidden}
-  .bar>i{display:block;height:100%}
-  .hp i{background:linear-gradient(90deg,#23ff6b,#39ff14)}
-  .shield i{background:linear-gradient(90deg,#00b3ff,#00e0ff)}
-  .zone i{background:linear-gradient(90deg,var(--zone),#7dffb0)}
+    header {
+      background: #1f1f1f;
+      padding: 10px 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 20px;
+      border-bottom: 1px solid #333;
+    }
 
-  #gameBox{position:relative;margin:16px auto;max-width:1100px;aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:1px solid #223055}
-  #game{
-    width:100%;height:100%;display:block;background:
-      radial-gradient(800px 500px at 60% 30%,rgba(0,224,255,.06),transparent 60%),
-      repeating-linear-gradient(45deg,rgba(57,255,20,.03) 0 12px,rgba(0,224,255,.03) 12px 24px),
-      #0a0f1b;
-    outline:none
-  }
+    #chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
 
-  #lobby{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(10,15,27,.6),rgba(10,15,27,.85));
-    backdrop-filter:blur(6px)
-  }
-  .card{
-    width:min(560px,92%);padding:22px;border-radius:16px;border:1px solid #1f2c4c;
-    background:linear-gradient(180deg,rgba(16,22,40,.9),rgba(10,15,27,.9));
-    color:var(--text);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)
-  }
-  .slogan{margin:4px 0 12px;font-size:13px;color:var(--muted)}
-  .big{font-size:26px;font-weight:800;letter-spacing:.6px;color:var(--text)}
-  .btnRow{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-  button.play{
-    cursor:pointer;padding:12px 18px;border-radius:12px;border:1px solid #146a7b;
-    background:linear-gradient(90deg,rgba(0,224,255,.18),rgba(57,255,20,.18));
-    color:var(--text);font-weight:700;letter-spacing:.5px;transition:.15s transform, .15s filter
-  }
-  button.play:hover{transform:translateY(-1px);filter:brightness(1.1)}
-  button.ghost{
-    cursor:pointer;padding:12px 16px;border-radius:12px;border:1px dashed #27406e;background:rgba(15,22,40,.35);color:var(--muted)
-  }
+    .message {
+      max-width: 75%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.4;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
 
-  #toast{
-    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-    padding:10px 14px;border-radius:12px;border:1px solid #21406a;background:#0f182c;color:var(--text);
-    box-shadow:0 10px 30px rgba(0,0,0,.4);font-size:14px;display:none
-  }
+    .user {
+      align-self: flex-end;
+      background: #0078ff;
+      color: white;
+    }
 
-  /* Crosshair & cursor */
-  body {cursor: crosshair}
-</style>
+    .bot {
+      align-self: flex-start;
+      background: #2a2a2a;
+      border: 1px solid #444;
+    }
+
+    #input-container {
+      display: flex;
+      border-top: 1px solid #333;
+      padding: 10px;
+      background: #1f1f1f;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a2a;
+      color: #eee;
+      font-size: 16px;
+      outline: none;
+    }
+
+    #send-btn {
+      margin-left: 10px;
+      background: #0078ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s ease;
+    }
+
+    #send-btn:hover {
+      background: #005fd4;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-<div id="wrap">
-  <header>
-    <div class="brand">
-      <div class="title">ULTRA FREE FIRE</div>
-      <div class="chip">Mini Arena</div>
-    </div>
-    <div class="chip">HTML • CSS • JS</div>
-  </header>
+  <header>Ultra ChatGPT 💬</header>
+  <div id="chat-container"></div>
 
-  <div id="hud">
-    <div class="panel" style="min-width:220px">
-      <div class="stat">HP</div>
-      <div class="bar hp"><i id="hpFill" style="width:100%"></i></div>
-      <div class="stat" style="margin-top:6px">Shield</div>
-      <div class="bar shield"><i id="shFill" style="width:50%"></i></div>
-    </div>
-    <div class="panel" style="min-width:220px">
-      <div class="stat">Safe Zone</div>
-      <div class="bar zone"><i id="zoneFill" style="width:100%"></i></div>
-      <div class="stat" style="margin-top:6px">Enemies: <span id="enemyCount">0</span></div>
-    </div>
-    <div class="panel" style="min-width:160px">
-      <div class="stat">Time: <span id="clock">00:00</span></div>
-      <div class="stat">Ammo: <span id="ammo">∞</span></div>
-    </div>
+  <div id="input-container">
+    <input id="user-input" type="text" placeholder="Ask me anything..." />
+    <button id="send-btn">Send</button>
   </div>
 
-  <main id="gameBox">
-    <canvas id="game" width="1280" height="720" tabindex="0"></canvas>
+  <script>
+    const chatContainer = document.getElementById("chat-container");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
 
-    <div id="lobby" aria-hidden="false">
-      <div class="card">
-        <div class="big">Welcome to Ultra Free Fire</div>
-        <p class="slogan">Practice arena with shrinking zone, simple bots, and click-to-shoot.</p>
-        <ul style="text-align:left;color:var(--muted);font-size:14px;line-height:1.5;margin:0 auto 10px;max-width:460px">
-          <li>Move: WASD or Arrow keys</li>
-          <li>Aim: Mouse pointer</li>
-          <li>Shoot: Left click</li>
-          <li>Survive inside the safe zone</li>
-        </ul>
-        <div class="btnRow">
-          <button class="play" id="btnPlay">Play</button>
-          <button class="ghost" id="btnHow">How it works</button>
-        </div>
-      </div>
-    </div>
-  </main>
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text) return;
+      appendMessage("user", text);
+      userInput.value = "";
 
-  <div id="toast"></div>
-</div>
+      appendMessage("bot", "Thinking...");
 
-<script>
-(function(){
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
+      const botBubble = chatContainer.lastElementChild;
 
-  // World/state
-  const W = canvas.width, H = canvas.height;
-  const rand = (a,b)=>Math.random()*(b-a)+a;
-  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-  const lerp = (a,b,t)=>a+(b-a)*t;
+      try {
+        // ⚠️ Replace with your OpenAI API key (for demo only!)
+        const API_KEY = "YOUR_OPENAI_API_KEY";
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            messages: [{ role: "user", content: text }],
+          })
+        });
 
-  const state = {
-    running:false,
-    time:0,
-    dt:0,
-    last:0,
-    keys:new Set(),
-    mouse:{x:W/2,y:H/2,down:false},
-    player:{
-      x:W*0.5, y:H*0.6, r:16, speed:240,
-      hp:100, shield:50, fireRate:7, lastShot:0
-    },
-    bullets:[],
-    enemies:[],
-    zone:{x:W/2,y:H/2,r:Math.min(W,H)*0.42, shrinkTo:Math.min(W,H)*0.12, t:0, duration:120},
-    damage:{
-      bullet:34,
-      enemyTouch:8,
-      outZonePerSec:10
+        const data = await response.json();
+        botBubble.textContent = data.choices?.[0]?.message?.content || "No response.";
+      } catch (error) {
+        botBubble.textContent = "⚠️ Error: Unable to connect to AI.";
+        console.error(error);
+      }
+
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-  };
 
-  // UI elements
-  const hpFill = document.getElementById('hpFill');
-  const shFill = document.getElementById('shFill');
-  const zoneFill = document.getElementById('zoneFill');
-  const enemyCount = document.getElementById('enemyCount');
-  const clockEl = document.getElementById('clock');
-  const ammoEl = document.getElementById('ammo');
-  const lobby = document.getElementById('lobby');
-  const toast = document.getElementById('toast');
-
-  function showToast(msg,ms=1400){
-    toast.textContent = msg;
-    toast.style.display='block';
-    clearTimeout(showToast._t);
-    showToast._t=setTimeout(()=>toast.style.display='none',ms);
-  }
-
-  // Controls
-  window.addEventListener('keydown',e=>{
-    state.keys.add(e.key.toLowerCase());
-    if(e.key===' '){ e.preventDefault(); }
-  });
-  window.addEventListener('keyup',e=>state.keys.delete(e.key.toLowerCase()));
-  canvas.addEventListener('mousemove',e=>{
-    const rect = canvas.getBoundingClientRect();
-    state.mouse.x = (e.clientX - rect.left) * (canvas.width/rect.width);
-    state.mouse.y = (e.clientY - rect.top) * (canvas.height/rect.height);
-  });
-  canvas.addEventListener('mousedown',()=>state.mouse.down=true);
-  canvas.addEventListener('mouseup',()=>state.mouse.down=false);
-
-  // Spawning enemies
-  function spawnEnemies(n=8){
-    state.enemies.length=0;
-    for(let i=0;i<n;i++){
-      let angle = rand(0,Math.PI*2);
-      let rr = rand(state.zone.r*0.6, state.zone.r*0.95);
-      let x = state.zone.x + Math.cos(angle)*rr;
-      let y = state.zone.y + Math.sin(angle)*rr;
-      state.enemies.push({
-        x,y,r:14,hp:60,speed:100,aggroDist:280, color:'#ff5959'
-      });
+    function appendMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.textContent = text;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-  }
 
-  // Shooting
-  function canShoot(){
-    const cd = 1/state.player.fireRate;
-    return (state.time - state.player.lastShot) >= cd;
-  }
-  function shoot(){
-    if(!canShoot()) return;
-    state.player.lastShot = state.time;
-    const dx = state.mouse.x - state.player.x;
-    const dy = state.mouse.y - state.player.y;
-    const ang = Math.atan2(dy,dx);
-    const speed = 560;
-    state.bullets.push({
-      x: state.player.x + Math.cos(ang)*state.player.r,
-      y: state.player.y + Math.sin(ang)*state.player.r,
-      vx: Math.cos(ang)*speed,
-      vy: Math.sin(ang)*speed,
-      life: 1.2
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
     });
-  }
-
-  // Damage application with shields first
-  function applyDamage(amount){
-    let leftover = amount;
-    if(state.player.shield>0){
-      const used = Math.min(state.player.shield,leftover);
-      state.player.shield -= used;
-      leftover -= used;
-    }
-    if(leftover>0){
-      state.player.hp = Math.max(0, state.player.hp - leftover);
-    }
-  }
-
-  // Update
-  function update(dt){
-    state.time += dt;
-
-    // Input
-    const p = state.player;
-    let mx=0,my=0;
-    if(state.keys.has('w')||state.keys.has('arrowup')) my -= 1;
-    if(state.keys.has('s')||state.keys.has('arrowdown')) my += 1;
-    if(state.keys.has('a')||state.keys.has('arrowleft')) mx -= 1;
-    if(state.keys.has('d')||state.keys.has('arrowright')) mx += 1;
-
-    const len = Math.hypot(mx,my)||1;
-    mx/=len; my/=len;
-    p.x = clamp(p.x + mx*p.speed*dt, 0+p.r, W-p.r);
-    p.y = clamp(p.y + my*p.speed*dt, 0+p.r, H-p.r);
-
-    if(state.mouse.down) shoot();
-
-    // Bullets
-    for(let i=state.bullets.length-1;i>=0;i--){
-      const b = state.bullets[i];
-      b.x += b.vx*dt; b.y += b.vy*dt; b.life -= dt;
-      if(b.life<=0 || b.x<0 || b.y<0 || b.x>W || b.y>H) { state.bullets.splice(i,1); continue; }
-      // Collision with enemies
-      for(let j=state.enemies.length-1;j>=0;j--){
-        const e = state.enemies[j];
-        const d = Math.hypot(e.x-b.x,e.y-b.y);
-        if(d < e.r+3){
-          e.hp -= state.damage.bullet;
-          state.bullets.splice(i,1);
-          if(e.hp<=0){ state.enemies.splice(j,1); showToast('Enemy down'); }
-          break;
-        }
-      }
-    }
-
-    // Enemies AI
-    for(const e of state.enemies){
-      const d = Math.hypot(p.x-e.x,p.y-e.y);
-      if(d<e.aggroDist){
-        const dx = (p.x - e.x)/d, dy = (p.y - e.y)/d;
-        e.x += dx*e.speed*dt; e.y += dy*e.speed*dt;
-      }else{
-        // idle drift
-        e.x += Math.sin(state.time*0.5+e.y*0.01)*15*dt;
-        e.y += Math.cos(state.time*0.6+e.x*0.01)*15*dt;
-      }
-      // touch damage
-      if(d < p.r + e.r){
-        applyDamage(state.damage.enemyTouch*dt);
-      }
-      e.x = clamp(e.x, 0+e.r, W-e.r);
-      e.y = clamp(e.y, 0+e.r, H-e.r);
-    }
-
-    // Zone shrinking
-    const z = state.zone;
-    z.t = clamp(z.t + dt, 0, z.duration);
-    const tNorm = z.t / z.duration;
-    const targetR = lerp(z.r, z.shrinkTo, 0.002); // smooth frame shrink
-    z.r = lerp(Math.min(W,H)*0.42, z.shrinkTo, tNorm);
-    z.r = Math.max(z.shrinkTo, targetR);
-
-    // Zone damage if outside
-    const distToCenter = Math.hypot(p.x - z.x, p.y - z.y);
-    if(distToCenter > z.r){
-      applyDamage(state.damage.outZonePerSec*dt);
-    }
-
-    // Win/Lose
-    if(p.hp<=0){
-      endRound(false);
-    } else if(state.enemies.length===0){
-      endRound(true);
-    }
-  }
-
-  function endRound(victory){
-    state.running=false;
-    lobby.style.display='flex';
-    lobby.setAttribute('aria-hidden','false');
-    const text = victory ? 'Victory! All enemies eliminated.' : 'Defeat! Try again.';
-    lobby.querySelector('.big').textContent = text;
-    showToast(victory ? 'Winner Winner!' : 'Back to lobby');
-  }
-
-  // Draw helpers
-  function circle(x,y,r,color,stroke,sw=2){
-    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
-    if(color){ ctx.fillStyle=color; ctx.fill(); }
-    if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); }
-  }
-
-  function draw(){
-    // Background grid / vignette handled in CSS; add subtle noise
-    // Zone
-    const z = state.zone;
-    ctx.save();
-    ctx.globalCompositeOperation='lighter';
-    ctx.shadowColor='rgba(57,255,20,.35)';
-    ctx.shadowBlur=20;
-    circle(z.x,z.y,z.r,'rgba(57,255,20,.06)','rgba(57,255,20,.6)',3);
-    ctx.restore();
-
-    // Bullets
-    ctx.fillStyle='#9be7ff';
-    for(const b of state.bullets){
-      ctx.beginPath(); ctx.arc(b.x,b.y,3,0,Math.PI*2); ctx.fill();
-    }
-
-    // Enemies
-    for(const e of state.enemies){
-      circle(e.x,e.y,e.r,'#2a0d12','#ff5959',2);
-      // enemy hp bar
-      const w = 24, h = 4, px = e.x - w/2, py = e.y - e.r - 10;
-      ctx.fillStyle='#18223b'; ctx.fillRect(px,py,w,h);
-      ctx.fillStyle='#ff5959'; ctx.fillRect(px,py, w*(e.hp/60), h);
-    }
-
-    // Player
-    const p = state.player;
-    // Aim line
-    ctx.strokeStyle='rgba(0,224,255,.25)';
-    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(state.mouse.x,state.mouse.y); ctx.stroke();
-    circle(p.x,p.y,p.r,'#0f1e2e','#00e0ff',3);
-
-    // Muzzle flash hint when recently fired
-    if(state.time - p.lastShot < 0.07){
-      const dx = state.mouse.x - p.x, dy = state.mouse.y - p.y;
-      const ang = Math.atan2(dy,dx);
-      const fx = p.x + Math.cos(ang)*(p.r+6);
-      const fy = p.y + Math.sin(ang)*(p.r+6);
-      circle(fx,fy,6,'rgba(255,245,180,.9)','rgba(255,220,120,.9)',1);
-    }
-  }
-
-  // UI update
-  function ui(){
-    hpFill.style.width = `${clamp(state.player.hp,0,100)}%`;
-    shFill.style.width = `${clamp(state.player.shield,0,100)}%`;
-    const z = state.zone;
-    const zProgress = 100*(1 - z.t/z.duration);
-    zoneFill.style.width = `${clamp(zProgress,0,100)}%`;
-    enemyCount.textContent = state.enemies.length.toString();
-    // clock
-    const t = Math.floor(state.time);
-    const mm = String(Math.floor(t/60)).padStart(2,'0');
-    const ss = String(t%60).padStart(2,'0');
-    clockEl.textContent = `${mm}:${ss}`;
-    ammoEl.textContent = '∞';
-  }
-
-  function loop(now){
-    if(!state.running){ return; }
-    const t = now/1000;
-    state.dt = Math.min(0.033, t - state.last);
-    state.last = t;
-
-    update(state.dt);
-    ctx.clearRect(0,0,W,H);
-    draw();
-    ui();
-    requestAnimationFrame(loop);
-  }
-
-  function startGame(){
-    // reset
-    state.player.x=W*0.5; state.player.y=H*0.6;
-    state.player.hp=100; state.player.shield=50; state.player.lastShot=0;
-    state.bullets.length=0;
-    state.zone.x=W/2; state.zone.y=H/2; state.zone.r=Math.min(W,H)*0.42;
-    state.zone.t=0; state.zone.duration=120;
-    spawnEnemies(10);
-    state.time=0; state.last=performance.now()/1000;
-    state.running=true;
-    lobby.style.display='none';
-    lobby.setAttribute('aria-hidden','true');
-    canvas.focus();
-    showToast('Drop in!');
-    requestAnimationFrame(loop);
-  }
-
-  // Buttons
-  document.getElementById('btnPlay').addEventListener('click', startGame);
-  document.getElementById('btnHow').addEventListener('click', ()=>{
-    showToast('Move: WASD/Arrows • Aim: Mouse • Shoot: Click');
-  });
-
-  // Accessibility: start with keyboard Enter/Space on lobby
-  lobby.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter' || e.key===' '){
-      e.preventDefault(); startGame();
-    }
-  });
-
-  // Resize handling (keep internal resolution constant for simplicity)
-  const box = document.getElementById('gameBox');
-  const obs = new ResizeObserver(()=>{
-    // canvas CSS scales via box size; internal res fixed for consistency
-  });
-  obs.observe(box);
-
-  // Pre-populate enemies and UI at rest
-  spawnEnemies(8);
-  ctx.clearRect(0,0,W,H);
-  draw(); ui();
-})();
-</script>
+  </script>
 </body>
 </html>
