@@ -1,748 +1,156 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Gmail — Single File</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra Calculator</title>
 <style>
-  /* ----------------------
-     Reset & base
-     ---------------------- */
-  :root{
-    --bg:#0f1720;
-    --surface:#0b1220;
-    --panel:#0f1728;
-    --accent:#1f9fff;
-    --muted:#9aa4b2;
-    --text:#e6eef6;
-    --danger:#ff6b6b;
-    --success:#43d18b;
-    --glass: rgba(255,255,255,0.03);
-    --radius:10px;
-    --shadow: 0 6px 20px rgba(2,6,23,0.6);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: linear-gradient(180deg,#071025 0%, #081226 60%, #061623 100%);
-    color:var(--text);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    padding:28px;
-  }
-
-  /* ----------------------
-     App shell
-     ---------------------- */
-  .app {
-    max-width:1200px;
-    margin:0 auto;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
-    border-radius:14px;
-    overflow:hidden;
-    display:grid;
-    grid-template-columns: 260px 1fr 520px;
-    gap:16px;
-    padding:16px;
-    box-shadow: var(--shadow);
-    min-height:72vh;
-    border: 1px solid rgba(255,255,255,0.03);
-  }
-
-  /* ----------------------
-     Left sidebar
-     ---------------------- */
-  .sidebar {
-    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
-    padding:14px;
-    border-radius:10px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    min-height:300px;
-    border:1px solid rgba(255,255,255,0.02);
-  }
-  .logo {
-    display:flex;
-    gap:10px;
-    align-items:center;
-    font-weight:700;
-    letter-spacing:0.2px;
-    color:var(--text);
-  }
-  .logo .mark{
-    height:36px;width:36px;border-radius:8px;
-    background:linear-gradient(135deg,var(--accent),#6bd6ff);
-    display:flex;align-items:center;justify-content:center;
-    color:#052030;font-weight:800;font-size:18px;
-  }
-  .compose-btn{
-    background:linear-gradient(90deg,var(--accent),#69d0ff);
-    color:#042033;border:none;padding:12px 14px;border-radius:8px;
-    font-weight:700;cursor:pointer;display:flex;gap:10px;align-items:center;justify-content:center;
-    box-shadow: 0 6px 18px rgba(31,159,255,0.12);
-  }
-  .compose-btn:active{transform:translateY(1px)}
-  .nav {
-    display:flex;flex-direction:column;gap:8px;margin-top:6px;
-  }
-  .nav a{
-    text-decoration:none;color:var(--muted);padding:8px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;
-  }
-  .nav a.active{background:var(--glass);color:var(--text)}
-  .labels {display:flex;flex-direction:column;gap:6px;margin-top:6px;font-size:14px}
-  .label {
-    display:inline-flex;gap:8px;align-items:center;padding:6px;border-radius:6px;color:var(--muted);cursor:pointer;
-  }
-  .label .dot{width:10px;height:10px;border-radius:50%}
-  .divider{height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);margin:8px 0;border-radius:2px}
-
-  /* ----------------------
-     Center - list
-     ---------------------- */
-  .center {
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    min-height:300px;
-  }
-  .topbar {
-    display:flex;align-items:center;gap:8px;justify-content:space-between;background:var(--panel);padding:10px;border-radius:10px;
-  }
-  .search {
-    display:flex;gap:8px;align-items:center;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;flex:1;
-  }
-  .search input{
-    background:transparent;border:0;outline:0;color:var(--text);font-size:14px;width:100%;
-  }
-  .filters {display:flex;gap:8px;align-items:center}
-  .filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:var(--muted);cursor:pointer}
-  .email-list {
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-    border-radius:10px;padding:6px;overflow:auto;border:1px solid rgba(255,255,255,0.02);
-  }
-  .email-row {
-    display:flex;gap:12px;align-items:center;padding:12px;border-radius:8px;cursor:pointer;
-  }
-  .email-row:hover{background:rgba(255,255,255,0.02)}
-  .avatar{
-    width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#2a8fff,#6be1ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#052030;
-  }
-  .meta{flex:1;display:flex;flex-direction:column;gap:4px}
-  .meta .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
-  .subject{font-weight:700}
-  .snippet{font-size:13px;color:var(--muted)}
-  .unread .subject{color:var(--text)}
-  .muted{color:var(--muted);font-size:13px}
-
-  /* ----------------------
-     Right - message view
-     ---------------------- */
-  .message {
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-    padding:12px;border-radius:10px;display:flex;flex-direction:column;gap:12px;border:1px solid rgba(255,255,255,0.02);
-    min-height:300px;
-  }
-  .msg-actions{display:flex;gap:8px;align-items:center}
-  .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:var(--muted);cursor:pointer}
-  .msg-header{display:flex;gap:12px;align-items:center}
-  .msg-title{font-weight:800;font-size:18px}
-  .msg-body{background:linear-gradient(180deg, rgba(255,255,255,0.00), rgba(255,255,255,0.00));padding:12px;border-radius:8px;color:var(--text);line-height:1.6}
-  .small{font-size:13px;color:var(--muted)}
-
-  /* ----------------------
-     Compose modal
-     ---------------------- */
-  .modal-backdrop{
-    position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:60;
-  }
-  .modal{
-    width:720px;max-width:100%;background:linear-gradient(180deg, #081223, #07121c);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
-  }
-  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-  .field input, .field textarea{
-    background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02);padding:10px;border-radius:8px;color:var(--text);outline:0;
-  }
-  .field textarea{min-height:160px;resize:vertical}
-  .send-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .send-btn{background:linear-gradient(90deg,var(--accent),#69d0ff);border:none;padding:10px 14px;border-radius:8px;font-weight:700;cursor:pointer;color:#042033}
-
-  /* ----------------------
-     Responsive
-     ---------------------- */
-  @media (max-width: 1060px){
-    .app{grid-template-columns: 220px 1fr}
-    .message{display:none}
-  }
-  @media (max-width:720px){
-    body{padding:12px}
-    .app{grid-template-columns:1fr; padding:12px}
-    .sidebar{display:flex;flex-direction:row;gap:8px;overflow:auto;padding:8px}
-    .logo{display:none}
-    .nav{display:flex;flex-direction:row}
-    .center{order:2}
-  }
-
-  /* small helpers */
-  .count{background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:999px;color:var(--muted);font-size:12px}
-  .pill{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px}
-  .hidden{display:none}
-  .flex{display:flex;gap:8px;align-items:center}
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #2c3e50;
+        margin: 0;
+    }
+    .calculator {
+        background: #34495e;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        width: 300px;
+    }
+    .display {
+        background: #1abc9c;
+        color: white;
+        font-size: 2em;
+        text-align: right;
+        padding: 15px;
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+    .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+    }
+    button {
+        padding: 20px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 10px;
+        background: #ecf0f1;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    button.operator {
+        background: #e67e22;
+        color: white;
+    }
+    button.clear {
+        background: #e74c3c;
+        color: white;
+    }
+    button:hover {
+        background: #bdc3c7;
+    }
+    button.operator:hover {
+        background: #d35400;
+    }
+    button.clear:hover {
+        background: #c0392b;
+    }
 </style>
 </head>
 <body>
-<div class="app" role="application" aria-label="Ultra Gmail">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" aria-label="Left sidebar">
-    <div class="logo" aria-hidden="false">
-      <div class="mark">UG</div>
-      <div>
-        <div style="font-size:14px">Ultra Gmail</div>
-        <div class="muted" style="font-size:12px">Personal — Likhith</div>
-      </div>
+
+<div class="calculator">
+    <div id="display" class="display">0</div>
+    <div class="buttons">
+        <button class="clear" onclick="clearDisplay()">C</button>
+        <button onclick="backspace()">⌫</button>
+        <button class="operator" onclick="appendOperator('%')">%</button>
+        <button class="operator" onclick="appendOperator('/')">÷</button>
+
+        <button onclick="appendNumber('7')">7</button>
+        <button onclick="appendNumber('8')">8</button>
+        <button onclick="appendNumber('9')">9</button>
+        <button class="operator" onclick="appendOperator('*')">×</button>
+
+        <button onclick="appendNumber('4')">4</button>
+        <button onclick="appendNumber('5')">5</button>
+        <button onclick="appendNumber('6')">6</button>
+        <button class="operator" onclick="appendOperator('-')">-</button>
+
+        <button onclick="appendNumber('1')">1</button>
+        <button onclick="appendNumber('2')">2</button>
+        <button onclick="appendNumber('3')">3</button>
+        <button class="operator" onclick="appendOperator('+')">+</button>
+
+        <button onclick="appendNumber('0')">0</button>
+        <button onclick="appendNumber('.')">.</button>
+        <button class="operator" onclick="calculateResult()">=</button>
     </div>
-
-    <button class="compose-btn" id="composeBtn" title="Compose (C)">✉️ Compose</button>
-
-    <nav class="nav" id="folders" aria-label="Folders">
-      <a href="#" data-folder="inbox" class="active">Inbox <span class="count" id="inboxCount">0</span></a>
-      <a href="#" data-folder="starred">Starred <span class="count" id="starredCount">0</span></a>
-      <a href="#" data-folder="sent">Sent</a>
-      <a href="#" data-folder="archive">Archive</a>
-      <a href="#" data-folder="trash">Trash</a>
-    </nav>
-
-    <div class="divider" aria-hidden="true"></div>
-
-    <div style="font-size:13px;color:var(--muted)">Labels</div>
-    <div class="labels" id="labels">
-      <!-- labels populated by JS -->
-    </div>
-
-    <div style="margin-top:auto" class="small muted">Tip: Press <kbd>C</kbd> to compose • <kbd>/</kbd> focus search</div>
-  </aside>
-
-  <!-- CENTER - email list -->
-  <main class="center" aria-label="Inbox and email list">
-    <div class="topbar" role="region" aria-label="Inbox toolbar">
-      <div class="search" aria-hidden="false">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.5"/></svg>
-        <input id="searchInput" placeholder="Search mail (press / to focus)" aria-label="Search mail"/>
-      </div>
-
-      <div class="filters" role="group" aria-label="Filters">
-        <button class="filter-btn" id="refreshBtn" title="Refresh">⟳ Refresh</button>
-        <button class="filter-btn" id="markReadBtn">Mark read</button>
-        <button class="filter-btn" id="archiveBtn">Archive</button>
-        <div class="muted" id="statusInfo">Showing <span id="shownCount">0</span> messages</div>
-      </div>
-    </div>
-
-    <div class="email-list" id="emailList" aria-live="polite" tabindex="0">
-      <!-- list items injected by JS -->
-    </div>
-  </main>
-
-  <!-- RIGHT - message view -->
-  <aside class="message" id="messagePane" aria-label="Message view">
-    <div class="msg-actions">
-      <button class="icon-btn" id="replyBtn" title="Reply">↩ Reply</button>
-      <button class="icon-btn" id="starBtn" title="Star">☆ Star</button>
-      <button class="icon-btn" id="toggleReadBtn" title="Toggle read/unread">Mark read/unread</button>
-      <button class="icon-btn" id="delBtn" title="Move to Trash">🗑️ Delete</button>
-      <div style="margin-left:auto" class="small muted" id="msgDate"></div>
-    </div>
-
-    <div id="msgContent" class="flex" style="flex-direction:column">
-      <div class="msg-header">
-        <div class="avatar" id="msgAvatar">A</div>
-        <div style="flex:1">
-          <div class="msg-title" id="msgSubject">Select an email</div>
-          <div class="small muted" id="msgFrom">—</div>
-        </div>
-      </div>
-
-      <div class="msg-body" id="msgBody">
-        Select an email on the left to view its content. Try composing a message or starring messages.
-      </div>
-    </div>
-  </aside>
-</div>
-
-<!-- Compose modal -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Compose message">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-weight:800">New Message</div>
-      <button class="icon-btn" id="closeModal">✕</button>
-    </div>
-
-    <div style="margin-top:10px">
-      <div class="field">
-        <label class="small muted">To</label>
-        <input id="toInput" placeholder="recipient@example.com">
-      </div>
-      <div class="field">
-        <label class="small muted">Subject</label>
-        <input id="subjectInput" placeholder="Subject">
-      </div>
-      <div class="field">
-        <label class="small muted">Message</label>
-        <textarea id="bodyInput" placeholder="Write your message..."></textarea>
-      </div>
-
-      <div class="send-row">
-        <div class="muted small">Draft saved locally</div>
-        <div style="display:flex;gap:8px">
-          <button class="icon-btn" id="saveDraft">Save</button>
-          <button class="send-btn" id="sendBtn">Send</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
-/* Ultra Gmail — single file JS
-   - Basic email model + UI interactions
-   - Persistence via localStorage
-   - Keyboard shortcuts: C = compose, / = focus search, Arrow keys to navigate
-*/
+    let display = document.getElementById('display');
+    let currentInput = '';
 
-/* ---------- Utilities ---------- */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const uid = () => 'm_' + Math.random().toString(36).slice(2,9);
-
-/* ---------- Sample data ---------- */
-const sample = [
-  { id: uid(), from: 'Alice Johnson', email:'alice@example.com', subject:'Project kickoff — notes', snippet:'I attached the meeting notes and Q1 timeline. Please review the milestones and reply with availability.', body:'Hi team,\n\nThanks for joining the kickoff. Attached are notes and the timeline for Q1. Action items: 1) confirm staffing 2) finalize milestones\n\nBest,\nAlice', date: daysAgo(0.5), starred:false, read:false, labels:['Work'] },
-  { id: uid(), from: 'GitHub', email:'noreply@github.com', subject:'New pull request opened', snippet:'A new PR was opened in the repo: fix/ui-bugs', body:'Someone opened a PR. Review at your convenience.', date: daysAgo(1.2), starred:false, read:true, labels:['Notifications'] },
-  { id: uid(), from: 'Spotify', email:'no-reply@spotify.com', subject:'Your Weekly Mix is ready 🎶', snippet:'We made a mix based on your listening. Enjoy it!', body:'Your Weekly Mix is waiting — tune in!', date: daysAgo(2), starred:true, read:false, labels:['Personal'] },
-  { id: uid(), from: 'Bank', email:'alerts@bank.com', subject:'Your statement is available', snippet:'Your monthly statement for Sep is available online.', body:'Dear customer,\nYour statement is ready. Visit our portal to view it securely.\n\nRegards,\nBank', date: daysAgo(10), starred:false, read:true, labels:[] },
-  { id: uid(), from: 'Friend', email:'sam@example.com', subject:'Weekend plans?', snippet:'You up for a hike or coffee this weekend?', body:'Hey! Wanna go for a hike Sat morning? Or catch up over coffee?', date: daysAgo(3), starred:false, read:false, labels:['Friends'] }
-];
-
-function daysAgo(n){ return Date.now() - Math.floor(n*24*60*60*1000); }
-
-/* ---------- App state ---------- */
-const DB_KEY = 'ultragmail_data_v1';
-let state = {
-  messages: [],
-  selectedId: null,
-  folder: 'inbox',
-  labels: ['Work','Personal','Friends','Notifications'],
-  drafts: {}
-};
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(DB_KEY);
-    if(raw){
-      state = JSON.parse(raw);
-      // basic sanity: if no messages, seed
-      if(!state.messages || state.messages.length===0){
-        state.messages = sample;
-      }
-    } else {
-      state.messages = sample;
+    function appendNumber(num) {
+        if (num === '.' && currentInput.includes('.')) return;
+        currentInput += num;
+        updateDisplay();
     }
-  }catch(e){
-    console.error('load error', e);
-    state.messages = sample;
-  }
-}
-function saveState(){ localStorage.setItem(DB_KEY, JSON.stringify(state)); }
 
-/* ---------- Rendering ---------- */
-const inboxCountEl = $('#inboxCount');
-const starredCountEl = $('#starredCount');
-const labelsEl = $('#labels');
-const emailListEl = $('#emailList');
-const shownCountEl = $('#shownCount');
-
-function renderLabels(){
-  labelsEl.innerHTML = '';
-  state.labels.forEach(lbl=>{
-    const a = document.createElement('div');
-    a.className='label';
-    const dot = document.createElement('span');
-    dot.className='dot'; dot.style.background = stringToColor(lbl);
-    a.appendChild(dot);
-    a.append(lbl);
-    a.addEventListener('click',()=>{ setFolder('label:'+lbl) });
-    labelsEl.appendChild(a);
-  });
-}
-
-function stringToColor(s){
-  // generate pastel-like color from string
-  let h = 0;
-  for(let i=0;i<s.length;i++) h = (h<<5)-h + s.charCodeAt(i);
-  const hue = Math.abs(h) % 360;
-  return `linear-gradient(90deg,hsl(${hue} 80% 55%), hsl(${(hue+40)%360} 80% 65%))`.replace(/,/g,'');
-}
-
-function computeCounts(){
-  const inboxCount = state.messages.filter(m => !m.archived && !m.trashed).length;
-  const starred = state.messages.filter(m => m.starred && !m.trashed).length;
-  inboxCountEl.textContent = inboxCount;
-  starredCountEl.textContent = starred;
-}
-
-function formatDate(ts){
-  const d = new Date(ts);
-  const now = new Date();
-  const diff = now - d;
-  if(diff < 1000*60*60*24) return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  return d.toLocaleDateString();
-}
-
-function renderEmailList(filterText=''){
-  emailListEl.innerHTML = '';
-  const folder = state.folder;
-  let msgs = state.messages.slice().sort((a,b)=>b.date - a.date);
-
-  // folder filter
-  msgs = msgs.filter(m=>{
-    if(folder.startsWith('label:')){
-      const lbl = folder.split(':')[1];
-      return m.labels && m.labels.includes(lbl) && !m.trashed;
+    function appendOperator(op) {
+        if (currentInput === '' && op !== '-') return; // Only allow '-' as starting operator
+        const lastChar = currentInput.slice(-1);
+        if ('+-*/%'.includes(lastChar)) {
+            currentInput = currentInput.slice(0, -1);
+        }
+        currentInput += op;
+        updateDisplay();
     }
-    if(folder === 'inbox') return !m.trashed && !m.archived;
-    if(folder === 'starred') return m.starred && !m.trashed;
-    if(folder === 'sent') return m.sent && !m.trashed;
-    if(folder === 'archive') return m.archived && !m.trashed;
-    if(folder === 'trash') return m.trashed;
-    return true;
-  });
 
-  // search filter
-  const q = filterText.trim().toLowerCase();
-  if(q){
-    msgs = msgs.filter(m=> (m.from + ' ' + m.email + ' ' + m.subject + ' ' + m.snippet + ' ' + m.body).toLowerCase().includes(q) );
-  }
-
-  shownCountEl.textContent = msgs.length;
-
-  if(msgs.length === 0){
-    emailListEl.innerHTML = '<div style="padding:20px;color:var(--muted)">No messages</div>';
-    return;
-  }
-
-  msgs.forEach(m=>{
-    const row = document.createElement('div');
-    row.className = 'email-row' + (m.read ? '' : ' unread');
-    row.tabIndex = 0;
-    row.setAttribute('data-id', m.id);
-
-    const avatar = document.createElement('div');
-    avatar.className='avatar';
-    avatar.textContent = initials(m.from);
-    row.appendChild(avatar);
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-
-    const r1 = document.createElement('div'); r1.className='row';
-    const left = document.createElement('div'); left.style.display='flex'; left.style.gap='8px'; left.style.alignItems='center';
-    const subj = document.createElement('div'); subj.className='subject'; subj.textContent = m.subject;
-    left.appendChild(subj);
-    if(m.labels && m.labels.length){
-      const l = document.createElement('div'); l.className='pill'; l.textContent = m.labels[0]; left.appendChild(l);
+    function clearDisplay() {
+        currentInput = '';
+        updateDisplay();
     }
-    r1.appendChild(left);
 
-    const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
-    const time = document.createElement('div'); time.className='muted'; time.textContent = formatDate(m.date);
-    const star = document.createElement('button'); star.className='icon-btn'; star.title='Star'; star.textContent = m.starred ? '★' : '☆';
-    star.addEventListener('click', (ev)=>{ ev.stopPropagation(); toggleStar(m.id); });
-    right.appendChild(star);
-    right.appendChild(time);
+    function backspace() {
+        currentInput = currentInput.slice(0, -1);
+        updateDisplay();
+    }
 
-    r1.appendChild(right);
+    function calculateResult() {
+        if (currentInput === '') return;
+        try {
+            // Evaluate the expression safely
+            let result = Function('"use strict";return (' + currentInput.replace(/÷/g,'/').replace(/×/g,'*') + ')')();
+            display.innerText = result;
+            currentInput = result.toString();
+        } catch (e) {
+            display.innerText = 'Error';
+            currentInput = '';
+        }
+    }
 
-    const r2 = document.createElement('div'); r2.className='row';
-    const from = document.createElement('div'); from.textContent = m.from; from.className='muted';
-    const snippet = document.createElement('div'); snippet.className='snippet'; snippet.textContent = m.snippet;
-    r2.appendChild(from);
-    r2.appendChild(snippet);
+    function updateDisplay() {
+        display.innerText = currentInput || '0';
+    }
 
-    meta.appendChild(r1);
-    meta.appendChild(r2);
-
-    row.appendChild(meta);
-
-    // click selects
-    row.addEventListener('click', ()=> selectMessage(m.id));
-
-    // keyboard nav
-    row.addEventListener('keydown', (e) => {
-      if(e.key==='Enter') selectMessage(m.id);
-      if(e.key==='Delete') moveToTrash(m.id);
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+        if (!isNaN(e.key) || e.key === '.') appendNumber(e.key);
+        else if ('+-*/%'.includes(e.key)) appendOperator(e.key);
+        else if (e.key === 'Enter') calculateResult();
+        else if (e.key === 'Backspace') backspace();
+        else if (e.key === 'Escape') clearDisplay();
     });
-
-    emailListEl.appendChild(row);
-  });
-}
-
-function initials(name){
-  const parts = name.split(' ').filter(Boolean);
-  return (parts[0] ? parts[0][0] : '') + (parts[1] ? parts[1][0] : '');
-}
-
-/* ---------- Message view ---------- */
-function renderSelected(){
-  const id = state.selectedId;
-  const pane = $('#messagePane');
-  if(!id){
-    $('#msgSubject').textContent = 'Select an email';
-    $('#msgFrom').textContent = '—';
-    $('#msgBody').textContent = 'Select an email on the left to view its content.';
-    $('#msgAvatar').textContent = 'A';
-    $('#msgDate').textContent = '';
-    return;
-  }
-  const m = state.messages.find(x=>x.id === id);
-  if(!m) return;
-
-  m.read = true;
-  saveState();
-  computeCounts();
-  renderEmailList($('#searchInput').value || '');
-
-  $('#msgSubject').textContent = m.subject;
-  $('#msgFrom').textContent = `${m.from} • ${m.email}`;
-  $('#msgBody').textContent = m.body;
-  $('#msgAvatar').textContent = initials(m.from);
-  $('#msgDate').textContent = new Date(m.date).toLocaleString();
-  $('#starBtn').textContent = m.starred ? '★ Starred' : '☆ Star';
-  $('#toggleReadBtn').textContent = m.read ? 'Mark unread' : 'Mark read';
-}
-
-/* ---------- Actions ---------- */
-function selectMessage(id){
-  state.selectedId = id;
-  renderSelected();
-  saveState();
-}
-function toggleStar(id){
-  const m = state.messages.find(x=>x.id===id);
-  if(!m) return;
-  m.starred = !m.starred;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-}
-function setFolder(folder){
-  state.folder = folder;
-  // update folder UI
-  $$('#folders a').forEach(a=>{
-    a.classList.toggle('active', a.dataset.folder === folder || (folder.startsWith('label:') && a.dataset.folder===undefined && false));
-  });
-  // highlight labels is handled by label clicks
-  renderEmailList($('#searchInput').value || '');
-  state.selectedId = null;
-  renderSelected();
-  saveState();
-}
-function moveToTrash(id){
-  const m = state.messages.find(x=>x.id===id);
-  if(!m) return;
-  m.trashed = true;
-  if(state.selectedId===id) state.selectedId = null;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-}
-function archiveSelected(){
-  if(!state.selectedId) return;
-  const m = state.messages.find(x=>x.id===state.selectedId);
-  if(!m) return;
-  m.archived = true;
-  state.selectedId = null;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-}
-function markReadSelected(){
-  if(!state.selectedId) return;
-  const m = state.messages.find(x=>x.id===state.selectedId);
-  if(!m) return;
-  m.read = true;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-}
-function markUnreadSelected(){
-  if(!state.selectedId) return;
-  const m = state.messages.find(x=>x.id===state.selectedId);
-  if(!m) return;
-  m.read = false;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-}
-function sendMail(to, subj, body){
-  const m = {
-    id: uid(),
-    from: 'You',
-    email: 'you@local',
-    subject: subj || '(no subject)',
-    snippet: (body||'').slice(0,80),
-    body: body || '',
-    date: Date.now(),
-    sent: true,
-    read: true
-  };
-  state.messages.unshift(m);
-  saveState(); computeCounts(); setFolder('sent'); renderEmailList(); state.selectedId = m.id; renderSelected();
-}
-
-/* ---------- Compose modal ---------- */
-const modal = $('#modal');
-$('#composeBtn').addEventListener('click', ()=> openCompose());
-$('#closeModal').addEventListener('click', ()=> closeCompose());
-$('#sendBtn').addEventListener('click', ()=> {
-  const to = $('#toInput').value.trim();
-  const subj = $('#subjectInput').value.trim();
-  const body = $('#bodyInput').value.trim();
-  if(!to){ alert('Enter recipient'); $('#toInput').focus(); return; }
-  sendMail(to, subj, body);
-  closeCompose();
-});
-$('#saveDraft').addEventListener('click', ()=>{
-  const d = { to:$('#toInput').value, subject:$('#subjectInput').value, body:$('#bodyInput').value, t:Date.now() };
-  state.drafts.temp = d;
-  saveState();
-  alert('Draft saved');
-});
-
-function openCompose(prefill = {}){
-  modal.style.display = 'flex';
-  $('#toInput').value = prefill.to || '';
-  $('#subjectInput').value = prefill.subject || '';
-  $('#bodyInput').value = prefill.body || '';
-  $('#toInput').focus();
-}
-function closeCompose(){
-  modal.style.display = 'none';
-}
-
-/* ---------- Keyboard shortcuts ---------- */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'c' && !e.metaKey && !e.ctrlKey && !e.altKey){
-    e.preventDefault(); openCompose();
-  }
-  if(e.key === '/'){
-    const s = $('#searchInput');
-    s.focus(); s.select();
-    e.preventDefault();
-  }
-});
-
-/* ---------- Search ---------- */
-$('#searchInput').addEventListener('input', (e)=>{
-  renderEmailList(e.target.value);
-});
-
-/* ---------- Toolbar buttons ---------- */
-$('#refreshBtn').addEventListener('click', ()=>{
-  // small animation effect: shuffle timestamps a little
-  state.messages.forEach(m=> m.date = m.date + Math.floor(Math.random()*1000));
-  renderEmailList($('#searchInput').value || '');
-});
-$('#markReadBtn').addEventListener('click', ()=>{
-  // mark all shown as read
-  const q = $('#searchInput').value || '';
-  const msgs = getShownMessages(q);
-  msgs.forEach(m=> m.read = true);
-  saveState(); renderEmailList(q); computeCounts();
-});
-$('#archiveBtn').addEventListener('click', ()=> archiveSelected());
-$('#delBtn').addEventListener('click', ()=> {
-  if(!state.selectedId) return alert('Select a message first');
-  moveToTrash(state.selectedId);
-});
-$('#starBtn').addEventListener('click', ()=> {
-  if(!state.selectedId) return alert('Select a message first');
-  toggleStar(state.selectedId);
-});
-$('#toggleReadBtn').addEventListener('click', ()=> {
-  const m = state.messages.find(x=>x.id===state.selectedId);
-  if(!m) return;
-  m.read = !m.read;
-  saveState(); computeCounts(); renderEmailList($('#searchInput').value || ''); renderSelected();
-});
-$('#replyBtn').addEventListener('click', ()=> {
-  const m = state.messages.find(x=>x.id===state.selectedId);
-  if(!m) return alert('Select a message to reply to');
-  openCompose({ to: m.email, subject: 'Re: ' + m.subject, body: '\n\n--- Original message ---\n' + m.body });
-});
-
-/* ---------- Small helpers ---------- */
-function getShownMessages(q=''){
-  let msgs = state.messages.slice();
-  if(state.folder.startsWith('label:')){
-    const lbl = state.folder.split(':')[1];
-    msgs = msgs.filter(m=> m.labels && m.labels.includes(lbl) && !m.trashed);
-  } else if(state.folder === 'inbox'){
-    msgs = msgs.filter(m => !m.trashed && !m.archived);
-  } else if(state.folder === 'starred'){
-    msgs = msgs.filter(m => m.starred && !m.trashed);
-  } else if(state.folder === 'sent'){
-    msgs = msgs.filter(m => m.sent && !m.trashed);
-  } else if(state.folder === 'archive'){
-    msgs = msgs.filter(m => m.archived && !m.trashed);
-  } else if(state.folder === 'trash'){
-    msgs = msgs.filter(m => m.trashed);
-  }
-  const qq = (q||'').toLowerCase();
-  if(qq) msgs = msgs.filter(m=> (m.from + ' ' + m.subject + ' ' + m.snippet + ' ' + m.body).toLowerCase().includes(qq));
-  return msgs;
-}
-
-/* ---------- Initialize ---------- */
-function init(){
-  loadState();
-  renderLabels();
-  computeCounts();
-  renderEmailList();
-  renderSelected();
-
-  // folder clicks
-  $$('#folders a').forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      e.preventDefault();
-      const f = a.dataset.folder;
-      setFolder(f);
-    });
-  });
-
-  // if there's a saved draft show small hint
-  if(state.drafts && state.drafts.temp){
-    const d = state.drafts.temp;
-    // show a small toast-like prompt (simple)
-    setTimeout(()=> {
-      if(confirm('You have a saved draft. Open it?')) openCompose(d);
-    }, 800);
-  }
-}
-
-init();
-
-/* ---------- Accessibility / small niceties ---------- */
-/* Allow clicking outside modal to close */
-modal.addEventListener('click', (e)=> {
-  if(e.target === modal) closeCompose();
-});
-
-/* Keyboard navigation - up/down to move selection in list */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
-    const items = Array.from(document.querySelectorAll('.email-row'));
-    if(items.length === 0) return;
-    let idx = items.findIndex(el => el.getAttribute('data-id') === state.selectedId);
-    if(idx === -1) idx = e.key === 'ArrowDown' ? -1 : 0;
-    idx = e.key === 'ArrowDown' ? Math.min(items.length-1, idx+1) : Math.max(0, idx-1);
-    const id = items[idx].getAttribute('data-id');
-    selectMessage(id);
-    items[idx].scrollIntoView({block:'center',behavior:'smooth'});
-    e.preventDefault();
-  }
-});
 </script>
+
 </body>
 </html>
