@@ -1,496 +1,183 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Facebook — Demo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultra Groww Trading App</title>
 <style>
-  :root{
-    --bg:#F0F2F5;
-    --card:#fff;
-    --muted:#606770;
-    --accent:#1877F2;
-    --radius:12px;
-    --shadow: 0 6px 18px rgba(20,20,30,0.08);
-    --glass: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.85));
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-
-  /* Layout */
-  html,body{height:100%;margin:0;background:var(--bg);color:#111;}
-  .app {max-width:1200px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:260px 1fr 300px;gap:20px;}
-  header.topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.9);backdrop-filter:blur(6px);box-shadow:0 1px 0 rgba(0,0,0,0.04);display:flex;align-items:center;padding:10px 16px;gap:12px;border-radius:10px;margin:12px;}
-  .logo{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--accent);font-size:18px}
-  .logo svg{width:36px;height:36px}
-  .search{flex:1;display:flex}
-  .search input{width:100%;padding:10px 14px;border-radius:999px;border:1px solid #e2e6ea;background:#fff;box-shadow:none}
-  .top-actions{display:flex;gap:10px;align-items:center}
-  .icon-btn{background:var(--card);border-radius:10px;padding:8px;box-shadow:var(--shadow);border:0;cursor:pointer}
-  .profile-mini{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;background:linear-gradient(180deg,#fff,#fbfbfb);box-shadow:var(--shadow);cursor:pointer}
-  .profile-mini img{width:36px;height:36px;border-radius:50%;object-fit:cover}
-
-  /* Columns */
-  .left, .right{height:calc(100vh - 120px);overflow:auto;padding:12px 0}
-  .card{background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);margin-bottom:14px}
-  .sidebar-item{display:flex;align-items:center;gap:12px;padding:8px;border-radius:10px;cursor:pointer}
-  .sidebar-item:hover{background:#f5f7fa}
-
-  /* Composer & Feed */
-  .composer{display:flex;gap:12px;align-items:flex-start}
-  .composer .avatar{width:48px;height:48px;border-radius:50%;object-fit:cover}
-  .composer .box{flex:1}
-  .composer .box .input{width:100%;min-height:60px;border-radius:12px;padding:10px;border:1px solid #e7e9ec;background:transparent;outline:none;resize:none}
-  .composer .actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-  .post-btn{background:var(--accent);color:#fff;padding:8px 14px;border-radius:8px;border:0;cursor:pointer;box-shadow:0 6px 16px rgba(24,119,242,0.16)}
-  .feed{display:flex;flex-direction:column;gap:12px;padding-bottom:40px}
-  .post{border-radius:14px;padding:14px;background:var(--card);box-shadow:var(--shadow)}
-  .post-header{display:flex;gap:12px;align-items:center}
-  .post-header .name{font-weight:600}
-  .post-content{margin-top:10px;color:#111}
-  .post-image{margin-top:10px;border-radius:12px;overflow:hidden;max-height:420px}
-  .post-image img{width:100%;height:auto;display:block;max-height:420px;object-fit:cover}
-  .post-stats{display:flex;justify-content:space-between;margin-top:10px;color:var(--muted);font-size:13px;padding-top:8px;border-top:1px solid #eef0f2}
-  .post-actions{display:flex;gap:12px;margin-top:8px}
-  .action{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 6px;border-radius:8px;cursor:pointer;user-select:none}
-  .action:hover{background:#f5f7fa}
-
-  /* Comments */
-  .comments{margin-top:10px}
-  .comment{display:flex;gap:10px;padding:8px 0}
-  .comment .c-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
-  .comment .bubble{background:#f4f6f8;padding:8px;border-radius:8px}
-
-  /* Right column */
-  .sponsored{display:flex;flex-direction:column;gap:8px}
-  .suggest{display:flex;gap:10px;align-items:center;justify-content:space-between}
-
-  /* Responsive */
-  @media (max-width:1000px){
-    .app{grid-template-columns:1fr;max-width:920px}
-    .left,.right{display:none}
-  }
-
-  /* tiny utilities */
-  .muted{color:var(--muted);font-size:13px}
-  .small{font-size:13px;color:var(--muted)}
-  .pill{background:#eef3ff;color:#1a5fe0;padding:6px 8px;border-radius:999px;font-weight:600}
-  .like-on{color:#e6415e;font-weight:700}
-  /* modal */
-  .modal{
-    position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:50;
-  }
-  .modal .image-view{max-width:92vw;max-height:92vh;border-radius:12px;overflow:hidden;background:#000}
-  .hidden{display:none}
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f3f6f9;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background-color: #0b2545;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+    }
+    .container {
+        display: flex;
+        justify-content: space-around;
+        padding: 2rem;
+        flex-wrap: wrap;
+    }
+    .stock-list, .portfolio {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        flex: 1 1 400px;
+        margin: 1rem;
+    }
+    h2 {
+        margin-top: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+    th, td {
+        padding: 0.5rem;
+        text-align: left;
+    }
+    th {
+        border-bottom: 2px solid #ddd;
+    }
+    button {
+        padding: 0.3rem 0.6rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 0.3rem;
+    }
+    .buy {
+        background-color: #4caf50;
+        color: white;
+    }
+    .sell {
+        background-color: #f44336;
+        color: white;
+    }
 </style>
 </head>
 <body>
-<header class="topbar" role="banner">
-  <div class="logo" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#1877F2"/><path d="M9 12.5h2.5V19h2.5v-6.5H17l.5-2.5h-3V8.5c0-.9.2-1.5 1.6-1.5H18V5.5c-1 .0-1.9-.1-3-.1-2.1 0-3.6 1.1-3.6 3.4v1.2H9v2.5z" fill="#fff"/></svg>
-    Ultra
-  </div>
-  <div class="search" role="search">
-    <input id="searchInput" placeholder="Search Ultra..." aria-label="Search" />
-  </div>
-  <div class="top-actions">
-    <button class="icon-btn" title="Home">🏠</button>
-    <button class="icon-btn" title="Messages">✉</button>
-    <button class="icon-btn" title="Notifications">🔔</button>
-    <div id="meMini" class="profile-mini" title="Profile">
-      <img src="" id="meAvatarMini" alt="Me" />
-      <div style="font-size:14px" id="meNameMini"></div>
-    </div>
-  </div>
+ 
+<header>
+    <h1>Ultra Groww Trading App</h1>
 </header>
-
-<main class="app" role="main">
-  <!-- LEFT -->
-  <aside class="left">
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px">
-        <img id="meAvatar" src="" alt="me" style="width:72px;height:72px;border-radius:50%;object-fit:cover"/>
-        <div>
-          <div id="meName" style="font-weight:700;font-size:16px"></div>
-          <div class="small">Engineering · Lives nearby</div>
-        </div>
-      </div>
+ 
+<div class="container">
+    <div class="stock-list">
+        <h2>Stocks</h2>
+        <table id="stocksTable">
+            <thead>
+                <tr>
+                    <th>Stock</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
-
-    <div class="card">
-      <div style="font-weight:700;margin-bottom:6px">Shortcuts</div>
-      <div class="sidebar-item">📚 <div>Saved</div></div>
-      <div class="sidebar-item">🗣 <div>Groups</div></div>
-      <div class="sidebar-item">🏫 <div>Events</div></div>
-      <div class="sidebar-item">🔖 <div>Marketplace</div></div>
+ 
+    <div class="portfolio">
+        <h2>Portfolio</h2>
+        <table id="portfolioTable">
+            <thead>
+                <tr>
+                    <th>Stock</th>
+                    <th>Qty</th>
+                    <th>Total Value</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <h3>Total Portfolio Value: $<span id="totalValue">0</span></h3>
     </div>
-
-    <div class="card">
-      <div style="font-weight:700;margin-bottom:6px">Friends</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="sidebar-item"><img src="https://i.pravatar.cc/40?u=1" style="width:36px;height:36px;border-radius:50%"/> <div>Priya</div></div>
-        <div class="sidebar-item"><img src="https://i.pravatar.cc/40?u=2" style="width:36px;height:36px;border-radius:50%"/> <div>Ravi</div></div>
-        <div class="sidebar-item"><img src="https://i.pravatar.cc/40?u=3" style="width:36px;height:36px;border-radius:50%"/> <div>Arun</div></div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- CENTER -->
-  <section>
-    <div class="card composer" aria-label="Create post">
-      <img id="composerAvatar" class="avatar" src="" alt="you" />
-      <div class="box">
-        <div contenteditable="true" id="composerInput" class="input" role="textbox" aria-multiline="true" data-placeholder="What's on your mind?"></div>
-        <div class="actions">
-          <div class="left-actions small muted">Add to your post: photo · mood · check in</div>
-          <div>
-            <button id="postBtn" class="post-btn" title="Post">Post</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="feed" class="feed" aria-live="polite">
-      <!-- posts injected here -->
-    </div>
-  </section>
-
-  <!-- RIGHT -->
-  <aside class="right">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:700">Suggested</div>
-        <div class="small muted">See All</div>
-      </div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
-        <div class="suggest">
-          <div style="display:flex;gap:10px;align-items:center">
-            <img src="https://i.pravatar.cc/48?u=21" style="width:48px;height:48px;border-radius:10px;object-fit:cover"/>
-            <div>
-              <div style="font-weight:700">Design Group</div>
-              <div class="small">3 new posts today</div>
-            </div>
-          </div>
-          <button class="post-btn" style="padding:8px 10px">Join</button>
-        </div>
-
-        <div class="suggest">
-          <div style="display:flex;gap:10px;align-items:center">
-            <img src="https://i.pravatar.cc/48?u=22" style="width:48px;height:48px;border-radius:10px;object-fit:cover"/>
-            <div>
-              <div style="font-weight:700">Local Events</div>
-              <div class="small">Music · Tech · Food</div>
-            </div>
-          </div>
-          <button class="post-btn" style="padding:8px 10px">Explore</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="font-weight:700;margin-bottom:8px">Sponsored</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="border-radius:10px;padding:10px;background:linear-gradient(180deg,#fff,#fbfbfb)"><div style="font-weight:700">Pro Fonts Pro</div><div class="small">Make your text look awesome</div></div>
-        <div style="border-radius:10px;padding:10px;background:linear-gradient(180deg,#fff,#fbfbfb)"><div style="font-weight:700">Focus Coffee</div><div class="small">Fuel your late-night builds</div></div>
-      </div>
-    </div>
-  </aside>
-</main>
-
-<!-- modal viewer -->
-<div id="imageModal" class="modal hidden" aria-hidden="true" role="dialog" aria-label="Image viewer">
-  <div class="image-view" id="modalImageWrap"></div>
 </div>
-
+ 
 <script>
-/* Ultra Facebook — single-file app
-   Features:
-   - feed rendering with sample posts
-   - create post (text & optional image url prompt)
-   - like/unlike stored in localStorage
-   - simple comments
-   - image viewer modal
-*/
-
-/* ---------------------------
-   Utilities & sample user
-   --------------------------- */
-const USER = {
-  id: 'me',
-  name: 'Likhith',
-  avatar: 'https://i.pravatar.cc/150?u=likhith'
-};
-
-const $ = sel => document.querySelector(sel);
-const qAll = sel => Array.from(document.querySelectorAll(sel));
-const storageKey = 'ultra_fb_state_v1';
-
-function uid(prefix='id'){ return prefix + Math.random().toString(36).slice(2,9); }
-
-/* ---------------------------
-   Sample initial posts
-   --------------------------- */
-const sample = [
-  {
-    id: uid('p'),
-    author: {name:'Ananya', avatar:'https://i.pravatar.cc/150?u=ananya'},
-    text: "Just shipped a small feature — feels great to see it live! 🚀",
-    image: "https://picsum.photos/900/480?random=11",
-    likes: 12, likedByMe:false,
-    comments: [
-      {id:uid('c'), author:'Rohit', text:'Amazing! Congrats 🎉', avatar:'https://i.pravatar.cc/40?u=rohit'}
-    ],
-    created: Date.now() - 1000*60*60*6
-  },
-  {
-    id: uid('p'),
-    author: {name:'Mehul', avatar:'https://i.pravatar.cc/150?u=mehul'},
-    text: "Weekend hikes clear the head — Pic from yesterday.",
-    image: "https://picsum.photos/900/480?random=22",
-    likes: 34, likedByMe:false,
-    comments: [],
-    created: Date.now() - 1000*60*60*24
-  }
+const stocks = [
+    { name: 'AAPL', price: 150 },
+    { name: 'GOOGL', price: 2800 },
+    { name: 'AMZN', price: 3400 },
+    { name: 'TSLA', price: 700 }
 ];
-
-/* ---------------------------
-   Persistence
-   --------------------------- */
-function loadState(){
-  try{
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) return {user: USER, posts: sample};
-    const parsed = JSON.parse(raw);
-    // ensure user exists
-    parsed.user = parsed.user || USER;
-    return parsed;
-  }catch(e){
-    console.warn('load failed', e);
-    return {user: USER, posts: sample};
-  }
-}
-function saveState(state){
-  try{ localStorage.setItem(storageKey, JSON.stringify(state)); }catch(e){ console.warn('save failed', e); }
-}
-
-/* ---------------------------
-   App state & render
-   --------------------------- */
-let state = loadState();
-
-function formatTime(ts){
-  const s = Math.floor((Date.now()-ts)/1000);
-  if (s < 60) return s + 's';
-  const m = Math.floor(s/60); if (m < 60) return m + 'm';
-  const h = Math.floor(m/60); if (h < 24) return h + 'h';
-  const d = Math.floor(h/24); return d + 'd';
-}
-
-function renderUserDetails(){
-  $('#meName').textContent = state.user.name;
-  $('#meNameMini').textContent = state.user.name;
-  $('#meAvatar').src = state.user.avatar;
-  $('#meAvatarMini').src = state.user.avatar;
-  $('#composerAvatar').src = state.user.avatar;
-}
-
-function createPostElement(post){
-  const div = document.createElement('article');
-  div.className = 'post card';
-  div.dataset.id = post.id;
-
-  div.innerHTML = `
-    <div class="post-header">
-      <img src="${post.author.avatar}" alt="${post.author.name}" style="width:48px;height:48px;border-radius:10px;object-fit:cover"/>
-      <div>
-        <div class="name">${escapeHtml(post.author.name)}</div>
-        <div class="muted small">${formatTime(post.created)} · Public</div>
-      </div>
-    </div>
-    <div class="post-content">${escapeHtml(post.text || '')}</div>
-    ${post.image ? <div class="post-image"><img src="${post.image}" alt="post image" loading="lazy" /></div> : ''}
-    <div class="post-stats">
-      <div><span class="pill">${post.likes}</span> likes</div>
-      <div class="muted small">${post.comments.length} comments</div>
-    </div>
-    <div style="display:flex;gap:6px;margin-top:8px" class="post-actions">
-      <div class="action" data-action="like">${post.likedByMe ? '❤' : '🤍'} <span style="margin-left:8px">${post.likedByMe ? 'Liked' : 'Like'}</span></div>
-      <div class="action" data-action="comment">💬 Comment</div>
-      <div class="action" data-action="share">🔁 Share</div>
-    </div>
-    <div class="comments" aria-label="comments"></div>
-  `;
-
-  // comments section
-  const commentsWrap = div.querySelector('.comments');
-  post.comments.forEach(c => {
-    const cm = document.createElement('div');
-    cm.className = 'comment';
-    cm.innerHTML = `<img class="c-avatar" src="${c.avatar || 'https://i.pravatar.cc/40?u='+encodeURIComponent(c.author)}" alt="${c.author}" />
-      <div class="bubble"><div style="font-weight:700;font-size:13px">${escapeHtml(c.author)}</div><div class="small">${escapeHtml(c.text)}</div></div>`;
-    commentsWrap.appendChild(cm);
-  });
-
-  // wire actions
-  div.querySelectorAll('.post-actions .action').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const act = btn.dataset.action;
-      if (act === 'like') toggleLike(post.id);
-      if (act === 'comment') openCommentInput(div, post.id);
-      if (act === 'share') alert('Share feature demo only.');
+ 
+const portfolio = {};
+ 
+function renderStocks() {
+    const tbody = document.querySelector('#stocksTable tbody');
+    tbody.innerHTML = '';
+    stocks.forEach(stock => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${stock.name}</td>
+            <td>$${stock.price.toFixed(2)}</td>
+            <td>
+                <button class="buy" onclick="buyStock('${stock.name}')">Buy</button>
+                <button class="sell" onclick="sellStock('${stock.name}')">Sell</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
     });
-  });
-
-  // image click -> modal
-  const img = div.querySelector('.post-image img');
-  if (img){
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', ()=> openModalWithImage(post.image));
-  }
-
-  return div;
 }
-
-function renderFeed(){
-  const feed = $('#feed');
-  feed.innerHTML = '';
-  // newest first
-  const posts = state.posts.slice().sort((a,b)=>b.created - a.created);
-  posts.forEach(p => feed.appendChild(createPostElement(p)));
-}
-
-/* ---------------------------
-   Actions
-   --------------------------- */
-function toggleLike(postId){
-  const p = state.posts.find(x=>x.id===postId);
-  if (!p) return;
-  p.likedByMe = !p.likedByMe;
-  p.likes += p.likedByMe ? 1 : -1;
-  saveState(state);
-  renderFeed();
-}
-
-function openCommentInput(postEl, postId){
-  // if input exists return focus
-  if (postEl.querySelector('.comment-input')) {
-    postEl.querySelector('.comment-input input').focus();
-    return;
-  }
-  const inputRow = document.createElement('div');
-  inputRow.className = 'comment comment-input';
-  inputRow.innerHTML = `<img class="c-avatar" src="${state.user.avatar}" alt="you" />
-    <div style="flex:1;display:flex;gap:8px;align-items:center">
-      <input placeholder="Write a comment..." style="flex:1;padding:8px;border-radius:8px;border:1px solid #e7e9ec"/>
-      <button class="post-btn" style="padding:6px 10px">Send</button>
-    </div>`;
-  const sendBtn = inputRow.querySelector('button');
-  const inp = inputRow.querySelector('input');
-  sendBtn.addEventListener('click', ()=>{
-    const text = inp.value.trim();
-    if (!text) return;
-    const post = state.posts.find(x=>x.id===postId);
-    post.comments.push({id:uid('c'), author: state.user.name, text, avatar: state.user.avatar});
-    saveState(state);
-    renderFeed();
-  });
-  const commentsWrap = postEl.querySelector('.comments');
-  commentsWrap.appendChild(inputRow);
-  inp.focus();
-}
-
-/* Modal */
-function openModalWithImage(src){
-  const modal = $('#imageModal');
-  const wrap = $('#modalImageWrap');
-  wrap.innerHTML = <img src="${src}" style="max-width:100%;max-height:92vh;display:block" />;
-  modal.classList.remove('hidden');
-  modal.setAttribute('aria-hidden','false');
-}
-$('#imageModal').addEventListener('click', (e)=> {
-  if (e.target.id === 'imageModal' || e.target.closest('.image-view')) {
-    $('#imageModal').classList.add('hidden');
-    $('#imageModal').setAttribute('aria-hidden','true');
-    $('#modalImageWrap').innerHTML = '';
-  }
-});
-
-/* Composer: create post */
-$('#postBtn').addEventListener('click', ()=>{
-  const txt = $('#composerInput').innerText.trim();
-  if (!txt) {
-    // allow quick image-only post via prompt
-    const imageUrl = prompt('Enter image URL to post (or cancel):');
-    if (!imageUrl) return alert('Please write something or provide an image URL to post.');
-    createPost({text: '', image: imageUrl});
-    return;
-  }
-  // optionally ask for image url
-  let image = null;
-  if (txt.toLowerCase().includes('pic:')) {
-    // simple: if user types "pic:URL" detect it
-    const m = txt.match(/pic:\s*(https?:\/\/\S+)/i);
-    if (m) { image = m[1]; }
-  }
-  createPost({text: txt, image});
-});
-
-function createPost({text, image}){
-  const post = {
-    id: uid('p'),
-    author: {name: state.user.name, avatar: state.user.avatar},
-    text: text,
-    image: image || null,
-    likes: 0, likedByMe:false,
-    comments: [],
-    created: Date.now()
-  };
-  state.posts.push(post);
-  saveState(state);
-  renderFeed();
-  // clear composer
-  $('#composerInput').innerHTML = '';
-}
-
-/* ---------------------------
-   Helpers & safety
-   --------------------------- */
-function escapeHtml(s=''){
-  return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
-}
-
-/* ---------------------------
-   Init
-   --------------------------- */
-function init(){
-  // if state missing user, set
-  state.user = state.user || USER;
-  // ensure avatars present
-  state.posts.forEach(p => { p.author.avatar = p.author.avatar || 'https://i.pravatar.cc/150?u='+encodeURIComponent(p.author.name); });
-  renderUserDetails();
-  renderFeed();
-  // search input basic filter
-  $('#searchInput').addEventListener('input', (e)=>{
-    const q = e.target.value.trim().toLowerCase();
-    qAll('.post').forEach(el=>{
-      const id = el.dataset.id;
-      const post = state.posts.find(p=>p.id===id);
-      const inText = (post.text||'').toLowerCase().includes(q);
-      const inAuthor = (post.author.name||'').toLowerCase().includes(q);
-      el.style.display = (q === '' || inText || inAuthor) ? '' : 'none';
-    });
-  });
-
-  // small keyboard shortcut: "n" focuses composer
-  window.addEventListener('keydown', (e)=>{
-    if (!e.target.matches('input,textarea,[contenteditable]') && e.key.toLowerCase() === 'n') {
-      $('#composerInput').focus();
-      e.preventDefault();
+ 
+function renderPortfolio() {
+    const tbody = document.querySelector('#portfolioTable tbody');
+    tbody.innerHTML = '';
+    let totalValue = 0;
+    for (const stock in portfolio) {
+        const qty = portfolio[stock].qty;
+        const value = portfolio[stock].qty * portfolio[stock].price;
+        totalValue += value;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${stock}</td>
+            <td>${qty}</td>
+            <td>$${value.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
     }
-  });
+    document.getElementById('totalValue').innerText = totalValue.toFixed(2);
 }
-
-init();
-
+ 
+function buyStock(name) {
+    const stock = stocks.find(s => s.name === name);
+    if (!portfolio[name]) {
+        portfolio[name] = { qty: 0, price: stock.price };
+    }
+    portfolio[name].qty += 1;
+    portfolio[name].price = stock.price;
+    renderPortfolio();
+}
+ 
+function sellStock(name) {
+    if (portfolio[name] && portfolio[name].qty > 0) {
+        portfolio[name].qty -= 1;
+        if (portfolio[name].qty === 0) delete portfolio[name];
+        renderPortfolio();
+    }
+}
+ 
+// Simulate price changes
+function updatePrices() {
+    stocks.forEach(stock => {
+        const change = (Math.random() - 0.5) * 5; // ±$2.5
+        stock.price = Math.max(1, stock.price + change);
+    });
+    renderStocks();
+    renderPortfolio();
+}
+ 
+setInterval(updatePrices, 3000); // Update every 3 seconds
+renderStocks();
+renderPortfolio();
 </script>
+ 
 </body>
 </html>
