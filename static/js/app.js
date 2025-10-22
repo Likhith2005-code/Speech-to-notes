@@ -146,3 +146,57 @@ window.addEventListener('click',(e)=>{
     menuContent.style.display='none';
   }
 })
+
+
+
+// app.js
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const transcribeForm = document.getElementById("transcribeForm"); // assuming form has this id
+    const inputTypeSelect = document.getElementById("input_type"); // select or input for type
+    const fileInput = document.getElementById("file_input"); // file input
+    const youtubeInput = document.getElementById("youtube_url"); // youtube url input
+    const durationInput = document.getElementById("duration"); // duration input for mic
+    const resultDiv = document.getElementById("transcription_result"); // div to show transcription
+
+    transcribeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        const inputType = inputTypeSelect.value;
+        formData.append("input_type", inputType);
+
+        if (inputType === "file") {
+            if (fileInput.files.length === 0) {
+                alert("Please select a file");
+                return;
+            }
+            formData.append("file", fileInput.files[0]);
+        } else if (inputType === "youtube") {
+            const url = youtubeInput.value.trim();
+            if (!url) {
+                alert("Please enter a YouTube URL");
+                return;
+            }
+            formData.append("youtube_url", url);
+        } else if (inputType === "microphone") {
+            const duration = durationInput.value || 5;
+            formData.append("duration", duration);
+        }
+
+        resultDiv.innerText = "Transcribing...";
+
+        try {
+            const response = await fetch("/transcribe", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            resultDiv.innerText = data.transcription || "No transcription returned.";
+        } catch (err) {
+            console.error(err);
+            resultDiv.innerText = "Error during transcription.";
+        }
+    });
+});
