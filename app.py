@@ -151,6 +151,8 @@ def transcribe():
         result = f"Error: {str(e)}"
     return jsonify({"transcription": result})
 
+
+
 @app.route('/about')
 def about():
     return render_template('about.html')
