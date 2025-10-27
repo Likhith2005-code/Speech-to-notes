@@ -1,183 +1,565 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra Groww Trading App</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ultra Screen Recorder — Single File</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f3f6f9;
-        margin: 0;
-        padding: 0;
-    }
-    header {
-        background-color: #0b2545;
-        color: white;
-        padding: 1rem;
-        text-align: center;
-    }
-    .container {
-        display: flex;
-        justify-content: space-around;
-        padding: 2rem;
-        flex-wrap: wrap;
-    }
-    .stock-list, .portfolio {
-        background-color: white;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        flex: 1 1 400px;
-        margin: 1rem;
-    }
-    h2 {
-        margin-top: 0;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 1rem;
-    }
-    th, td {
-        padding: 0.5rem;
-        text-align: left;
-    }
-    th {
-        border-bottom: 2px solid #ddd;
-    }
-    button {
-        padding: 0.3rem 0.6rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 0.3rem;
-    }
-    .buy {
-        background-color: #4caf50;
-        color: white;
-    }
-    .sell {
-        background-color: #f44336;
-        color: white;
-    }
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#97a0b3; --accent:#6ee7b7;
+    --danger:#ff6b6b; --glass: rgba(255,255,255,0.03);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    background: linear-gradient(180deg,var(--bg),#071020);
+    color:#e6eef6; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:28px;
+  }
+  .app{
+    width:980px; max-width:98vw; background:linear-gradient(180deg,var(--card),#071424);
+    border-radius:12px; padding:18px; box-shadow: 0 10px 40px rgba(2,6,23,0.7);
+    display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start;
+  }
+  header{grid-column:1 / -1; display:flex; align-items:center; gap:12px}
+  header h1{font-size:18px;margin:0}
+  header p{margin:0;color:var(--muted);font-size:13px}
+  .controls{background:var(--glass); padding:12px; border-radius:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  button, select, label.switch{background:transparent;border:0;color:inherit;font-weight:600;cursor:pointer}
+  .btn{
+    padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.05));
+  }
+  .btn.primary{background:linear-gradient(180deg, var(--accent), #2dd8a7); color:#042018}
+  .btn.warn{background:linear-gradient(180deg, var(--danger), #ff4040); color:#210000}
+  .status{font-size:13px;color:var(--muted);margin-left:auto}
+  .preview{background:#000;border-radius:8px;overflow:hidden;height:360px; position:relative; display:flex; align-items:center; justify-content:center}
+  video#preview{width:100%; height:100%; object-fit:contain; background:#000}
+  .pip-preview{position:absolute; right:12px; bottom:12px; width:140px; height:100px; border:2px solid rgba(255,255,255,0.06); border-radius:6px; overflow:hidden; background:#000}
+  .right-col{display:flex;flex-direction:column; gap:12px}
+  .panel{background:rgba(255,255,255,0.02); padding:12px; border-radius:10px}
+  .panel h3{margin:0 0 8px 0; font-size:14px}
+  .row{display:flex; gap:8px; align-items:center}
+  input[type=checkbox]{width:16px;height:16px}
+  .small{font-size:13px;color:var(--muted)}
+  .recordings{display:flex;flex-direction:column; gap:8px; max-height:260px; overflow:auto}
+  .rec-item{display:flex; gap:8px; align-items:center; padding:8px; border-radius:8px; background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+  .rec-item video{width:120px; height:68px; object-fit:cover; border-radius:6px; background:#000}
+  .rec-meta{flex:1}
+  .tiny{font-size:12px;color:var(--muted)}
+  footer{grid-column:1 / -1; text-align:center; color:var(--muted); font-size:12px; margin-top:8px}
+  input[type=range]{width:120px}
+  .timer{font-family:monospace; font-weight:700; color:#fff; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.03)}
+  .danger-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--danger);margin-right:8px;vertical-align:middle}
+  a.link{color:var(--accent); text-decoration:none}
+  @media (max-width:980px){
+    .app{grid-template-columns: 1fr; padding:12px}
+    .right-col{order:2}
+  }
 </style>
 </head>
 <body>
- 
-<header>
-    <h1>Ultra Groww Trading App</h1>
-</header>
- 
-<div class="container">
-    <div class="stock-list">
-        <h2>Stocks</h2>
-        <table id="stocksTable">
-            <thead>
-                <tr>
-                    <th>Stock</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+<div class="app" role="application" aria-label="Ultra Screen Recorder">
+  <header>
+    <div>
+      <h1>Ultra Screen Recorder</h1>
+      <p class="small">Screen + audio recording with optional webcam PiP. Single-file demo — pragmatic, not miraculous.</p>
     </div>
- 
-    <div class="portfolio">
-        <h2>Portfolio</h2>
-        <table id="portfolioTable">
-            <thead>
-                <tr>
-                    <th>Stock</th>
-                    <th>Qty</th>
-                    <th>Total Value</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <h3>Total Portfolio Value: $<span id="totalValue">0</span></h3>
+    <div class="status small" id="status">Idle</div>
+  </header>
+
+  <section>
+    <div class="controls panel" id="controls">
+      <div class="row" style="gap:12px;width:100%">
+        <button class="btn primary" id="startBtn">Start Recording</button>
+        <button class="btn" id="pauseBtn" disabled>Pause</button>
+        <button class="btn warn" id="stopBtn" disabled>Stop</button>
+        <div style="margin-left:8px" class="tiny">
+          <span class="timer" id="timer">00:00:00</span>
+        </div>
+        <div style="margin-left:auto" class="tiny">Quality:
+          <select id="qualitySelect" title="Recording quality / bitrate">
+            <option value="high">High (vp9)</option>
+            <option value="medium" selected>Medium (vp8)</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <label><input type="checkbox" id="withMic" checked> Capture Microphone</label>
+        <label><input type="checkbox" id="withSystem"> Capture System Audio (if allowed)</label>
+        <label><input type="checkbox" id="withCam"> Overlay Webcam (PiP)</label>
+        <label style="margin-left:auto"><input type="checkbox" id="autoDownload"> Auto-download after stop</label>
+      </div>
+
+      <div class="row" style="margin-top:8px;justify-content:space-between">
+        <div class="tiny">MIME: <span id="mimeLabel">webm</span></div>
+        <div class="tiny">Tip: Allow microphone & screen permissions when asked.</div>
+      </div>
     </div>
+
+    <div class="preview panel">
+      <video id="preview" autoplay muted playsinline></video>
+      <div id="pipContainer" class="pip-preview" style="display:none">
+        <video id="camPreview" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+      </div>
+    </div>
+  </section>
+
+  <aside class="right-col">
+    <div class="panel">
+      <h3>Live</h3>
+      <div class="row small"><span id="liveStatus">No active capture</span></div>
+      <div style="height:10px"></div>
+      <div class="row small">
+        <label>Bitrate: <input type="range" id="bitrateRange" min="200" max="8000" value="2500"> <span id="bitrateLabel">2500 kbps</span></label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Recordings</h3>
+      <div class="recordings" id="recordingsList">
+        <div class="tiny">No recordings yet.</div>
+      </div>
+    </div>
+  </aside>
+
+  <footer>
+    Built for practical testing — not a replacement for desktop apps. Issues? Check browser permissions & console.
+  </footer>
 </div>
- 
+
 <script>
-const stocks = [
-    { name: 'AAPL', price: 150 },
-    { name: 'GOOGL', price: 2800 },
-    { name: 'AMZN', price: 3400 },
-    { name: 'TSLA', price: 700 }
-];
- 
-const portfolio = {};
- 
-function renderStocks() {
-    const tbody = document.querySelector('#stocksTable tbody');
-    tbody.innerHTML = '';
-    stocks.forEach(stock => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${stock.name}</td>
-            <td>$${stock.price.toFixed(2)}</td>
-            <td>
-                <button class="buy" onclick="buyStock('${stock.name}')">Buy</button>
-                <button class="sell" onclick="sellStock('${stock.name}')">Sell</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+/*
+ Ultra Screen Recorder — single-file
+ - Uses getDisplayMedia for screen.
+ - Optionally grabs mic via getUserMedia.
+ - Optional webcam PiP composited into a canvas and recorded as single video stream.
+ - Uses MediaRecorder to produce webm blobs for download.
+*/
+
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const stopBtn = document.getElementById('stopBtn');
+const preview = document.getElementById('preview');
+const camPreview = document.getElementById('camPreview');
+const pipContainer = document.getElementById('pipContainer');
+const recordingsList = document.getElementById('recordingsList');
+const statusEl = document.getElementById('status');
+const liveStatus = document.getElementById('liveStatus');
+const timerEl = document.getElementById('timer');
+const mimeLabel = document.getElementById('mimeLabel');
+const qualitySelect = document.getElementById('qualitySelect');
+const withMic = document.getElementById('withMic');
+const withCam = document.getElementById('withCam');
+const withSystem = document.getElementById('withSystem');
+const bitrateRange = document.getElementById('bitrateRange');
+const bitrateLabel = document.getElementById('bitrateLabel');
+const autoDownload = document.getElementById('autoDownload');
+
+let screenStream = null;
+let micStream = null;
+let camStream = null;
+let recordedBlobs = [];
+let mediaRecorder = null;
+let startTime = null;
+let timerInterval = null;
+
+// For compositing
+let canvas = null;
+let canvasStream = null;
+let canvasCtx = null;
+let canvasAnimationId = null;
+
+function updateStatus(text){
+  statusEl.textContent = text;
 }
- 
-function renderPortfolio() {
-    const tbody = document.querySelector('#portfolioTable tbody');
-    tbody.innerHTML = '';
-    let totalValue = 0;
-    for (const stock in portfolio) {
-        const qty = portfolio[stock].qty;
-        const value = portfolio[stock].qty * portfolio[stock].price;
-        totalValue += value;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${stock}</td>
-            <td>${qty}</td>
-            <td>$${value.toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
+
+function formatTime(ms){
+  if(!ms) return '00:00:00';
+  const s = Math.floor(ms/1000);
+  const hh = String(Math.floor(s/3600)).padStart(2,'0');
+  const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return ${hh}:${mm}:${ss};
+}
+
+function updateTimer(){
+  const elapsed = Date.now() - startTime;
+  timerEl.textContent = formatTime(elapsed);
+}
+
+function chooseMimeAndOptions(){
+  const q = qualitySelect.value;
+  let mime = '';
+  let options = {};
+  if (q === 'high') {
+    // best effort
+    mime = 'video/webm;codecs=vp9,opus';
+    options = { mimeType: mime, bitsPerSecond: parseInt(bitrateRange.value)*1000 };
+  } else if (q === 'medium') {
+    mime = 'video/webm;codecs=vp8,opus';
+    options = { mimeType: mime, bitsPerSecond: parseInt(bitrateRange.value)*1000 };
+  } else {
+    mime = 'video/webm';
+    options = { mimeType: mime, bitsPerSecond: 800*1000 };
+  }
+  // fallback if not supported
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    const fallback = 'video/webm';
+    options.mimeType = fallback;
+  }
+  mimeLabel.textContent = options.mimeType;
+  return options;
+}
+
+async function startCapture(){
+  startBtn.disabled = true;
+  updateStatus('Requesting screen permission...');
+  recordedBlobs = [];
+
+  const captureOptions = { video: true, audio: false };
+  if (withSystem.checked) {
+    // request system audio if requested — browser may ignore or prompt differently
+    captureOptions.audio = true;
+  }
+
+  try {
+    screenStream = await navigator.mediaDevices.getDisplayMedia(captureOptions);
+  } catch (err) {
+    console.error('getDisplayMedia error:', err);
+    updateStatus('Screen permission denied or not supported.');
+    startBtn.disabled = false;
+    return;
+  }
+
+  // If the screenStream has audio already (system audio), we'll include it.
+  const tracks = [...screenStream.getVideoTracks()];
+  let audioTracks = screenStream.getAudioTracks() || [];
+
+  // Optionally get microphone separately and combine audio
+  if (withMic.checked) {
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      if (micStream && micStream.getAudioTracks().length) {
+        audioTracks = audioTracks.concat(micStream.getAudioTracks());
+      }
+    } catch (err) {
+      console.warn('Microphone access denied or not available:', err);
+      // proceed without microphone
     }
-    document.getElementById('totalValue').innerText = totalValue.toFixed(2);
-}
- 
-function buyStock(name) {
-    const stock = stocks.find(s => s.name === name);
-    if (!portfolio[name]) {
-        portfolio[name] = { qty: 0, price: stock.price };
+  }
+
+  // Optional webcam for PiP
+  if (withCam.checked) {
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240, frameRate: 30 }, audio: false });
+      camPreview.srcObject = camStream;
+      camPreview.muted = true;
+      camPreview.play().catch(()=>{});
+      pipContainer.style.display = 'block';
+    } catch (err) {
+      console.warn('Webcam not available:', err);
+      camStream = null;
+      pipContainer.style.display = 'none';
     }
-    portfolio[name].qty += 1;
-    portfolio[name].price = stock.price;
-    renderPortfolio();
-}
- 
-function sellStock(name) {
-    if (portfolio[name] && portfolio[name].qty > 0) {
-        portfolio[name].qty -= 1;
-        if (portfolio[name].qty === 0) delete portfolio[name];
-        renderPortfolio();
+  } else {
+    camStream = null;
+    pipContainer.style.display = 'none';
+  }
+
+  // If we want compositing (webcam overlay), create a canvas and draw screen+camera frames into it.
+  if (camStream) {
+    // create canvas as big as the screen track's settings if available
+    const vTrack = screenStream.getVideoTracks()[0];
+    const settings = vTrack.getSettings ? vTrack.getSettings() : {};
+    const width = settings.width || 1280;
+    const height = settings.height || 720;
+    canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    canvasCtx = canvas.getContext('2d');
+
+    // play a hidden video for the screen to draw into canvas (so we can composite)
+    const screenVideo = document.createElement('video');
+    screenVideo.srcObject = screenStream;
+    screenVideo.muted = true;
+    screenVideo.playsInline = true;
+    await screenVideo.play().catch(()=>{});
+
+    const camVideo = document.createElement('video');
+    camVideo.srcObject = camStream;
+    camVideo.muted = true;
+    camVideo.playsInline = true;
+    await camVideo.play().catch(()=>{});
+
+    // draw loop
+    function draw(){
+      // draw screen frame to canvas
+      try {
+        canvasCtx.drawImage(screenVideo, 0, 0, canvas.width, canvas.height);
+      } catch(e){}
+      // draw PiP camera overlay bottom-right
+      const pipW = Math.round(canvas.width * 0.22);
+      const pipH = Math.round(canvas.height * 0.165);
+      const padding = 12;
+      const x = canvas.width - pipW - padding;
+      const y = canvas.height - pipH - padding;
+      try {
+        canvasCtx.drawImage(camVideo, x, y, pipW, pipH);
+        // optional border
+        canvasCtx.strokeStyle = 'rgba(255,255,255,0.12)';
+        canvasCtx.lineWidth = 4;
+        canvasCtx.strokeRect(x, y, pipW, pipH);
+      } catch(e){}
+      canvasAnimationId = requestAnimationFrame(draw);
     }
+    draw();
+
+    // create canvas stream and add audio tracks
+    canvasStream = canvas.captureStream(30); // 30fps capture from canvas
+    // attach audio
+    audioTracks.forEach(t => canvasStream.addTrack(t));
+    // use canvasStream as the recording source
+    startRecording(canvasStream);
+
+    // set preview to canvas stream for live preview
+    preview.srcObject = canvasStream;
+    preview.muted = true;
+    preview.play().catch(()=>{});
+    liveStatus.textContent = 'Recording (composited with camera)';
+  } else {
+    // No camera compositing — simply attach audio tracks to screenStream if mic present (preferred)
+    if (audioTracks.length) {
+      audioTracks.forEach(t => screenStream.addTrack(t));
+    }
+    startRecording(screenStream);
+    preview.srcObject = screenStream;
+    preview.muted = true;
+    preview.play().catch(()=>{});
+    liveStatus.textContent = 'Recording (screen)';
+  }
+
+  // Update UI
+  pauseBtn.disabled = false;
+  stopBtn.disabled = false;
+  startBtn.disabled = true;
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 250);
+  updateStatus('Recording — live');
 }
- 
-// Simulate price changes
-function updatePrices() {
-    stocks.forEach(stock => {
-        const change = (Math.random() - 0.5) * 5; // ±$2.5
-        stock.price = Math.max(1, stock.price + change);
-    });
-    renderStocks();
-    renderPortfolio();
+
+function startRecording(finalStream){
+  const options = chooseMimeAndOptions();
+  try {
+    mediaRecorder = new MediaRecorder(finalStream, options);
+  } catch (e) {
+    console.error('MediaRecorder creation failed:', e);
+    updateStatus('Recording not supported with chosen mime/options.');
+    startBtn.disabled = false;
+    return;
+  }
+
+  mediaRecorder.ondataavailable = e => {
+    if (e.data && e.data.size) recordedBlobs.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    createRecordingEntry(new Blob(recordedBlobs, { type: mediaRecorder.mimeType || 'video/webm' }));
+    updateStatus('Stopped');
+  };
+
+  mediaRecorder.onerror = (ev) => {
+    console.error('Recorder error', ev);
+    updateStatus('Recorder error — see console');
+  };
+
+  mediaRecorder.start(1000); // collect data every second
 }
- 
-setInterval(updatePrices, 3000); // Update every 3 seconds
-renderStocks();
-renderPortfolio();
+
+// Pause/resume
+pauseBtn.addEventListener('click', () => {
+  if (!mediaRecorder) return;
+  if (mediaRecorder.state === 'recording') {
+    mediaRecorder.pause();
+    pauseBtn.textContent = 'Resume';
+    updateStatus('Paused');
+    clearInterval(timerInterval);
+  } else if (mediaRecorder.state === 'paused') {
+    mediaRecorder.resume();
+    pauseBtn.textContent = 'Pause';
+    updateStatus('Recording');
+    startTime = Date.now() - parseTime(timerEl.textContent); // continue timer
+    timerInterval = setInterval(updateTimer, 250);
+  }
+});
+
+function parseTime(timestr){
+  // "hh:mm:ss" -> ms
+  const parts = timestr.split(':').map(p => parseInt(p,10)||0);
+  return ((parts[0]*3600)+(parts[1]*60)+parts[2])*1000;
+}
+
+// Stop recording
+stopBtn.addEventListener('click', stopCapture);
+
+async function stopCapture(){
+  stopBtn.disabled = true;
+  pauseBtn.disabled = true;
+  startBtn.disabled = false;
+
+  // stop mediaRecorder
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+
+  // stop all tracks & streams
+  [screenStream, micStream, camStream].forEach(s => {
+    if (s) s.getTracks().forEach(t => t.stop());
+  });
+  if (canvasAnimationId) {
+    cancelAnimationFrame(canvasAnimationId);
+    canvasAnimationId = null;
+  }
+  if (canvasStream) {
+    canvasStream.getTracks().forEach(t=>t.stop());
+    canvasStream = null;
+  }
+  if (canvas) {
+    canvas = null;
+    canvasCtx = null;
+  }
+  preview.srcObject = null;
+  camPreview.srcObject = null;
+
+  liveStatus.textContent = 'No active capture';
+  updateStatus('Stopping...');
+  clearInterval(timerInterval);
+  timerInterval = null;
+  timerEl.textContent = formatTime(Date.now() - startTime);
+}
+
+// create UI entry with playback + download
+function createRecordingEntry(blob){
+  const url = URL.createObjectURL(blob);
+  const item = document.createElement('div');
+  item.className = 'rec-item';
+  const vid = document.createElement('video');
+  vid.src = url;
+  vid.controls = true;
+  vid.muted = false;
+  vid.preload = 'metadata';
+  vid.width = 160;
+  vid.height = 90;
+  const meta = document.createElement('div');
+  meta.className = 'rec-meta';
+  const now = new Date();
+  const filename = ultra-screen-${now.toISOString().replace(/[:.]/g,'-')}.webm;
+  meta.innerHTML = `<div class="tiny" style="font-weight:700">${filename}</div>
+                    <div class="tiny">Size: ${(blob.size/1024/1024).toFixed(2)} MB</div>
+                    <div class="tiny">MIME: ${blob.type || 'video/webm'}</div>`;
+  const actions = document.createElement('div');
+  actions.style.display='flex'; actions.style.flexDirection='column'; actions.style.gap='6px';
+
+  const dl = document.createElement('a');
+  dl.href = url; dl.download = filename;
+  dl.className='btn';
+  dl.textContent='Download';
+  dl.onclick = () => setTimeout(()=>URL.revokeObjectURL(url), 1000);
+
+  const playbtn = document.createElement('button');
+  playbtn.className='btn';
+  playbtn.textContent='Open in new tab';
+  playbtn.onclick = () => window.open(url, '_blank');
+
+  const del = document.createElement('button');
+  del.className='btn';
+  del.textContent='Delete';
+  del.onclick = () => item.remove();
+
+  actions.appendChild(dl);
+  actions.appendChild(playbtn);
+  actions.appendChild(del);
+
+  item.appendChild(vid);
+  item.appendChild(meta);
+  item.appendChild(actions);
+
+  // remove placeholder 'no recordings'
+  if (recordingsList.children.length === 1 && recordingsList.children[0].classList.contains('tiny')) {
+    recordingsList.innerHTML = '';
+  }
+  recordingsList.prepend(item);
+
+  // auto-download if requested
+  if (autoDownload.checked) {
+    dl.click();
+  }
+
+  updateStatus('Recording saved');
+}
+
+// Start button
+startBtn.addEventListener('click', async () => {
+  // Quick checks
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+    updateStatus('getDisplayMedia not supported in this browser.');
+    return;
+  }
+  // adjust bitrate label
+  bitrateLabel.textContent = ${bitrateRange.value} kbps;
+  await startCapture();
+});
+
+// bitrate slider update
+bitrateRange.addEventListener('input', () => {
+  bitrateLabel.textContent = ${bitrateRange.value} kbps;
+});
+
+qualitySelect.addEventListener('change', () => {
+  // update displayed mime on change
+  chooseMimeAndOptions();
+});
+
+// housekeeping: if user leaves page, stop active streams
+window.addEventListener('beforeunload', () => {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+  [screenStream, micStream, camStream, canvasStream].forEach(s=>{ if (s) s.getTracks().forEach(t=>t.stop()); });
+});
+
+// small helper to detect if there's active capture — update live status when tracks end
+function attachEndListeners(stream){
+  if (!stream) return;
+  stream.getTracks().forEach(track => {
+    track.onended = () => {
+      // if everything ended, reset UI
+      const active = [screenStream, canvasStream, camStream].some(s => s && s.getTracks().some(t => t.readyState === 'live'));
+      if (!active) {
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        startBtn.disabled = false;
+        updateStatus('Idle');
+        liveStatus.textContent = 'No active capture';
+      }
+    };
+  });
+}
+
+// observe stream creation to attach end listeners
+const origStartCapture = startCapture;
+startCapture = async function(){
+  await origStartCapture();
+  attachEndListeners(screenStream);
+  attachEndListeners(micStream);
+  attachEndListeners(camStream);
+  attachEndListeners(canvasStream);
+};
+
 </script>
- 
 </body>
 </html>
