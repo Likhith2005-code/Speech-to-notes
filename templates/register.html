@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register</title>
+  <link rel="stylesheet" href="/static/css/auth.css" />
+</head>
+<body class="auth">
+  <main class="auth-shell">
+    <section class="panel panel-left">
+      <header class="brand">
+        <div class="logo" aria-hidden="true">S2N</div>
+        <span class="brand-name">Speech-To-Notes</span>
+      </header>
+      <div class="welcome">
+        <h1 class="title">Welcome Back!</h1>
+        <p class="subtitle">To keep connected with us please login with your personal info</p>
+        <a class="btn btn-outline" href="/login">Sign In</a>
+      </div>
+      <div class="bg-shapes" aria-hidden="true"></div>
+    </section>
+
+    <section class="panel panel-right">
+      <div class="card">
+        <h2 class="card-title">Create Account</h2>
+
+        <div class="oauth">
+          <button class="oauth-btn" data-provider="facebook" type="button" aria-label="Sign up with Facebook">f</button>
+          <button class="oauth-btn" data-provider="google" type="button" aria-label="Sign up with Google">G+</button>
+          <button class="oauth-btn" data-provider="linkedin" type="button" aria-label="Sign up with LinkedIn">in</button>
+        </div>
+
+        <div class="divider">
+          <span>or use your email for registration</span>
+        </div>
+
+        <form id="signup-form" method="POST" action="/register" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">👤</span>
+              <input id="name" name="name" type="text" autocomplete="name" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reg-email">Email</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">✉</span>
+              <input id="reg-email" name="email" type="email" autocomplete="email" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="reg-password">Password</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">🔒</span>
+              <input id="reg-password" name="password" type="password" autocomplete="new-password" required minlength="8" />
+              <button class="peek" type="button" aria-label="Toggle password visibility"></button>
+            </div>
+            <small class="hint">Minimum 8 characters, include letters and numbers</small>
+          </div>
+
+          <div class="field">
+            <label for="confirm">Confirm Password</label>
+            <div class="field-input">
+              <span class="icon" aria-hidden="true">✅</span>
+              <input id="confirm" name="confirm" type="password" autocomplete="new-password" required minlength="8" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="checkbox">
+              <input type="checkbox" name="terms" required />
+              <span>I agree to the Terms and Privacy</span>
+            </label>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Sign Up</button>
+        </form>
+
+        <p class="alt">Already have an account? <a class="link" href="/login">Sign In</a></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

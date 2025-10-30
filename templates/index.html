@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notes Generator UI</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="frame" role="application" aria-label="Notes Generator Template">
+    <section class="left" aria-labelledby="inputLabel">
+      <div class="h-label" id="inputLabel">Input Content</div>
+
+      <div class="input-grid">
+        <button class="btn" id="btnUpload" aria-label="Upload Video">
+          <span class="icon" aria-hidden="true"></span>
+          <span>Upload Video</span>
+          <span class="action hidden" id="previewBtn" title="Preview Button">C</span>
+          
+        </button>
+        <video id="videoPreview" controls ></video>
+        <input type="file" id="videoInput" accept="Video/*" style="display: none;">
+    
+
+        <button class="btn" data-kind="yt" id="btnYT" aria-label="YouTube Link">
+          <span class="icon" aria-hidden="true"></span>
+          <span>YouTube Link</span>
+        </button>
+
+
+        <input class="btn" type="text" id="inputBox" placeholder="paste link">
+        <button class="btn" id="record-btn">
+          <span class="icon">🎤</span>
+          <span class="timer" id="timer">0:00</span>
+          <span class="action hidden" id="stop-btn">⏹️</span>
+          <span class="action hidden" id="delete-btn">🗑️</span>
+        </button>
+
+
+        <label class="btn" id="btnPlaceholder" aria-label="Placeholder">
+          <span class="icon" aria-hidden="true"></span>
+          <span>Upload File </span>
+          <input type="file" hidden>
+        </label>
+    
+      </div>
+
+      <textarea class="text-area" placeholder="Start typing here..."></textarea>
+
+      <div class="foot-actions">
+        <button class="ghost" type="button">Save Draft</button>
+        <button class="clear" type="button" id="clearText">Clear Text</button>
+      </div>
+    </section>
+
+    <section class="right">
+      <div class="row">
+        <div class="chips" aria-label="Note Types">
+          <button class="chip">Normal Notes</button>
+          <button class="chip">Detailed Notes</button>
+          <button class="chip">Bullet Notes</button>
+          <button class="chip">Summarised Notes</button>
+        </div>
+        <div class="hamburger-menu">
+        <div class="menu" aria-hidden="true" id="menu"></div>
+         <div class="menu-content" id="menu-content">
+          <a href="#">Account</a>
+          <a href="#">Settings</a>
+          <a href="/help">Help</a>
+          <a href="/about">About</a>
+          <a href="/logout">Logout</a>
+         </div>
+         </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Generated Notes</div>
+        <div class="box" id="output">Your summarized notes will appear here...</div>
+        <div class="progress" aria-label="Generating">
+          <div class="bar" id="bar"></div>
+        </div>
+        <div class="actions">
+          <button class="outline" id="editBtn">Edit Notes</button>
+          <button class="outline" id="shareBtn">Share Notes</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
