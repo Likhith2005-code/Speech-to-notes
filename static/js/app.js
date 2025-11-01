@@ -151,19 +151,57 @@ window.addEventListener('click',(e)=>{
 
 // app.js
 
-// assume button has data-note-type attribute
-async function generate(noteType) {
-  const res = await fetch('/generate_notes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ note_type: noteType })
-  });
-  const data = await res.json();
-  if (res.ok) {
-    // show data.notes on the same page under your transcription area
-    document.getElementById('notesArea').innerText = data.notes;
-  } else {
-    alert(data.error || 'Failed to generate notes');
-  }
+// ------------------- Notes Generation Integration -------------------
+const chips = document.querySelectorAll('.chip');
+const progressBar = document.getElementById('bar');
+const outputBox = document.getElementById('output');
+
+// Function to show smooth progress bar animation while waiting for backend
+function animateProgress() {
+  progressBar.style.width = '0%';
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 10 + 5;
+    if (progress >= 90) {
+      clearInterval(interval);
+      return;
+    }
+    progressBar.style.width = `${Math.min(90, progress)}%`;
+  }, 250);
+  return interval;
 }
-       
+
+chips.forEach(chip => {
+  chip.addEventListener('click', async () => {
+    const type = chip.textContent.trim().toLowerCase().split(" ")[0]; // e.g. "normal", "detailed"
+    outputBox.textContent = `Generating ${type} notes...`;
+    const anim = animateProgress();
+
+    const formData = new FormData();
+    formData.append('note_type', type);
+
+    try {
+      const res = await fetch('/generate_notes', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      clearInterval(anim);
+      progressBar.style.width = '100%';
+
+      if (data.notes) {
+        // Display generated notes
+        outputBox.textContent = data.notes;
+      } else if (data.error) {
+        outputBox.textContent = '⚠ ' + data.error;
+      } else {
+        outputBox.textContent = '⚠ Unexpected response from server.';
+      }
+    } catch (err) {
+      clearInterval(anim);
+      outputBox.textContent = '❌ Failed to generate notes: ' + err.message;
+      progressBar.style.width = '0%';
+    }
+  });
+});
