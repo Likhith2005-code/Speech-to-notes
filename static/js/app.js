@@ -126,6 +126,30 @@ videoInput.addEventListener('change', (event) => {
   }
 });
 
+// When a file is selected, transcribe it
+videoInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    videoPreview.src = URL.createObjectURL(file);
+    previewBtn.style.display = 'inline-block';
+    videoPreview.style.display = 'none';
+    isPreviewVisible = false;
+
+    // Automatically start transcription
+    transcribeFromFile(file);
+  }
+});
+
+// When YouTube link entered, transcribe it
+inputBox.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && inputBox.value.trim()) {
+    transcribeFromYoutube(inputBox.value.trim());
+  }
+});
+
+
+document.getElementById('output').textContent = '🎙 Transcribing... please wait...';
+
 // Toggle video preview on 👁️ button click
 previewBtn.addEventListener('click', () => {
   isPreviewVisible = !isPreviewVisible;
@@ -171,6 +195,48 @@ function animateProgress() {
   return interval;
 }
 
+
+
+// ------------------- Transcription Handlers -------------------
+
+async function transcribeFromFile(file) {
+  const formData = new FormData();
+  formData.append('input_type', 'file');
+  formData.append('file', file);
+
+  try {
+    const res = await fetch('/transcribe', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.transcription) {
+      document.querySelector('.text-area').value = data.transcription;
+      document.getElementById('output').textContent = '✅ Transcription completed.';
+    } else if (data.error) {
+      document.getElementById('output').textContent = '⚠ ' + data.error;
+    }
+  } catch (err) {
+    document.getElementById('output').textContent = '❌ ' + err.message;
+  }
+}
+
+async function transcribeFromYoutube(url) {
+  const formData = new FormData();
+  formData.append('input_type', 'youtube');
+  formData.append('youtube_url', url);
+
+  try {
+    const res = await fetch('/transcribe', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.transcription) {
+      document.querySelector('.text-area').value = data.transcription;
+      document.getElementById('output').textContent = '✅ YouTube transcription completed.';
+    } else if (data.error) {
+      document.getElementById('output').textContent = '⚠ ' + data.error;
+    }
+  } catch (err) {
+    document.getElementById('output').textContent = '❌ ' + err.message;
+  }
+}
+
 chips.forEach(chip => {
   chip.addEventListener('click', async () => {
     const type = chip.textContent.trim().toLowerCase().split(" ")[0]; // e.g. "normal", "detailed"
@@ -205,3 +271,4 @@ chips.forEach(chip => {
     }
   });
 });
+
