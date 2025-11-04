@@ -3,553 +3,476 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra Share Me — Single File Share</title>
+<title>Ultra Discord — Single File</title>
 <style>
   :root{
-    --bg:#0f1724;
-    --card:#0b1220;
-    --accent:#6ee7b7;
-    --muted:#9aa7b8;
-    --glass: rgba(255,255,255,0.03);
-    --radius:12px;
-    --shadow: 0 6px 20px rgba(2,6,23,0.6);
-    color-scheme: dark;
+    --bg:#0f1720; --panel:#0b1220; --muted:#9aa4b2; --accent:#5865f2;
+    --msg-bg:#0e1419; --msg-me:#2b3640; --glass:rgba(255,255,255,0.04);
+    --success:#3bd671;
+    font-family:Inter, "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
   }
+  [data-theme="light"]{
+    --bg:#f4f7fb; --panel:#ffffff; --muted:#5b6b7a; --accent:#5865f2;
+    --msg-bg:#eef2f6; --msg-me:#dfe7ff; --glass:rgba(10,10,10,0.03); --success:#0a8f4a;
+  }
+
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0;
-    font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    background: radial-gradient(1200px 600px at 10% 10%, rgba(110,231,183,0.06), transparent),
-                linear-gradient(180deg,#071025 0%, #05101b 100%);
-    color:#e6f0f3;
-    padding:28px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:20px;
-    -webkit-font-smoothing:antialiased;
+    margin:0; height:100vh; background:linear-gradient(180deg,var(--bg),#071021 120%);
+    color:#e6eef6; -webkit-font-smoothing:antialiased; display:flex; align-items:stretch;
   }
 
+  /* Layout */
   .app{
-    width:100%;
-    max-width:980px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border-radius:var(--radius);
-    padding:20px;
-    box-shadow:var(--shadow);
-    display:grid;
-    grid-template-columns: 1fr 360px;
-    gap:18px;
-    align-items:start;
+    display:grid; grid-template-columns:72px 220px 1fr 340px; gap:12px;
+    width:100%; padding:12px; align-items:stretch;
   }
 
-  header{
-    grid-column:1/-1;
-    display:flex;
-    align-items:center;
-    gap:14px;
+  /* Servers column */
+  .servers{
+    background:linear-gradient(180deg,var(--panel),rgba(0,0,0,0.04)); border-radius:12px; padding:8px;
+    display:flex; flex-direction:column; gap:8px; align-items:center;
+    box-shadow:0 4px 18px rgba(2,6,23,0.6), inset 0 1px rgba(255,255,255,0.02);
   }
-  .logo{
-    width:56px;height:56px;border-radius:12px;
-    background:linear-gradient(135deg,var(--accent),#60a5fa);
-    display:flex;align-items:center;justify-content:center;
-    color:#052018;font-weight:700;font-size:18px;box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+  .server{
+    width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; user-select:none; font-weight:700; color:white; background:linear-gradient(180deg,#6d7bff,#4850ff);
+    box-shadow:0 6px 14px rgba(65,70,255,0.12); transition:transform .12s ease;
   }
-  h1{margin:0;font-size:18px}
-  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .server:hover{transform:translateY(-4px)}
+  .server.small{width:40px;height:40px;border-radius:10px;font-size:12px}
 
-  .left{
-    background:var(--card);
-    padding:16px;border-radius:10px;
-    min-height:420px; max-height:80vh; overflow:auto;
+  /* Servers bottom controls */
+  .servers .controls{margin-top:auto; display:flex; flex-direction:column; gap:8px; padding-bottom:6px}
+  .control-btn{
+    width:44px;height:44px;border-radius:10px;background:var(--glass);display:grid;place-items:center;cursor:pointer;
   }
+  .control-btn svg{opacity:.9}
 
-  .right{
-    background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);
-    padding:16px;border-radius:10px; min-height:420px;
-    display:flex;flex-direction:column;gap:12px;
+  /* Channels */
+  .channels{
+    background:var(--panel); border-radius:12px; padding:12px; overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 6px 18px rgba(2,6,23,0.5);
   }
+  .server-header{display:flex;align-items:center;gap:8px;padding-bottom:10px}
+  .server-title{font-weight:700;font-size:14px}
+  .search{
+    margin-top:10px; display:flex; gap:8px; align-items:center;
+  }
+  .search input{
+    width:100%; padding:8px 10px; border-radius:8px; border:0; background:var(--msg-bg); color:inherit; outline:none;
+  }
+  .category{margin-top:14px; font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase}
+  .channel{
+    padding:8px 10px; border-radius:8px; margin-top:6px; cursor:pointer; display:flex; align-items:center; gap:8px;
+    color:var(--muted);
+  }
+  .channel.active{background:rgba(88,101,242,0.12); color:var(--accent); font-weight:700}
 
-  .dropzone{
-    border:2px dashed rgba(255,255,255,0.04);
-    background:var(--glass);
-    padding:18px;border-radius:8px; text-align:center;
-    cursor:pointer; transition:all .18s ease;
+  /* Main content */
+  .main{
+    display:flex; flex-direction:column; background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border-radius:12px; padding:12px; min-width:0; height:calc(100vh - 48px);
   }
-  .dropzone.hover{outline:3px solid rgba(110,231,183,0.09); transform:translateY(-3px)}
-  .dropzone input{display:none}
-  .btn{
-    display:inline-flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
-    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.03); color:inherit; cursor:pointer;
-  }
-  .btn.primary{background:linear-gradient(90deg,var(--accent),#60a5fa); color:#042018; font-weight:600}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  textarea{width:100%;min-height:96px;background:transparent;border:1px solid rgba(255,255,255,0.04);
-            padding:10px;border-radius:8px;color:inherit;font-size:13px;resize:vertical}
+  .room-header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:8px}
+  .room-info{display:flex; align-items:center; gap:12px}
+  .room-name{font-weight:700; letter-spacing:.2px}
+  .room-sub{color:var(--muted); font-size:13px}
 
-  .items{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-  .item{
-    display:flex;gap:12px;align-items:center;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);
-    border:1px solid rgba(255,255,255,0.01);
-  }
-  .thumb{width:56px;height:56px;border-radius:8px;background:#071124;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .thumb img{width:100%;height:100%;object-fit:cover}
-  .meta{flex:1;min-width:0}
-  .meta b{display:block;font-size:13px}
-  .meta small{display:block;color:var(--muted);font-size:12px}
-
-  .actions{display:flex;gap:8px;flex-direction:column;margin-top:auto}
-  .output{
-    background:rgba(1,9,16,0.6);padding:10px;border-radius:8px;font-size:13px;word-break:break-all;
-    border:1px solid rgba(255,255,255,0.02);
+  .messages{
+    flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+    border-radius:8px;
   }
 
-  .help{color:var(--muted);font-size:12px}
+  .message-row{display:flex; gap:10px; align-items:flex-start}
+  .avatar{
+    min-width:40px; width:40px; height:40px; border-radius:10px; display:grid; place-items:center; font-weight:700;
+    color:white; background:linear-gradient(180deg,#334155,#1f2937);
+    flex-shrink:0;
+  }
+  .bubble{
+    max-width:70%; padding:10px 12px; border-radius:10px; background:var(--msg-bg); color:inherit; line-height:1.3;
+    box-shadow: 0 2px 8px rgba(2,6,23,0.35);
+  }
+  .bubble.me{background:var(--msg-me); margin-left:auto; color:inherit}
+  .meta{display:flex; gap:8px; align-items:center; color:var(--muted); font-size:12px; margin-bottom:6px}
+
+  .message-actions{display:flex; gap:6px; align-items:center; margin-top:6px}
+  .action-btn{cursor:pointer; padding:6px 8px; border-radius:8px; font-size:13px; color:var(--muted)}
+  .reaction{display:inline-flex; gap:6px; align-items:center; padding:6px 8px; border-radius:999px; background:rgba(0,0,0,0.18)}
+
+  .typing{font-size:13px;color:var(--muted); padding:6px 8px; border-radius:8px; display:inline-flex; gap:6px; align-items:center}
+  .dots{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.6;animation:blip 1s infinite}
+  .dots:nth-child(2){animation-delay:.12s}
+  .dots:nth-child(3){animation-delay:.24s}
+  @keyframes blip{0%{opacity:.15;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}100%{opacity:.15;transform:translateY(0)}}
+
+  /* Right panel */
+  .side{
+    background:var(--panel); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:12px;
+    min-width:220px;
+  }
+  .user-card{display:flex; gap:10px; align-items:center}
+  .user-card .avatar{width:56px;height:56px;border-radius:12px}
+  .user-actions{display:flex; gap:8px; margin-left:auto}
+  .pill{padding:6px 8px;border-radius:8px;background:var(--glass); font-size:13px}
+
+  /* Composer */
+  .composer{display:flex; gap:10px; align-items:flex-end; padding-top:10px}
+  .input{
+    flex:1; background:linear-gradient(180deg,var(--msg-bg),transparent); padding:8px;border-radius:10px; min-height:58px;
+    display:flex; gap:8px; align-items:flex-start; border:0; outline:none;
+  }
+  .input[contenteditable="true"]{overflow:auto}
+  .toolbar{display:flex; flex-direction:column; gap:8px; align-items:center}
+  .tool{width:44px;height:44px; border-radius:10px; display:grid; place-items:center; cursor:pointer; background:var(--glass)}
+  .send-btn{padding:10px 16px;border-radius:10px;background:var(--accent); border:0; color:white; cursor:pointer; font-weight:700}
+
+  /* Tiny helper visuals */
   .muted{color:var(--muted)}
-  .copy-btn{display:inline-flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
-
-  footer{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-top:6px}
-
+  a{color:var(--accent); text-decoration:none}
   /* responsive */
-  @media (max-width:900px){
-    .app{grid-template-columns:1fr; padding:14px}
-    .right{order:2}
+  @media (max-width:980px){
+    .app{grid-template-columns:64px 1fr; grid-template-rows:auto 1fr; padding:10px}
+    .channels{grid-column:1 / -1; order:2}
+    .main{grid-column:1 / -1; order:3; padding:8px}
+    .side{display:none}
+    .servers{order:1}
   }
 </style>
 </head>
-<body>
-  <div class="app" role="application" aria-label="Ultra Share Me">
-    <header>
-      <div class="logo" aria-hidden>USM</div>
-      <div>
-        <h1>Ultra Share Me</h1>
-        <p class="lead">Package text, links or files into a single shareable payload — no server required.</p>
+<body data-theme="">
+<div class="app" id="app">
+  <!-- Servers -->
+  <div class="servers" aria-label="Servers">
+    <div class="server">U</div>
+    <div class="server small">P</div>
+    <div class="server small">G</div>
+    <div class="server small">D</div>
+    <div class="controls">
+      <div class="control-btn" id="themeToggle" title="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-    </header>
-
-    <section class="left" aria-labelledby="leftTitle">
-      <h2 id="leftTitle" class="muted" style="font-size:13px;margin:0 0 8px 0">Create</h2>
-
-      <label class="dropzone" id="dropzone" tabindex="0">
-        <input id="fileInput" type="file" multiple aria-label="Choose files to add" />
-        <div style="font-weight:600">Drop files here or click to select</div>
-        <div class="muted" style="margin-top:8px;font-size:13px">Images previewed. Files are embedded as base64 into the package.</div>
-      </label>
-
-      <div style="height:12px"></div>
-
-      <div style="display:flex;gap:8px;align-items:flex-start">
-        <div style="flex:1">
-          <label for="textInput" class="muted" style="font-size:13px">Text / Notes / Link</label>
-          <textarea id="textInput" placeholder="Add some text or paste a link..." aria-label="Text or link to include"></textarea>
-        </div>
-        <div style="width:140px;display:flex;flex-direction:column;gap:8px;align-items:stretch">
-          <button id="addTextBtn" class="btn" title="Add text to the package">Add to package</button>
-          <button id="clearAllBtn" class="btn" title="Clear package">Clear</button>
-        </div>
+      <div class="control-btn" id="settingsBtn" title="Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82L4.21 5.21A2 2 0 016.04 2.38l.06.06A1.65 1.65 0 008 2.77 1.65 1.65 0 009.51 2H10a2 2 0 014 0h.09c.66 0 1.27.34 1.6.88l.05.1a1.65 1.65 0 001.6.88H20a2 2 0 010 4h-.09c-.66 0-1.27.34-1.6.88l-.05.1a1.65 1.65 0 00-.33 1.82z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-
-      <div class="items" id="itemsContainer" aria-live="polite" style="margin-top:14px">
-        <!-- items here -->
-      </div>
-
-      <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
-        <div class="help">Total size: <span id="totalSize">0 B</span></div>
-        <div style="flex:1"></div>
-        <div class="muted" id="itemCount">0 items</div>
-      </div>
-    </section>
-
-    <aside class="right" aria-labelledby="shareTitle">
-      <h2 id="shareTitle" class="muted" style="font-size:13px;margin:0 0 8px 0">Share</h2>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="row">
-          <button id="generateBtn" class="btn primary" title="Generate shareable payload">Generate Share Link</button>
-          <button id="downloadBtn" class="btn" title="Download package as file">Download .ultrashare</button>
-        </div>
-
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Shareable link (data URL)</div>
-          <div class="output" id="dataUrlOutput" tabindex="0" aria-live="polite" aria-label="Generated data url">—</div>
-          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-            <button id="copyLinkBtn" class="copy-btn" title="Copy data URL to clipboard">Copy</button>
-            <button id="shareApiBtn" class="copy-btn" title="Use device share (if supported)">Share (Web Share)</button>
-            <div style="flex:1"></div>
-            <button id="shortenBtn" class="btn" title="Create a short representation (local)">Short token</button>
-          </div>
-        </div>
-
-        <div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Preview</div>
-          <div id="previewArea" class="output" style="min-height:80px">No preview</div>
-        </div>
-
-        <div style="margin-top:6px" class="muted">Note: This tool packages files into a "single-file" data URL. Large files will produce very large links — prefer the "Download" option when sending big files.</div>
-      </div>
-
-      <div class="actions" style="margin-top:auto">
-        <div class="muted" style="font-size:12px">Status</div>
-        <div id="status" class="muted">Idle</div>
-      </div>
-    </aside>
-
-    <footer>
-      <div>Built for quick client-side sharing • <span id="version">v1.0</span></div>
-      <div>Privacy: nothing leaves your browser unless you copy/share the generated data.</div>
-    </footer>
+    </div>
   </div>
 
+  <!-- Channels -->
+  <div class="channels" id="channelPanel">
+    <div class="server-header">
+      <div style="display:flex;align-items:center;flex-direction:column;gap:2px">
+        <div class="server-title">Ultra Server</div>
+        <div class="room-sub">For testing & vibes</div>
+      </div>
+    </div>
+
+    <div class="search">
+      <input id="channelSearch" placeholder="Search channels or messages…" />
+    </div>
+
+    <div class="category">Text Channels</div>
+    <div class="channel active" data-channel="general"># general</div>
+    <div class="channel" data-channel="dev"># dev</div>
+    <div class="channel" data-channel="design"># design</div>
+
+    <div class="category">Voice Channels</div>
+    <div class="channel">🔊 voice 1</div>
+    <div class="channel">🔊 voice 2</div>
+  </div>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <div class="room-header">
+      <div class="room-info">
+        <div style="width:38px;height:38px;border-radius:8px;background:linear-gradient(180deg,#2a34ff,#6b7bff);display:grid;place-items:center;font-weight:800">#</div>
+        <div>
+          <div class="room-name" id="roomName"># general</div>
+          <div class="room-sub" id="roomTopic">Welcome to Ultra — a single-file Discord-ish UI demo</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="muted" id="memberCount">12 online</div>
+        <div class="pill" id="statusPill">public</div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages" role="log" aria-live="polite">
+      <!-- messages injected here -->
+    </div>
+
+    <div class="composer" aria-label="Message composer">
+      <div class="toolbar">
+        <div class="tool" id="emojiBtn" title="Emoji (click)">😊</div>
+        <div class="tool" id="attachBtn" title="Attach file">📎</div>
+      </div>
+
+      <div class="input" id="composer" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" placeholder="Message #general"></div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <button class="send-btn" id="sendBtn">Send</button>
+        <div class="muted" style="font-size:12px">Press <strong>Ctrl+Enter</strong> to send</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right side -->
+  <aside class="side">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800">Members</div>
+      <div class="muted">online</div>
+    </div>
+    <div class="user-card">
+      <div class="avatar" id="meAvatar">L</div>
+      <div>
+        <div id="meName" style="font-weight:700">Likhith (you)</div>
+        <div class="muted" style="font-size:13px">Engineer</div>
+      </div>
+      <div class="user-actions">
+        <div class="pill">Mute</div>
+        <div class="pill">Deafen</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-weight:700">Pinned</div>
+      <div class="muted" style="font-size:13px">No pins yet. Pin a message by selecting the ••• menu.</div>
+    </div>
+
+    <div style="margin-top:auto; font-size:13px" class="muted">Ultra Discord demo • local only • no backend</div>
+  </aside>
+</div>
+
+<!-- Emoji picker (simple) -->
+<div id="emojiPicker" style="display:none; position:fixed; z-index:9999; background:var(--panel); color:inherit; padding:8px; border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.5);">
+  <div style="display:grid; grid-template-columns:repeat(8,32px); gap:6px; padding:6px; max-width:320px; max-height:220px; overflow:auto">
+    <!-- emojis injected -->
+  </div>
+</div>
+
 <script>
-/*
- Ultra Share Me — client-side single-file sharing
- - Packages items (text/links/files) into JSON with base64 file data
- - Generates a data: URL that can be copied or downloaded
- - Uses Web Share API if available
-*/
-
 (() => {
-  // Helpers
-  const el = (id) => document.getElementById(id);
-  const fmtBytes = (n) => {
-    if (n < 1024) return n + ' B';
-    if (n < 1024**2) return (n/1024).toFixed(1)+' KB';
-    if (n < 1024*3) return (n/1024*2).toFixed(2)+' MB';
-    return (n/1024**3).toFixed(2)+' GB';
+  // ---------- Utilities ----------
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const messagesEl = $('#messages');
+  const composer = $('#composer');
+  const sendBtn = $('#sendBtn');
+  const emojiBtn = $('#emojiBtn');
+  const emojiPicker = $('#emojiPicker');
+  const emojiGrid = emojiPicker.firstElementChild;
+  const themeToggle = $('#themeToggle');
+
+  // markdown-lite parser (bold, italic, inline code, links)
+  function renderText(text){
+    // escape
+    const esc = t => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    let s = esc(text);
+    // inline code
+    s = s.replace(/([^]+)`/g, '<code style="background:rgba(0,0,0,0.12);padding:2px 6px;border-radius:6px;font-family:monospace;">$1</code>');
+    // bold
+    s = s.replace(/\\([^\]+)\\*/g,'<strong>$1</strong>');
+    // italic
+    s = s.replace(/\([^\]+)\*/g,'<em>$1</em>');
+    // simple link detection
+    s = s.replace(/(https?:\/\/[^\s]+)/g, '<a target="_blank" rel="noopener noreferrer" href="$1">$1</a>');
+    // emoji shortcodes like :smile:
+    s = s.replace(/:([a-z0-9_+-]+):/g, (m, name) => {
+      // simple map
+      const map = {smile:'😄',thumbsup:'👍',heart:'❤',fire:'🔥',rocket:'🚀',eyes:'👀'};
+      return map[name] || m;
+    });
+    return s.replace(/\n/g,'<br>');
+  }
+
+  // generate avatar color from name
+  function avatarFor(name){
+    const initials = (name||'U').split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase();
+    return { initials };
+  }
+
+  // produce message DOM
+  function makeMessageDOM(msg){
+    const row = document.createElement('div'); row.className='message-row';
+    const avatar = document.createElement('div'); avatar.className='avatar'; avatar.textContent = msg.fromInitials || avatarFor(msg.from).initials;
+    if(msg.color) avatar.style.background = msg.color;
+    const body = document.createElement('div'); body.style.minWidth='0';
+    const meta = document.createElement('div'); meta.className='meta';
+    const nameSpan = document.createElement('div'); nameSpan.textContent = msg.from;
+    const timeSpan = document.createElement('div'); timeSpan.textContent = formatTime(msg.ts);
+    meta.appendChild(nameSpan); meta.appendChild(timeSpan);
+
+    const bubble = document.createElement('div'); bubble.className='bubble';
+    if(msg.me) bubble.classList.add('me');
+    bubble.innerHTML = renderText(msg.text);
+
+    // actions
+    const actions = document.createElement('div'); actions.className='message-actions';
+    const reactBtn = document.createElement('div'); reactBtn.className='action-btn'; reactBtn.textContent='➕ react';
+    reactBtn.title = 'Add reaction';
+    reactBtn.addEventListener('click', ()=>showReactionMenu(bubble, msg));
+    actions.appendChild(reactBtn);
+
+    // reactions display area
+    const reactionArea = document.createElement('div'); reactionArea.style.marginTop='6px'; reactionArea.style.display='flex'; reactionArea.style.gap='6px';
+    if(msg.reactions){
+      msg.reactions.forEach(r => {
+        const pill = document.createElement('div'); pill.className='reaction';
+        pill.textContent = ${r.emoji} ${r.count};
+        reactionArea.appendChild(pill);
+      });
+    }
+
+    body.appendChild(meta);
+    body.appendChild(bubble);
+    body.appendChild(reactionArea);
+    row.appendChild(avatar);
+    row.appendChild(body);
+    return {row, bubble, reactionArea};
+  }
+
+  function formatTime(ts){
+    const d = new Date(ts);
+    const hh = d.getHours().toString().padStart(2,'0');
+    const mm = d.getMinutes().toString().padStart(2,'0');
+    return ${hh}:${mm};
+  }
+
+  // ---------- State ----------
+  const DEFAULT_MESSAGES = [
+    {id:1, from:'System', text:'Welcome to Ultra. This is a demo. Press Ctrl+Enter to send.', ts:Date.now()-1000*60*32, reactions:[]},
+    {id:2, from:'Aisha', text:'Hey everyone! :smile:', ts:Date.now()-1000*60*30, reactions:[{emoji:'👍',count:2}]},
+    {id:3, from:'DevBot', text:'Tip: Use code for inline code. *Bold* and italic are supported.', ts:Date.now()-1000*60*20, reactions:[]},
+  ];
+
+  let state = {
+    messages: JSON.parse(localStorage.getItem('ultra:messages') || 'null') || DEFAULT_MESSAGES,
+    me: {name:'Likhith', initials:'L', color:'linear-gradient(180deg,#5b8bff,#3b63f8)'},
+    typing: false,
+    theme: localStorage.getItem('ultra:theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches ? 'light' : '')
   };
 
-  // State
-  const state = {
-    items: [], // {id, kind: 'file'|'text', name, size, type, dataBase64, text}
-    totalSize: 0,
-    generatedDataUrl: '',
-  };
+  // apply theme
+  if(state.theme) document.body.setAttribute('data-theme', state.theme);
 
-  // DOM
-  const dropzone = el('dropzone');
-  const fileInput = el('fileInput');
-  const textInput = el('textInput');
-  const addTextBtn = el('addTextBtn');
-  const clearAllBtn = el('clearAllBtn');
-  const itemsContainer = el('itemsContainer');
-  const totalSizeEl = el('totalSize');
-  const itemCountEl = el('itemCount');
-  const generateBtn = el('generateBtn');
-  const dataUrlOutput = el('dataUrlOutput');
-  const previewArea = el('previewArea');
-  const copyLinkBtn = el('copyLinkBtn');
-  const downloadBtn = el('downloadBtn');
-  const shareApiBtn = el('shareApiBtn');
-  const shortenBtn = el('shortenBtn');
-  const statusEl = el('status');
-
-  // Utilities
-  let idCounter = 1;
-  const newId = () => 'i' + (idCounter++);
-
-  function setStatus(s){
-    statusEl.textContent = s;
-  }
-
-  function renderItems(){
-    itemsContainer.innerHTML = '';
-    state.items.forEach(it => {
-      const d = document.createElement('div');
-      d.className = 'item';
-      d.setAttribute('data-id', it.id);
-
-      const thumb = document.createElement('div'); thumb.className = 'thumb';
-      if (it.kind === 'file' && it.type && it.type.startsWith('image/') && it.dataBase64) {
-        const img = document.createElement('img');
-        img.src = 'data:'+it.type+';base64,'+it.dataBase64;
-        img.alt = it.name;
-        thumb.appendChild(img);
-      } else {
-        thumb.innerHTML = <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M12 2v20M2 12h20" stroke="rgba(255,255,255,0.12)" stroke-width="1.4" stroke-linecap="round"/></svg>;
-      }
-
-      const meta = document.createElement('div'); meta.className = 'meta';
-      meta.innerHTML = <b>${escapeHtml(it.name)}</b><small>${it.kind === 'file' ? (it.type||'binary') + ' • ' + fmtBytes(it.size) : 'text'}</small>;
-
-      const btns = document.createElement('div');
-      btns.style.display = 'flex';
-      btns.style.flexDirection = 'column';
-      btns.style.gap = '6px';
-
-      const remove = document.createElement('button');
-      remove.className = 'btn'; remove.textContent = 'Remove';
-      remove.onclick = () => {
-        removeItem(it.id);
-      };
-
-      const download = document.createElement('button');
-      download.className = 'btn';
-      download.textContent = 'Download';
-      download.onclick = () => {
-        if (it.kind === 'file') {
-          const blob = base64ToBlob(it.dataBase64, it.type || 'application/octet-stream');
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = it.name || 'file';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
-        } else {
-          const blob = new Blob([it.text], {type:'text/plain'});
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = (it.name||'note') + '.txt';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 5000);
-        }
-      };
-
-      btns.appendChild(download);
-      btns.appendChild(remove);
-
-      d.appendChild(thumb);
-      d.appendChild(meta);
-      d.appendChild(btns);
-
-      itemsContainer.appendChild(d);
+  // ---------- Rendering ----------
+  function renderAll(){
+    messagesEl.innerHTML=''; // regenerate
+    state.messages.forEach(m=>{
+      const {row, bubble, reactionArea} = makeMessageDOM(m);
+      messagesEl.appendChild(row);
     });
-
-    totalSizeEl.textContent = fmtBytes(state.totalSize);
-    itemCountEl.textContent = ${state.items.length} item${state.items.length === 1 ? '' : 's'};
+    scrollToBottom();
+    persist();
   }
 
-  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-  function base64ToBlob(b64, mime) {
-    const bin = atob(b64);
-    const len = bin.length;
-    const arr = new Uint8Array(len);
-    for (let i=0;i<len;i++) arr[i]=bin.charCodeAt(i);
-    return new Blob([arr], {type: mime});
+  function persist(){
+    try{ localStorage.setItem('ultra:messages', JSON.stringify(state.messages.slice(-200))); }catch(e){}
   }
 
-  function updatePreview(){
-    if (state.items.length === 0) {
-      previewArea.textContent = 'No preview';
-      return;
-    }
-    const first = state.items[0];
-    if (first.kind === 'text') {
-      previewArea.textContent = first.text.slice(0, 200) + (first.text.length>200 ? '…' : '');
-    } else if (first.kind === 'file' && first.type && first.type.startsWith('image/')) {
-      previewArea.innerHTML = <img src="data:${first.type};base64,${first.dataBase64}" alt="${escapeHtml(first.name)}" style="max-width:100%;border-radius:8px"/>;
-    } else {
-      previewArea.textContent = ${first.name} • ${first.type||'binary'} • ${fmtBytes(first.size)};
-    }
+  function scrollToBottom(){
+    requestAnimationFrame(()=> messagesEl.scrollTop = messagesEl.scrollHeight );
   }
 
-  function removeItem(id){
-    const idx = state.items.findIndex(x=>x.id===id);
-    if (idx!==-1){
-      state.totalSize -= state.items[idx].size || 0;
-      state.items.splice(idx,1);
-      renderItems();
-      updatePreview();
-      setStatus('Item removed');
-    }
-  }
-
-  // File handling
-  async function processFiles(list){
-    setStatus('Processing files...');
-    const arr = Array.from(list);
-    for (const f of arr) {
-      try {
-        const base64 = await fileToBase64(f);
-        const id = newId();
-        state.items.push({
-          id, kind: 'file', name: f.name, size: f.size, type: f.type, dataBase64: base64
-        });
-        state.totalSize += f.size;
-        setStatus(Added ${f.name});
-      } catch (err) {
-        setStatus('Failed to read ' + f.name);
-        console.error(err);
-      }
-    }
-    renderItems();
-    updatePreview();
-    setStatus('Files processed');
-  }
-
-  function fileToBase64(file){
-    return new Promise((resolve,reject)=>{
-      const reader = new FileReader();
-      reader.onerror = ()=> reject(reader.error);
-      reader.onload = ()=> {
-        const result = reader.result;
-        // result like "data:...;base64,AAA..."
-        const comma = result.indexOf(',');
-        resolve(result.slice(comma+1));
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // Text add
-  function addText(){
-    const v = textInput.value.trim();
-    if (!v) { setStatus('Nothing to add'); return; }
-    const id = newId();
-    const size = new Blob([v]).size;
-    state.items.push({id, kind:'text', name: 'note-' + id, text: v, size});
-    state.totalSize += size;
-    textInput.value = '';
-    renderItems();
-    updatePreview();
-    setStatus('Text added');
-  }
-
-  // Generate payload
-  function buildPayload(){
-    const payload = {
-      name: 'ultrashare-package',
-      created: new Date().toISOString(),
-      items: state.items.map(it => {
-        if (it.kind === 'file') {
-          return {
-            kind: 'file',
-            name: it.name,
-            type: it.type,
-            size: it.size,
-            dataBase64: it.dataBase64
-          };
-        } else {
-          return {
-            kind: 'text',
-            name: it.name,
-            size: it.size,
-            text: it.text
-          };
-        }
-      })
+  // ---------- Sending / input ----------
+  function sendMessage(raw){
+    const text = (raw||'').trim();
+    if(!text) return;
+    const msg = {
+      id: Math.floor(Math.random()*1e9),
+      from: state.me.name + ' (you)',
+      fromInitials: state.me.initials,
+      text,
+      ts: Date.now(),
+      me: true,
+      reactions: []
     };
-    return payload;
+    state.messages.push(msg);
+    renderAll();
+    composer.innerHTML = '';
+    composer.focus();
+
+    // simulate a reply from "Aisha" after a short delay to make UI feel alive
+    setTimeout(()=> {
+      state.messages.push({
+        id: Math.floor(Math.random()*1e9),
+        from: 'Aisha',
+        text: generateAutoReply(text),
+        ts: Date.now(),
+        reactions: []
+      });
+      renderAll();
+    }, 900 + Math.random()*800);
   }
 
-  function generateDataUrl(){
-    // JSON -> UTF-8 -> base64
-    const payload = buildPayload();
-    const json = JSON.stringify(payload);
-    const u8 = new TextEncoder().encode(json);
-    // base64 encode
-    const b64 = uint8ToBase64(u8);
-    // create data URL
-    const dataUrl = data:application/vnd.ultrashare+json;base64,${b64};
-    state.generatedDataUrl = dataUrl;
-    dataUrlOutput.textContent = dataUrl;
-    setStatus('Generated data URL (client only)');
-    return dataUrl;
+  function generateAutoReply(orig){
+    if(orig.toLowerCase().includes('hello')||orig.toLowerCase().includes('hi')) return 'Hi! How can I help?';
+    if(orig.includes('`')) return 'Nice code! Looks good.';
+    if(orig.length < 20) return 'Nice.';
+    return 'Got it — thanks for the update!';
   }
 
-  function uint8ToBase64(u8){
-    // chunked to avoid stack issues
-    let CHUNK = 0x8000;
-    let index = 0;
-    const len = u8.length;
-    let result = '';
-    while (index < len) {
-      const slice = u8.subarray(index, Math.min(index + CHUNK, len));
-      result += String.fromCharCode.apply(null, slice);
-      index += CHUNK;
+  sendBtn.addEventListener('click', ()=> sendMessage(composer.innerText));
+  composer.addEventListener('keydown', (e)=>{
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      sendMessage(composer.innerText);
     }
-    return btoa(result);
-  }
+  });
 
-  // Download .ultrashare file (same JSON)
-  function downloadPackage(){
-    const payload = buildPayload();
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = 'ultrashare-' + (new Date().toISOString().slice(0,19).replace(/:/g,'-')) + '.ultrashare.json';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 5000);
-    setStatus('Downloaded package');
-  }
+  // basic placeholder handling
+  composer.addEventListener('focus', ()=> {
+    composer.classList.remove('muted');
+  });
 
-  // Clipboard
-  async function copyToClipboard(){
-    if (!state.generatedDataUrl) {
-      setStatus('Generate link first');
+  // ---------- Emoji picker ----------
+  const EMOJIS = ['😄','😃','😀','😊','😉','😍','😘','😜','🤔','😴','🤯','👍','👎','👏','🙌','🔥','🎉','🚀','❤','🤝','👀','😅','🤖','🧠','🎯','✅','❌','💡','📌','🔔','🔒','💬'];
+  function populateEmojiPicker(){
+    emojiGrid.innerHTML = '';
+    EMOJIS.forEach(e => {
+      const b = document.createElement('button');
+      b.style.fontSize = '18px';
+      b.style.width='32px'; b.style.height='32px'; b.style.border='0'; b.style.background='transparent'; b.style.cursor='pointer';
+      b.textContent = e;
+      b.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        insertAtCursor(composer, e);
+        composer.focus();
+        hideEmojiPicker();
+      });
+      emojiGrid.appendChild(b);
+    });
+  }
+  populateEmojiPicker();
+
+  function showEmojiPicker(x,y){
+    emojiPicker.style.left = x + 'px';
+    emojiPicker.style.top = y + 'px';
+    emojiPicker.style.display = 'block';
+  }
+  function hideEmojiPicker(){ emojiPicker.style.display = 'none'; }
+
+  emojiBtn.addEventListener('click', (ev)=>{
+    const rect = emojiBtn.getBoundingClientRect();
+    showEmojiPicker(rect.left, rect.bottom + 8);
+  });
+
+  document.addEventListener('click', (e)=>{
+    if(!emojiPicker.contains(e.target) && !emojiBtn.contains(e.target)) hideEmojiPicker();
+  });
+
+  function insertAtCursor(el, text){
+    // contenteditable insert
+    el.focus();
+    const sel = window.getSelection();
+    if(!sel || !sel.getRangeAt || sel.rangeCount === 0){
+      el.innerText += text;
       return;
     }
-    try {
-      await navigator.clipboard.writeText(state.generatedDataUrl);
-      setStatus('Copied data URL to clipboard');
-    } catch (err) {
-      // fallback — select the output and execCommand
-      try {
-        const range = document.createRange();
-        range.selectNodeContents(dataUrlOutput);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        document.execCommand('copy');
-        sel.removeAllRanges();
-        setStatus('Copied (fallback)');
-      } catch (e) {
-        setStatus('Copy failed — select the link manually');
-      }
-    }
-  }
-
-  // Web Share API
-  async function shareViaWebApi(){
-    if (!state.generatedDataUrl) {
-      setStatus('Generate first');
-      return;
-    }
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Ultra Share Me package',
-          text: 'Open this in a supporting app or browser to import.',
-          url: state.generatedDataUrl
-        });
-        setStatus('Shared via system share');
-      } catch (err) {
-        setStatus('Share cancelled or failed');
-      }
-    } else {
-      setStatus('Web Share API not supported in this browser');
-    }
-  }
-
-  // Local "short token" (client-only; stores payload in localStorage under short key)
-  function createShortToken(){
-    const payload = buildPayload();
-    const token = 'usm_' + Math.random().toString(36).slice(2,9);
-    try {
-      localStorage.setItem(token, JSON.stringify(payload));
-      const tokenUrl = ${location.origin}${location.pathname}#${token};
-      dataUrlOutput.textContent = tokenUrl;
-      state.generatedDataUrl = tokenUrl;
-      setStatus('Created local token. Share the URL with the hash.');
-      // show note about lifetime
-      setTimeout(()=>alert('Local token created. It is stored in your browser\'s localStorage on this device only. To use on another device, download the package or copy the data URL.'), 100);
-    } catch (err) {
-      setStatus('Failed to create token (private mode or storage full).');
-    }
-  }
-
-  // On page load — detect if hash contains token to restore
-  function checkHashRestore(){
-    if (location.hash && location.hash.length>1) {
-      const token = location.hash.slice(1);
-      const raw = localStorage.getItem(token);
-      if (raw) {
-        try {
-          const payload = JSON.parse(raw);
-          // import items
-          state.items = payload.items.map((it, idx) => {
-            if (it.kind === 'file') {
-              return {id:newId(), kind:'file', name:it.name, type:it.type, size:it.size, dataBase64:it.dataBase64};
-            } else {
-              return {id:newId(), kind:'text', name:it.name||('note-'+(idx+1)), text:it.text, size:it.size||
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.inser
