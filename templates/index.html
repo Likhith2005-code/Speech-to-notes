@@ -3,55 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Notes Generator UI</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Notes Generator</title>
   <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    #output {
+      max-height: 420px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+  </style>
 </head>
 <body>
-  <div class="frame" role="application" aria-label="Notes Generator Template">
-    <section class="left" aria-labelledby="inputLabel">
+  <div class="frame">
+    <section class="left">
       <div class="h-label" id="inputLabel">Input Content</div>
-
       <div class="input-grid">
-        <button class="btn" id="btnUpload" aria-label="Upload Video">
-          <span class="icon" aria-hidden="true"></span>
-          <span>Upload Video</span>
-          <span class="action hidden" id="previewBtn" title="Preview Button">C</span>
-          
-        </button>
-        <video id="videoPreview" controls ></video>
-        <input type="file" id="videoInput" accept="Video/*" style="display: none;">
-    
+        <button class="btn" id="btnUpload">Upload Video / Audio</button>
+        <video id="videoPreview" controls style="display:none;"></video>
+        <input type="file" id="videoInput" accept="audio/,video/" hidden>
 
-        <button class="btn" data-kind="yt" id="btnYT" aria-label="YouTube Link">
-          <span class="icon" aria-hidden="true"></span>
-          <span>YouTube Link</span>
-        </button>
+        <button class="btn" id="btnYT">YouTube Link</button>
+        <input class="btn" type="text" id="inputBox" placeholder="Paste link" style="display:none;">
 
+        <button class="btn" id="record-btn">🎤 Record</button>
 
-        <input class="btn" type="text" id="inputBox" placeholder="paste link">
-        <button class="btn" id="record-btn">
-          <span class="icon">🎤</span>
-          <span class="timer" id="timer">0:00</span>
-          <span class="action hidden" id="stop-btn">⏹️</span>
-          <span class="action hidden" id="delete-btn">🗑️</span>
-        </button>
-
-
-        <label class="btn" id="btnPlaceholder" aria-label="Placeholder">
-          <span class="icon" aria-hidden="true"></span>
-          <span>Upload File </span>
-          <input type="file" hidden>
-        </label>
-    
+        <button class="btn" id="btnPDF">Upload PDF</button>
+        <span class="icon" aria-hidden="true"></span>
+        <input type="file" id="pdfInput" accept=".pdf" hidden>
       </div>
 
-      <textarea class="text-area" placeholder="Start typing here..."></textarea>
-
+      <textarea class="text-area" placeholder="Type or edit text here..."></textarea>
       <div class="foot-actions">
-        <button class="ghost" type="button">Save Draft</button>
-        <button class="clear" type="button" id="clearText">Clear Text</button>
+        <button class="clear" id="clearText">Clear</button>
       </div>
     </section>
 
@@ -77,11 +64,10 @@
 
       <div class="card">
         <div class="title">Generated Notes</div>
-        <div class="box" id="output">Your summarized notes will appear here...</div>
-        <div class="progress" aria-label="Generating">
-          <div class="bar" id="bar"></div>
-        </div>
-        <div class="actions">
+        <div class="box" id="output">Output will appear here...</div>
+        <div class="progress"><div class="bar" id="bar"></div>
+         </div>
+         <div class="actions">
           <button class="outline" id="editBtn">Edit Notes</button>
           <button class="outline" id="shareBtn">Share Notes</button>
         </div>
@@ -92,12 +78,3 @@
   <script src="/static/js/app.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

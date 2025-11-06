@@ -1,161 +1,185 @@
-// Minimal, controlled interactions only
+// ----------- Elements -----------
 const bar = document.getElementById('bar');
 const output = document.getElementById('output');
 const clearBtn = document.getElementById('clearText');
 const textarea = document.querySelector('.text-area');
-
-function simulateProgress() {
-  bar.style.width = '0%';
-  output.textContent = 'Generating...';
-  let p = 0;
-  function step(){
-    p += Math.random()*14 + 6; // steady, not flashy
-    if(p >= 100){
-      p = 100;
-      bar.style.width = p + '%';
-      output.textContent = 'Notes generated. You can edit or share them.';
-      return;
-    }
-    bar.style.width = Math.round(p) + '%';
-    setTimeout(step, 280);
-  }
-  step();
-}
-
-// Trigger generation when any chip is clicked
-document.querySelectorAll('.chip').forEach(c=>{
-  c.addEventListener('click', simulateProgress);
-});
-
-// Clear textarea
-clearBtn.addEventListener('click', ()=>{
-  textarea.value = '';
-  textarea.focus();
-});
-
-// Optional keyboard focus class hook
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Tab') document.body.classList.add('kbd');
-});
-
-const button = document.getElementById("btnYT");
-    const inputBox = document.getElementById("inputBox");
-
-    button.addEventListener("click", () => {
-      button.style.display = "none";     // hide button
-      inputBox.style.display = "inline"; // show input box
-      inputBox.focus();                  // focus input
-    });
-
-
-
-
-// Record Button simulation--------
+const chips = document.querySelectorAll('.chip');
 const recordBtn = document.getElementById('record-btn');
-const stopBtn = document.getElementById('stop-btn');
-const deleteBtn = document.getElementById('delete-btn');
-const timerEl = document.getElementById('timer');
-
-let timerInterval;
-let seconds = 0;
-let recording = false;
-
-function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s.toString().padStart(2,'0')}`;
-}
-
-recordBtn.addEventListener('click', () => {
-  if (!recording) {
-    // Start recording
-    recording = true;
-    stopBtn.classList.remove('hidden');
-    recordBtn.style.backgroundColor = '#f88585ff'; // slightly lighter red
-    seconds = 0;
-    timerEl.textContent = formatTime(seconds);
-
-    timerInterval = setInterval(() => {
-      seconds++;
-      timerEl.textContent = formatTime(seconds);
-    }, 1000);
-  }
-});
-
-stopBtn.addEventListener('click', (e) => {
-  e.stopPropagation(); // prevent triggering recordBtn click
-  clearInterval(timerInterval);
-  stopBtn.classList.add('hidden');
-  deleteBtn.classList.remove('hidden');
-  recordBtn.style.backgroundColor = '#ffffffff';
-  timerEl.textContent = formatTime(seconds);
-});
-
-deleteBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  deleteBtn.classList.add('hidden');
-  timerEl.textContent = '0:00';
-  recording = false;
-});
-
-
-
 const btnUpload = document.getElementById('btnUpload');
 const videoInput = document.getElementById('videoInput');
 const videoPreview = document.getElementById('videoPreview');
-const previewBtn = document.getElementById('previewBtn');
+const btnYT = document.getElementById('btnYT');
+const inputBox = document.getElementById('inputBox');
+const btnPDF = document.getElementById('btnPDF');
+const pdfInput = document.getElementById('pdfInput');
 
-let isPreviewVisible = false;
+let recorder, audioChunks = [], lastTranscription = "";
 
-// Trigger file input when main button is clicked
-btnUpload.addEventListener('click', (e) => {
-  // Prevent preview button click from triggering file input
-  if (e.target === previewBtn) return;
-  videoInput.click();
+// ----------- Utility Functions -----------
+function animateProgress() {
+  bar.style.width = '0%';
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 10 + 5;
+    if (progress >= 90) {
+      progress = 90;
+      clearInterval(interval);
+    }
+    bar.style.width = `${progress}%`;
+  }, 250);
+  return interval;
+}
+function finishProgress() { bar.style.width = '100%'; setTimeout(() => bar.style.width = '0%', 1500); }
+
+// ----------- Microphone Recording -----------
+recordBtn.addEventListener('click', async () => {
+  if (!recorder) {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recorder = new MediaRecorder(stream);
+    audioChunks = [];
+    recorder.ondataavailable = e => audioChunks.push(e.data);
+    recorder.onstop = sendMicAudio;
+    recorder.start();
+    output.textContent = "🎙 Recording... Click again to stop.";
+  } else {
+    recorder.stop();
+    recorder = null;
+    output.textContent = "🕓 Processing audio...";
+  }
 });
 
-// When a video is selected
-videoInput.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
+async function sendMicAudio() {
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  audioChunks = [];
+  const formData = new FormData();
+  formData.append('input_type', 'microphone');
+  formData.append('file', blob, 'mic.webm');
+  const anim = animateProgress();
+  try {
+    const res = await fetch('/transcribe', { method: 'POST', body: formData });
+    const data = await res.json();
+    clearInterval(anim); finishProgress();
+    if (data.transcription) {
+      lastTranscription = data.transcription;
+      output.textContent = data.transcription;
+    } else output.textContent = data.error || "Error during transcription.";
+  } catch (e) {
+    clearInterval(anim);
+    output.textContent = "❌ " + e.message;
+  }
+}
+
+// ----------- Upload Video/Audio -----------
+btnUpload.addEventListener('click', () => videoInput.click());
+videoInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.type.startsWith('video/')) {
     videoPreview.src = URL.createObjectURL(file);
-    previewBtn.style.display = 'inline-block'; // show preview button
-    //previewBtn.classList.remove('hidden');
-    videoPreview.style.display = 'none'; // hide preview initially
-    isPreviewVisible = false;
+    videoPreview.style.display = 'block';
   }
+  transcribeFile(file, 'file');
 });
 
-// When a file is selected, transcribe it
-videoInput.addEventListener('change', (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    videoPreview.src = URL.createObjectURL(file);
-    previewBtn.style.display = 'inline-block';
-    videoPreview.style.display = 'none';
-    isPreviewVisible = false;
+// ----------- Upload PDF -----------
+btnPDF.addEventListener('click', () => pdfInput.click());
+pdfInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  transcribeFile(file, 'pdf');
+});
 
-    // Automatically start transcription
-    transcribeFromFile(file);
+// ----------- YouTube Input -----------
+btnYT.addEventListener('click', () => {
+  btnYT.style.display = 'none';
+  inputBox.style.display = 'inline';
+  inputBox.focus();
+});
+inputBox.addEventListener('keydown', e => {
+  if (e.key === 'Enter') transcribeYoutube(inputBox.value.trim());
+});
+
+// ----------- Shared Transcription Handlers -----------
+async function transcribeFile(file, type) {
+  output.textContent = `🎧 Processing ${type.toUpperCase()}...`;
+  const form = new FormData();
+  form.append('input_type', type);
+  form.append('file', file);
+  const anim = animateProgress();
+
+  try {
+    const res = await fetch('/transcribe', { method: 'POST', body: form });
+    const data = await res.json();
+    clearInterval(anim); finishProgress();
+    if (data.transcription) {
+      lastTranscription = data.transcription;
+      output.textContent = data.transcription;
+    } else output.textContent = data.error || "Error processing file.";
+  } catch (err) {
+    clearInterval(anim);
+    output.textContent = "❌ " + err.message;
   }
-});
+}
 
-// When YouTube link entered, transcribe it
-inputBox.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && inputBox.value.trim()) {
-    transcribeFromYoutube(inputBox.value.trim());
+async function transcribeYoutube(url) {
+  output.textContent = '🎬 Downloading & transcribing...';
+  const form = new FormData();
+  form.append('input_type', 'youtube');
+  form.append('youtube_url', url);
+  const anim = animateProgress();
+  try {
+    const res = await fetch('/transcribe', { method: 'POST', body: form });
+    const data = await res.json();
+    clearInterval(anim); finishProgress();
+    if (data.transcription) {
+      lastTranscription = data.transcription;
+      output.textContent = data.transcription;
+    } else output.textContent = data.error || "Error.";
+  } catch (err) {
+    clearInterval(anim);
+    output.textContent = "❌ " + err.message;
   }
+}
+
+// ----------- Notes Generation (Now includes textarea input) -----------
+chips.forEach(chip => chip.addEventListener('click', async () => {
+  const noteType = chip.textContent.trim().toLowerCase().split(' ')[0];
+
+  // ✅ New Logic: prioritize textarea input
+  const textToUse = textarea.value.trim()
+    ? textarea.value.trim()
+    : lastTranscription.trim();
+
+  if (!textToUse) {
+    output.textContent = "⚠ Please type something in the text area or transcribe first.";
+    return;
+  }
+
+  output.textContent = `🧠 Generating ${noteType} notes...`;
+  const form = new FormData();
+  form.append('note_type', noteType);
+  form.append('transcription', textToUse);
+  const anim = animateProgress();
+
+  try {
+    const res = await fetch('/generate_notes', { method: 'POST', body: form });
+    const data = await res.json();
+    clearInterval(anim); finishProgress();
+    if (data.notes) {
+      output.textContent = data.notes;
+    } else output.textContent = data.error || "Error generating notes.";
+  } catch (err) {
+    clearInterval(anim);
+    output.textContent = "❌ " + err.message;
+  }
+}));
+
+// ----------- Clear ----------
+clearBtn.addEventListener('click', () => {
+  textarea.value = '';
+  lastTranscription = '';
+  output.textContent = '';
 });
-
-
-document.getElementById('output').textContent = '🎙 Transcribing... please wait...';
-
-// Toggle video preview on 👁️ button click
-previewBtn.addEventListener('click', () => {
-  isPreviewVisible = !isPreviewVisible;
-  videoPreview.style.display = isPreviewVisible ? 'block' : 'none';
-});
-
 
 //hamburger Menu
 const menu=document.getElementById('menu');
@@ -170,105 +194,3 @@ window.addEventListener('click',(e)=>{
     menuContent.style.display='none';
   }
 })
-
-
-
-// app.js
-
-// ------------------- Notes Generation Integration -------------------
-const chips = document.querySelectorAll('.chip');
-const progressBar = document.getElementById('bar');
-const outputBox = document.getElementById('output');
-
-// Function to show smooth progress bar animation while waiting for backend
-function animateProgress() {
-  progressBar.style.width = '0%';
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 10 + 5;
-    if (progress >= 90) {
-      clearInterval(interval);
-      return;
-    }
-    progressBar.style.width = `${Math.min(90, progress)}%`;
-  }, 250);
-  return interval;
-}
-
-
-
-// ------------------- Transcription Handlers -------------------
-
-async function transcribeFromFile(file) {
-  const formData = new FormData();
-  formData.append('input_type', 'file');
-  formData.append('file', file);
-
-  try {
-    const res = await fetch('/transcribe', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.transcription) {
-      document.querySelector('.text-area').value = data.transcription;
-      document.getElementById('output').textContent = '✅ Transcription completed.';
-    } else if (data.error) {
-      document.getElementById('output').textContent = '⚠ ' + data.error;
-    }
-  } catch (err) {
-    document.getElementById('output').textContent = '❌ ' + err.message;
-  }
-}
-
-async function transcribeFromYoutube(url) {
-  const formData = new FormData();
-  formData.append('input_type', 'youtube');
-  formData.append('youtube_url', url);
-
-  try {
-    const res = await fetch('/transcribe', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.transcription) {
-      document.querySelector('.text-area').value = data.transcription;
-      document.getElementById('output').textContent = '✅ YouTube transcription completed.';
-    } else if (data.error) {
-      document.getElementById('output').textContent = '⚠ ' + data.error;
-    }
-  } catch (err) {
-    document.getElementById('output').textContent = '❌ ' + err.message;
-  }
-}
-
-chips.forEach(chip => {
-  chip.addEventListener('click', async () => {
-    const type = chip.textContent.trim().toLowerCase().split(" ")[0]; // e.g. "normal", "detailed"
-    outputBox.textContent = `Generating ${type} notes...`;
-    const anim = animateProgress();
-
-    const formData = new FormData();
-    formData.append('note_type', type);
-
-    try {
-      const res = await fetch('/generate_notes', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-
-      clearInterval(anim);
-      progressBar.style.width = '100%';
-
-      if (data.notes) {
-        // Display generated notes
-        outputBox.textContent = data.notes;
-      } else if (data.error) {
-        outputBox.textContent = '⚠ ' + data.error;
-      } else {
-        outputBox.textContent = '⚠ Unexpected response from server.';
-      }
-    } catch (err) {
-      clearInterval(anim);
-      outputBox.textContent = '❌ Failed to generate notes: ' + err.message;
-      progressBar.style.width = '0%';
-    }
-  });
-});
-
