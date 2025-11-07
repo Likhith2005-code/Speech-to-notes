@@ -12,6 +12,15 @@
   --shadow: 0 10px 24px rgba(0,0,0,.08);
   --radius:14px;
 }
+#output {
+      max-height: 420px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
 
 *{box-sizing:border-box}
 html,body{height:100%}

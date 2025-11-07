@@ -4,18 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Notes Generator</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
-  <style>
-    #output {
-      max-height: 420px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      padding: 12px;
-      border-radius: 8px;
-      background: #fff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-  </style>
 </head>
 <body>
   <div class="frame">
@@ -29,7 +20,12 @@
         <button class="btn" id="btnYT">YouTube Link</button>
         <input class="btn" type="text" id="inputBox" placeholder="Paste link" style="display:none;">
 
-        <button class="btn" id="record-btn">🎤 Record</button>
+        <button class="btn" id="record-btn">
+          <span class="icon">🎤</span>
+          <span class="timer" id="timer">0:00</span>
+          <span class="action hidden" id="stop-btn">⏹️</span>
+          <span class="action hidden" id="delete-btn">🗑️</span>
+        </button>
 
         <button class="btn" id="btnPDF">Upload PDF</button>
         <span class="icon" aria-hidden="true"></span>
@@ -38,6 +34,7 @@
 
       <textarea class="text-area" placeholder="Type or edit text here..."></textarea>
       <div class="foot-actions">
+        <button class="ghost" type="button">Save Draft</button>
         <button class="clear" id="clearText">Clear</button>
       </div>
     </section>
@@ -70,6 +67,7 @@
          <div class="actions">
           <button class="outline" id="editBtn">Edit Notes</button>
           <button class="outline" id="shareBtn">Share Notes</button>
+          <button class="outline" id="downloadPdfBtn">Download PDF</button>
         </div>
       </div>
     </section>
