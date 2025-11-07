@@ -157,6 +157,30 @@ def login():
         flash("Invalid credentials.")
     return render_template("login.html")
 
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+        existing_user = cursor.fetchone()
+        if existing_user:
+            flash("Email already registered!", "warning")
+        else:
+            cursor.execute(
+                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+                (name, email, password)
+            )
+            conn.commit()
+            flash("Registration Successful! Please Login.", "success")
+        cursor.close()
+        conn.close()
+        return redirect(url_for('login'))
+    return render_template("register.html")
+
 @app.route('/index')
 def index():
     name = session.get('name', 'Guest')
