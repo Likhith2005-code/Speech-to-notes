@@ -1,548 +1,203 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ultra True Caller — Mock</title>
+<meta charset="UTF-8">
+<title>Ultra Flying Bird – Fully Customisable</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <style>
-  :root{
-    --bg:#0f1724;
-    --card:#0b1220;
-    --muted:#9aa8bf;
-    --accent:#4fd1c5;
-    --danger:#ff6b6b;
-    --glass: rgba(255,255,255,0.03);
-    --glass-2: rgba(255,255,255,0.02);
-    --radius:12px;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    color-scheme: dark;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:linear-gradient(180deg,#071022 0%, #071a2a 60%), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="100%" height="100%" fill="%23050b12"/></svg>') no-repeat center/cover;
-    color:#e6eef8;
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    padding:28px;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    gap:20px;
-    min-height:100vh;
-  }
-
-  .app {
-    width:100%;
-    max-width:1100px;
-    display:grid;
-    grid-template-columns: 1fr 380px;
-    gap:20px;
-    align-items:start;
-  }
-
-  header{
-    grid-column:1/-1;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:16px;
-    margin-bottom:4px;
-  }
-  .brand{
-    display:flex;
-    gap:12px;
-    align-items:center;
-  }
-  .logo{
-    width:56px;height:56px;border-radius:12px;
-    background:linear-gradient(135deg,var(--accent),#2bb7ff);
-    display:grid;place-items:center;font-weight:700;color:#022;
-    font-size:18px;box-shadow:0 6px 24px rgba(47,128,128,0.12), inset 0 -4px 6px rgba(255,255,255,0.06);
-  }
-  h1{font-size:18px;margin:0}
-  p.lead{margin:0;color:var(--muted);font-size:13px}
-
-  .card {
-    background:linear-gradient(180deg,var(--card), rgba(8,12,18,0.8));
-    border-radius:var(--radius);
-    padding:18px;
-    box-shadow: 0 6px 30px rgba(2,6,12,0.6);
-    border:1px solid rgba(255,255,255,0.03);
-  }
-
-  /* Left panel */
-  .left{
-    display:flex;flex-direction:column;gap:16px;
-  }
-
-  .search-row{
-    display:flex;gap:12px;
-    align-items:center;
-  }
-  .search {
-    flex:1;
-    display:flex;
-    gap:10px;
-    align-items:center;
-    background:var(--glass);
-    padding:10px;border-radius:10px;
-  }
-  .search input[type="text"]{
-    background:transparent;border:0;outline:0;color:inherit;font-size:16px;width:100%;
-  }
-  .btn{
-    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    border:1px solid rgba(255,255,255,0.04);
-    padding:8px 12px;border-radius:10px;color:inherit;font-weight:600;cursor:pointer;
-    display:inline-flex;gap:8px;align-items:center;
-  }
-  .btn:active{transform:translateY(1px)}
-
-  .controls{display:flex;gap:8px;align-items:center}
-  .small{font-size:13px;padding:7px 10px;border-radius:8px}
-
-  .result-pane{display:grid;grid-template-columns:1fr 320px;gap:12px}
-  .search-results{display:flex;flex-direction:column;gap:12px}
-  .result-card{
-    display:flex;gap:14px;align-items:center;padding:12px;border-radius:10px;background:var(--glass-2);
-    border:1px solid rgba(255,255,255,0.02)
-  }
-  .avatar{
-    min-width:56px;width:56px;height:56px;border-radius:12px;background:linear-gradient(180deg,#2a6b7c,#0d2e37);
-    display:grid;place-items:center;font-weight:700;font-size:18px;color:#e8fbfa;
-  }
-  .result-info{flex:1}
-  .name{font-weight:700;font-size:16px;margin-bottom:4px}
-  .meta{color:var(--muted);font-size:13px}
-  .chip{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:700;font-size:11px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03)}
-
-  .actions{display:flex;flex-direction:column;gap:8px}
-  .action-row{display:flex;gap:8px;align-items:center}
-  .action-btn{
-    display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer;font-weight:600;
-  }
-
-  .right{
-    display:flex;flex-direction:column;gap:12px;
-  }
-
-  .panel-title{font-weight:700;margin:0 0 6px 0}
-  .history-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;padding-right:6px}
-  .history-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02)}
-  .history-item small{color:var(--muted);font-size:12px}
-
-  .spam{color:var(--danger);font-weight:800}
-  .good{color:#7ef2c6;font-weight:800}
-  .blocked{opacity:0.6;text-decoration:line-through}
-
-  footer{grid-column:1/-1;color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
-
-  /* loading */
-  .spinner{
-    width:22px;height:22px;border-radius:50%;
-    border:3px solid rgba(255,255,255,0.08);
-    border-top-color:var(--accent);
-    animation:spin 1s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-
-  /* responsive */
-  @media (max-width:980px){
-    .app{grid-template-columns:1fr; padding-bottom: 60px}
-    .result-pane{grid-template-columns:1fr}
-    .right{order:3}
-  }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#70c5ce;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;touch-action:none;font-family:Arial,sans-serif}
+    #gameContainer{position:relative;width:100%;max-width:400px;aspect-ratio:9/16;box-shadow:0 0 20px rgba(0,0,0,.4)}
+    canvas{width:100%;height:100%;display:block;background:#70c5ce;touch-action:none}
+    #muteBtn{position:absolute;top:10px;right:10px;padding:8px 14px;background:rgba(255,255,255,.9);border:2px solid #000;border-radius:10px;font-weight:bold;cursor:pointer;user-select:none;z-index:10;transition:all .2s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+    #muteBtn:active{transform:scale(.95);background:#fff}
+    .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);transform:scale(0);animation:ripple .6s linear;pointer-events:none}
+    @keyframes ripple{to{transform:scale(4);opacity:0}}
 </style>
 </head>
 <body>
-<main class="app" role="main" aria-label="Ultra True Caller app">
-  <header>
-    <div class="brand">
-      <div class="logo" aria-hidden="true">UTC</div>
-      <div>
-        <h1>Ultra True Caller</h1>
-        <p class="lead">Local mock caller ID — offline demo</p>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn small" id="clearAllBtn" title="Clear history & blocks">Clear data</button>
-      <button class="btn small" id="seedBtn" title="Seed demo entries">Seed demo</button>
-    </div>
-  </header>
-
-  <section class="card left" aria-labelledby="search-label">
-    <div class="search-row" role="search">
-      <div class="search" aria-hidden="false">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6"/></svg>
-        <input id="q" type="text" inputmode="tel" placeholder="Search phone number or name — e.g. +1 650 555 1234 or 'Alice'" aria-label="Search phone number or name" />
-        <div id="loading" style="display:none"><div class="spinner" role="status" aria-hidden="true"></div></div>
-      </div>
-      <div class="controls">
-        <button class="btn" id="searchBtn">Search</button>
-        <button class="btn" id="randomBtn" title="Random demo lookup">Random</button>
-      </div>
-    </div>
-
-    <div class="result-pane" style="margin-top:12px">
-      <div>
-        <h2 class="panel-title">Results</h2>
-        <div id="results" class="search-results" aria-live="polite"></div>
-        <div id="noresults" style="color:var(--muted);display:none;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);">No matches yet. Try typing a phone or name.</div>
-      </div>
-
-      <aside class="card right" aria-labelledby="side-title">
-        <h3 id="side-title" class="panel-title">Activity & Tools</h3>
-
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div><strong>History</strong><div style="color:var(--muted);font-size:13px">Recent lookups</div></div>
-            <button class="btn small" id="exportBtn" title="Export history">Export</button>
-          </div>
-          <div id="history" class="history-list" aria-live="polite"></div>
-        </div>
-
-        <hr style="opacity:0.06;margin:12px 0" />
-
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div><strong>Blocked</strong><div style="color:var(--muted);font-size:13px">Numbers you've blocked</div></div>
-            <button class="btn small" id="manageBlockBtn">Manage</button>
-          </div>
-          <div id="blockedList" class="history-list"></div>
-        </div>
-      </aside>
-    </div>
-
-    <footer>
-      This is a demo. To make it production-ready you need a backend data source or third-party lookup API.
-    </footer>
-  </section>
-</main>
+<div id="gameContainer">
+    <button id="muteBtn">Mute</button>
+    <canvas id="canvas"></canvas>
+</div>
 
 <script>
-'use strict';
+/* -------------------------------------------------
+   ====  USER‑REPLACEABLE ASSETS  ====
+   Change the URLs (or local paths) below to use your own images / sounds.
+   ------------------------------------------------- */
+const ASSETS = {
+    // Bird (34×24 recommended)
+    bird: 'https://via.placeholder.com/34x24?text=Bird',
 
-/*
- Ultra True Caller — client-only demo
- - Mock dataset (local)
- - Search by phone or name
- - Simulated async lookup with loading indicator
- - History + blocked stored in localStorage
- - Actions: Call (simulated), Message (copy), Block/Unblock, Report Spam
-*/
+    // Background image (covers whole canvas)
+    background: 'https://images.unsplash.com/photo-1506318137071-a8e063b4ca58?auto=format&fit=crop&w=800&q=80',
 
-// --------- Mock data (seed) ----------
-const DEMO = [
-  { phone:'+1 650-555-0123', name:'Alice Morgan', company:'BrightWave Inc.', type:'mobile', spamScore:8, tags:['Telemarketer','Auto-dialer'] },
-  { phone:'+91 98765 43210', name:'Rahul Sharma', company:'Sharma Logistics', type:'mobile', spamScore:1, tags:[] },
-  { phone:'+44 20 7946 0958', name:'Oliver Finch', company:'Finch & Co', type:'work', spamScore:2, tags:['Unknown Caller'] },
-  { phone:'+61 412 345 678', name:'Ella Thompson', company:'Freelance', type:'mobile', spamScore:0, tags:[] },
-  { phone:'+1 212-555-0199', name:'AutoAlert', company:'AutoAlert Inc', type:'service', spamScore:9, tags:['Robocall','Fraud'] },
-  { phone:'+91 80 1234 5678', name:'Dr. Meera Patel', company:'CarePlus Clinic', type:'work', spamScore:0, tags:[] },
-  { phone:'+81 3-1234-5678', name:'Sato Enterprises', company:'Sato Enterprises', type:'work', spamScore:4, tags:['Survey'] },
-  { phone:'+49 30 1234567', name:'Hans Müller', company:'Muller & Sons', type:'mobile', spamScore:2, tags:[] }
-];
+    // Pipe (obstacle) – two images: top pipe & bottom pipe (52×320 each is fine)
+    pipeTop:    'https://i.imgur.com/7qY5J9K.png',   // top part
+    pipeBottom: 'https://i.imgur.com/7qY5J9K.png',   // bottom part (same image works)
 
-// ---------- Utilities ----------
-const el = id => document.getElementById(id);
-const safe = s => (s||'').toString().trim();
-const STORAGE_KEY = 'ultra_truecaller_v1';
+    // Sounds – replace with your own .mp3 / .wav files
+    flap:  'https://cdn.freesound.org/previews/657/657773_5674468-lq.mp3',
+    score: 'https://cdn.freesound.org/previews/269/269699_5674468-lq.mp3',
+    hit:   'https://cdn.freesound.org/previews/399/399036_5674468-lq.mp3',
+    die:   'https://cdn.freesound.org/previews/269/269026_5674468-lq.mp3',
+    bgm:   'https://cdn.freesound.org/previews/657/657573_5674468-lq.mp3'   // looping background music
+};
+/* ------------------------------------------------- */
 
-// Normalize phone for search/comparison (very simple)
-function normalizePhone(p){
-  return (p||'').replace(/[^\d+]/g,'');
+/* ---------- Canvas & Scaling ---------- */
+const container = document.getElementById('gameContainer');
+const canvas    = document.getElementById('canvas');
+const ctx       = canvas.getContext('2d');
+
+const GAME_W = 288, GAME_H = 512;
+let scale = 1;
+
+function resize() {
+    const rect = container.getBoundingClientRect();
+    scale = rect.width / GAME_W;
+    canvas.width = GAME_W; canvas.height = GAME_H;
+    ctx.setTransform(scale,0,0,scale,0,0);
+}
+resize(); window.addEventListener('resize', resize);
+
+/* ---------- Audio ---------- */
+let muted = false;
+const muteBtn = document.getElementById('muteBtn');
+muteBtn.onclick = () => {
+    muted = !muted;
+    muteBtn.textContent = muted ? 'Unmute' : 'Mute';
+    if (!muted && bgAudio) bgAudio.play().catch(()=>{});
+};
+
+function play(key){ if(muted) return; const a=new Audio(ASSETS[key]); a.volume=key==='bgm'?0.3:0.6; a.play().catch(()=>{}); return a; }
+let bgAudio = null;
+function startBGM(){ if(muted||bgAudio) return; bgAudio=new Audio(ASSETS.bgm); bgAudio.loop=true; bgAudio.volume=0.3; bgAudio.play().catch(()=>{}); }
+
+/* ---------- Asset Loading ---------- */
+const img = {};
+function loadImage(key, src){ img[key]=new Image(); img[key].src=src; }
+
+loadImage('pidk.jpg', ASSETS.bird);
+loadImage('bg',   ASSETS.background);
+loadImage('pipeTop',    ASSETS.pipeTop);
+loadImage('pipeBottom', ASSETS.pipeBottom);
+
+/* ---------- Game State ---------- */
+let bird = {x:60,y:150,w:34,h:24,vy:0,gravity:0.6,lift:-14};
+let pipes = [], score=0, frame=0, over=false;
+const PIPE_W = 52, PIPE_GAP = 120, GROUND_H = 112;
+
+/* ---------- Drawing ---------- */
+function drawBg(){
+    if(img.bg.complete) ctx.drawImage(img.bg,0,0,GAME_W,GAME_H);
+    else { ctx.fillStyle='#70c5ce'; ctx.fillRect(0,0,GAME_W,GAME_H); }
+
+    // ground
+    ctx.fillStyle='#ded895';
+    ctx.fillRect(0,GAME_H-GROUND_H,GAME_W,GROUND_H);
+}
+function drawBird(){
+    ctx.save();
+    ctx.translate(bird.x+bird.w/2, bird.y+bird.h/2);
+    const angle = Math.min(Math.max(bird.vy*3,-45),45)*(Math.PI/180);
+    ctx.rotate(angle);
+    ctx.drawImage(img.bird, -bird.w/2, -bird.h/2, bird.w, bird.h);
+    ctx.restore();
+}
+function drawPipes(){
+    pipes.forEach(p=>{
+        // top
+        ctx.drawImage(img.pipeTop, p.x, 0, PIPE_W, p.top);
+        // bottom
+        ctx.drawImage(img.pipeBottom, p.x, p.top+PIPE_GAP, PIPE_W, GAME_H-GROUND_H-(p.top+PIPE_GAP));
+    });
+}
+function drawScore(){
+    ctx.font='24px Arial';
+    ctx.strokeStyle='#000'; ctx.lineWidth=3;
+    ctx.strokeText(`Score: ${score}`,12,32);
+    ctx.fillStyle='#fff';
+    ctx.fillText(`Score: ${score}`,12,32);
 }
 
-// Load storage (history, blocked)
-function loadState(){
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return { history: [], blocked: [] };
-    return JSON.parse(raw);
-  } catch(e){ console.warn('restore failed',e); return { history: [], blocked: [] } }
+/* ---------- Logic ---------- */
+function updateBird(){
+    if(over) return;
+    bird.vy += bird.gravity; bird.y += bird.vy;
+    if(bird.y+bird.h > GAME_H-GROUND_H){
+        bird.y = GAME_H-GROUND_H-bird.h; bird.vy=0;
+        if(!over){ over=true; play('hit'); setTimeout(()=>play('die'),200); }
+    }
+    if(bird.y<0) bird.y=0;
+}
+function spawnPipe(){
+    if(frame%90!==0 || over) return;
+    const min=60, max=GAME_H-GROUND_H-PIPE_GAP-min;
+    const top = Math.random()*(max-min)+min;
+    pipes.push({x:GAME_W, top:top, scored:false});
+}
+function updatePipes(){
+    pipes = pipes.filter(p=>{
+        p.x -= 2;
+        if(p.x+PIPE_W<bird.x && !p.scored){ score++; p.scored=true; play('score'); }
+        if(bird.x+bird.w>p.x && bird.x<p.x+PIPE_W &&
+           (bird.y<p.top || bird.y+bird.h>p.top+PIPE_GAP)){
+            if(!over){ over=true; play('hit'); setTimeout(()=>play('die'),200); }
+        }
+        return p.x+PIPE_W>0;
+    });
+}
+function flap(){
+    if(!over){ bird.vy=bird.lift; play('flap'); }
+    else reset();
+}
+function reset(){
+    bird.y=150; bird.vy=0; pipes=[]; score=0; frame=0; over=false;
+    startBGM();
 }
 
-function saveState(state){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+/* ---------- Touch Ripple ---------- */
+function ripple(e){
+    const r = canvas.getBoundingClientRect();
+    const x = (e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const y = (e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    const el=document.createElement('div'); el.className='ripple';
+    el.style.left=x+'px'; el.style.top=y+'px'; el.style.width=el.style.height='40px';
+    canvas.parentNode.appendChild(el);
+    setTimeout(()=>el.remove(),600);
 }
 
-// Add to history (unique, timestamp)
-function pushHistory(item){
-  const state = loadState();
-  state.history = state.history.filter(h => h.phone !== item.phone);
-  state.history.unshift({ ...item, ts: Date.now() });
-  if(state.history.length > 100) state.history.pop();
-  saveState(state);
-  renderHistory();
+/* ---------- Input ---------- */
+function handle(e){ e.preventDefault(); ripple(e); flap(); }
+canvas.addEventListener('touchstart',handle,{passive:false});
+canvas.addEventListener('mousedown',handle);
+document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); flap(); }});
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ---------- Game Loop ---------- */
+function loop(){
+    ctx.clearRect(0,0,GAME_W,GAME_H);
+    drawBg(); updateBird(); spawnPipe(); updatePipes(); drawPipes(); drawBird(); drawScore();
+
+    if(over){
+        ctx.font='30px Arial'; ctx.strokeStyle='#000'; ctx.lineWidth=4;
+        ctx.strokeText('GAME OVER',GAME_W/2-85,GAME_H/2);
+        ctx.fillStyle='#fff'; ctx.fillText('GAME OVER',GAME_W/2-85,GAME_H/2);
+        ctx.font='18px Arial';
+        ctx.strokeText('Tap to Restart',GAME_W/2-70,GAME_H/2+40);
+        ctx.fillText('Tap to Restart',GAME_W/2-70,GAME_H/2+40);
+    }
+
+    frame++; requestAnimationFrame(loop);
 }
 
-// Toggle block
-function toggleBlock(phone){
-  const state = loadState();
-  const exists = state.blocked.includes(phone);
-  if(exists) state.blocked = state.blocked.filter(p => p !== phone);
-  else state.blocked.push(phone);
-  saveState(state);
-  renderBlocked();
-  renderHistory(); renderResults(currentResults);
-}
-
-function isBlocked(phone){
-  const state = loadState();
-  return state.blocked.includes(phone);
-}
-
-// ---------- DOM & state ----------
-const qInput = el('q');
-const loading = el('loading');
-const resultsEl = el('results');
-const noresults = el('noresults');
-const historyEl = el('history');
-const blockedEl = el('blockedList');
-const seedBtn = el('seedBtn');
-const clearAllBtn = el('clearAllBtn');
-const searchBtn = el('searchBtn');
-const randomBtn = el('randomBtn');
-const exportBtn = el('exportBtn');
-const manageBlockBtn = el('manageBlockBtn');
-
-let dataset = [...DEMO]; // copy
-let currentResults = []; // last shown results
-
-// ---------- Rendering ----------
-function renderResults(results){
-  currentResults = results || [];
-  resultsEl.innerHTML = '';
-  if(!currentResults.length){
-    noresults.style.display = 'block';
-    return;
-  }
-  noresults.style.display = 'none';
-
-  currentResults.forEach(r => {
-    const a = document.createElement('div');
-    a.className = 'result-card';
-    if(isBlocked(r.phone)) a.classList.add('blocked');
-
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
-    avatar.textContent = initials(r.name || r.phone);
-    avatar.title = r.name || r.phone;
-
-    const info = document.createElement('div');
-    info.className = 'result-info';
-    const name = document.createElement('div');
-    name.className = 'name';
-    name.textContent = r.name || r.phone;
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.innerHTML = <span class="chip">${r.phone}</span> · ${r.company || '—'} · ${r.type || 'phone'};
-
-    const tags = document.createElement('div');
-    tags.style.marginTop = '6px';
-    tags.innerHTML = spamBadge(r.spamScore) + (r.tags && r.tags.length ? ' · ' + r.tags.join(', ') : '');
-
-    info.appendChild(name);
-    info.appendChild(meta);
-    info.appendChild(tags);
-
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-
-    const callBtn = document.createElement('button');
-    callBtn.className = 'action-btn';
-    callBtn.textContent = 'Call';
-    callBtn.onclick = () => simulateCall(r);
-    callBtn.title = 'Simulated call (no audio)';
-
-    const msgBtn = document.createElement('button');
-    msgBtn.className = 'action-btn';
-    msgBtn.textContent = 'Copy';
-    msgBtn.onclick = () => copyToClipboard(r.phone);
-
-    const blockBtn = document.createElement('button');
-    blockBtn.className = 'action-btn';
-    blockBtn.textContent = isBlocked(r.phone) ? 'Unblock' : 'Block';
-    blockBtn.onclick = () => { toggleBlock(r.phone); };
-
-    const reportBtn = document.createElement('button');
-    reportBtn.className = 'action-btn';
-    reportBtn.textContent = 'Report Spam';
-    reportBtn.onclick = () => reportSpam(r);
-
-    actions.appendChild(callBtn);
-    actions.appendChild(msgBtn);
-    actions.appendChild(blockBtn);
-    actions.appendChild(reportBtn);
-
-    a.appendChild(avatar);
-    a.appendChild(info);
-    a.appendChild(actions);
-
-    resultsEl.appendChild(a);
-  });
-}
-
-function renderHistory(){
-  const state = loadState();
-  historyEl.innerHTML = '';
-  if(!state.history.length){
-    historyEl.innerHTML = '<div style="color:var(--muted)">No history yet.</div>';
-    return;
-  }
-  state.history.forEach(h => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    if(isBlocked(h.phone)) div.classList.add('blocked');
-    div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
-      <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#164e51,#0b2a2d);display:grid;place-items:center;font-weight:700">${initials(h.name)}</div>
-      <div>
-        <div style="font-weight:700">${h.name||h.phone}</div>
-        <small>${h.phone} · ${new Date(h.ts).toLocaleString()}</small>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-      <div style="font-size:13px;color:var(--muted)">${h.company||'—'}</div>
-      <div style="display:flex;gap:6px">
-        <button class="action-btn" onclick='reLookup("${escapeForAttr(h.phone)}")'>Lookup</button>
-        <button class="action-btn" onclick='toggleBlock("${escapeForAttr(h.phone)}")'>${isBlocked(h.phone)?'Unblock':'Block'}</button>
-      </div>
-    </div>`;
-
-    historyEl.appendChild(div);
-  });
-}
-
-function renderBlocked(){
-  const state = loadState();
-  blockedEl.innerHTML = '';
-  if(!state.blocked.length){
-    blockedEl.innerHTML = '<div style="color:var(--muted)">No blocked numbers.</div>';
-    return;
-  }
-  state.blocked.forEach(phone => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `<div><div style="font-weight:700">${phone}</div><small>Blocked</small></div>
-      <div style="display:flex;gap:8px">
-        <button class="action-btn" onclick='toggleBlock("${escapeForAttr(phone)}")'>Unblock</button>
-      </div>`;
-    blockedEl.appendChild(div);
-  });
-}
-
-// helpers
-function initials(name){
-  if(!name) return '—';
-  const parts = name.trim().split(/\s+/);
-  return (parts[0][0] || '').toUpperCase() + ((parts[1]||'')[0]||'').toUpperCase();
-}
-function spamBadge(score){
-  if(score >= 7) return '<span class="spam">SPAM</span>';
-  if(score >= 4) return '<span style="color:#ffcf6b;font-weight:800">WARNING</span>';
-  return '<span class="good">OK</span>';
-}
-function escapeForAttr(s){ return (s||'').replace(/"/g,'&quot;').replace(/'/g,"\\'"); }
-
-// ---------- Actions ----------
-function simulateCall(result){
-  pushHistory(result);
-  alert('Simulated call to ' + result.phone + '\\n(Note: this is a demo — no real call is placed.)');
-  renderHistory();
-}
-
-function copyToClipboard(text){
-  navigator.clipboard?.writeText(text).then(() => {
-    flash('Copied to clipboard');
-  }).catch(() => {
-    flash('Copy failed — manual copy: ' + text);
-  });
-  pushHistory({ phone: text, name: '', company: '', type:'', spamScore:0 });
-}
-
-function reportSpam(r){
-  r.spamScore = Math.min(10, (r.spamScore||0)+2);
-  flash('Thank you — report submitted (demo). Spam score increased.');
-  pushHistory(r);
-  renderResults(currentResults);
-}
-
-// small toast-like feedback
-function flash(msg){
-  const d = document.createElement('div');
-  d.textContent = msg;
-  d.style.position='fixed';d.style.right='20px';d.style.bottom='20px';
-  d.style.padding='10px 14px';d.style.borderRadius='10px';d.style.background='rgba(0,0,0,0.6)';
-  d.style.color='white';d.style.fontWeight='700';d.style.zIndex='9999';
-  document.body.appendChild(d);
-  setTimeout(()=>d.style.opacity='0.0',1400);
-  setTimeout(()=>d.remove(),2000);
-}
-
-// ---------- Search logic (client-only) ----------
-function simulateLookup(query){
-  // returns a Promise that resolves to array of results
-  const normalized = normalizePhone(query);
-  return new Promise(resolve => {
-    // simulated latency
-    loading.style.display = 'block';
-    setTimeout(() => {
-      loading.style.display = 'none';
-      let matches = [];
-      if(normalized && /\\d/.test(normalized)){
-        // phone search: look for numbers that contain the digits
-        matches = dataset.filter(d => normalizePhone(d.phone).includes(normalized));
-      } else {
-        // name search: case-insensitive substring
-        const q = safe(query).toLowerCase();
-        matches = dataset.filter(d => (d.name||'').toLowerCase().includes(q) || (d.company||'').toLowerCase().includes(q));
-      }
-      // If no direct matches, attempt fuzzy: numbers that end or start with digits
-      if(!matches.length && normalized){
-        matches = dataset.filter(d => normalizePhone(d.phone).endsWith(normalized.slice(-4)) || normalizePhone(d.phone).startsWith(normalized.slice(0,3)));
-      }
-
-      // sort by spamScore desc (show suspicious at top)
-      matches.sort((a,b) => (b.spamScore||0) - (a.spamScore||0));
-      resolve(matches);
-    }, 600 + Math.random()*700);
-  });
-}
-
-// main search handler
-async function runSearch(q){
-  const query = safe(q);
-  if(!query){
-    renderResults([]);
-    return;
-  }
-  const matches = await simulateLookup(query);
-  if(!matches.length){
-    renderResults([]);
-    noresults.textContent = No matches for "${query}". Try different formatting or seed demo.;
-  } else {
-    renderResults(matches);
-    // log first match to history
-    pushHistory(matches[0]);
-  }
-}
-
-// ---------- UI wiring ----------
-searchBtn.addEventListener('click', ()=>runSearch(qInput.value));
-qInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') runSearch(qInput.value); });
-randomBtn.addEventListener('click', randomLookup);
-seedBtn.addEventListener('click', seedDemo);
-clearAllBtn.addEventListener('click', () => {
-  if(!confirm('Clear all local history and blocked numbers?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  dataset = [...DEMO];
-  renderHistory(); renderBlocked(); renderResults([]);
-  flash('Local data cleared');
-});
-exportBtn.addEventListener('click', () => {
-  const state = loadState();
-  const dataStr = JSON.stringify(state, null, 2);
-  const blob = new Blob([dataStr], { typ
+/* ---------- Start when assets are ready ---------- */
+let loaded = 0, total = 4; // bird, bg, pipeTop, pipeBottom
+function assetLoaded(){ if(++loaded===total){ startBGM(); loop(); }}
+Object.values(img).forEach(i=>i.onload=assetLoaded);
+Object.values(img).forEach(i=>i.onerror=()=>{ i.src='https://via.placeholder.com/50/FF6B6B/FFFFFF?text=ERR'; });
+</script>
+</body>
+</html>
