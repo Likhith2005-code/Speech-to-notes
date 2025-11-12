@@ -1,203 +1,481 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Ultra Flying Bird – Fully Customisable</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ultra FlightRadar — Demo</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-sA+0d1bQ+gPfhY7hpG8Gg0Q+g5g6cJ0u6g9kQmM0D3s=" crossorigin=""/>
+
 <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#70c5ce;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;touch-action:none;font-family:Arial,sans-serif}
-    #gameContainer{position:relative;width:100%;max-width:400px;aspect-ratio:9/16;box-shadow:0 0 20px rgba(0,0,0,.4)}
-    canvas{width:100%;height:100%;display:block;background:#70c5ce;touch-action:none}
-    #muteBtn{position:absolute;top:10px;right:10px;padding:8px 14px;background:rgba(255,255,255,.9);border:2px solid #000;border-radius:10px;font-weight:bold;cursor:pointer;user-select:none;z-index:10;transition:all .2s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
-    #muteBtn:active{transform:scale(.95);background:#fff}
-    .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);transform:scale(0);animation:ripple .6s linear;pointer-events:none}
-    @keyframes ripple{to{transform:scale(4);opacity:0}}
+  :root{
+    --bg:#0f1724;
+    --panel:#0b1220;
+    --muted:#9aa4b2;
+    --accent:#00d4ff;
+    --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.02);
+    --card-radius:14px;
+    --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  html,body,#map { height:100%; margin:0; font-family:var(--font-sans); background:var(--bg); color:#e6eef6; }
+  #app { display:grid; grid-template-columns: 350px 1fr; height:100vh; gap:18px; padding:18px; box-sizing:border-box; }
+  /* Sidebar */
+  .sidebar {
+    background:linear-gradient(180deg,var(--panel), rgba(8,12,18,0.85));
+    border-radius:var(--card-radius);
+    padding:16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    min-width:300px;
+  }
+  .header {
+    display:flex; gap:10px; align-items:center;
+  }
+  .logo {
+    background:linear-gradient(90deg,#00d4ff,#5af0c8);
+    width:46px; height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#072029;
+    box-shadow: 0 4px 14px rgba(0,212,255,0.08), inset 0 -6px 20px rgba(0,0,0,0.14);
+  }
+  h1 { font-size:16px; margin:0; }
+  .muted { color:var(--muted); font-size:13px; margin-top:2px; }
+  .controls { display:flex; gap:8px; align-items:center; margin-top:8px; }
+  .btn {
+    background:var(--glass); border:1px solid rgba(255,255,255,0.03); padding:8px 10px; border-radius:10px; cursor:pointer; color:inherit;
+    display:inline-flex; gap:8px; align-items:center; font-size:13px;
+  }
+  .btn.primary { background:linear-gradient(90deg,var(--accent), #6df7ff); color:#042428; font-weight:600; border:none; }
+  .search {
+    display:flex; gap:8px; padding:8px; background:var(--glass-2); border-radius:10px; align-items:center;
+  }
+  input[type="search"] { background:transparent; border:none; outline:none; color:inherit; width:100%; font-size:14px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { padding:6px 8px; background:transparent; border-radius:8px; border:1px solid rgba(255,255,255,0.03); cursor:pointer; font-size:13px; }
+  .chip.active { background:rgba(0,212,255,0.08); border-color:rgba(0,212,255,0.18); color:var(--accent); }
+  .list { overflow:auto; flex:1; padding:6px; display:flex; flex-direction:column; gap:8px; }
+  .flight {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    padding:10px; border-radius:12px; display:flex; gap:10px; align-items:center; cursor:pointer; border:1px solid rgba(255,255,255,0.02);
+  }
+  .flight:hover { transform:translateY(-3px); transition:transform .12s ease; box-shadow:0 8px 30px rgba(0,0,0,0.5); }
+  .plane-icon { width:46px; height:46px; background:rgba(255,255,255,0.03); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; }
+  .flight .meta { display:flex; flex-direction:column; gap:3px; }
+  .flight .callsign { font-weight:700; }
+  .flight .sub { color:var(--muted); font-size:13px; }
+  .small { font-size:12px; color:var(--muted); }
+  .mapwrap { border-radius:var(--card-radius); overflow:hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position:relative; }
+  /* detail card */
+  .detail {
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.03));
+    padding:12px; border-radius:12px; display:flex; gap:12px; align-items:center; border:1px solid rgba(255,255,255,0.02);
+  }
+  .progress { height:8px; background:rgba(255,255,255,0.03); border-radius:6px; overflow:hidden; width:100%; }
+  .progress > i { display:block; height:100%; width:30%; background:linear-gradient(90deg,var(--accent), #6df7ff); border-radius:6px; transition:width .3s linear; }
+  .footer-controls { display:flex; justify-content:space-between; gap:8px; align-items:center; margin-top:6px; }
+  .small-muted { font-size:12px; color:var(--muted); }
+  /* map controls floating */
+  .map-legend {
+    position:absolute; right:18px; bottom:18px; z-index:4200; background:rgba(2,6,12,0.65); padding:10px; border-radius:10px; color:var(--muted); font-size:13px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  /* responsive */
+  @media (max-width:900px){
+    #app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; padding:10px; }
+    .sidebar { min-width:unset; width:100%; }
+  }
 </style>
 </head>
 <body>
-<div id="gameContainer">
-    <button id="muteBtn">Mute</button>
-    <canvas id="canvas"></canvas>
+<div id="app">
+  <aside class="sidebar" role="complementary">
+    <div class="header">
+      <div class="logo">UF</div>
+      <div>
+        <h1>Ultra FlightRadar</h1>
+        <div class="muted">Simulated live aircraft on a map — demo</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search" title="Search by callsign, origin, destination">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5"/></svg>
+        <input id="search" type="search" placeholder="Search callsign / airport..." />
+      </div>
+
+      <button id="playPause" class="btn primary" title="Play/pause simulation">Play</button>
+      <button id="resetBtn" class="btn" title="Reset planes to start">Reset</button>
+    </div>
+
+    <div class="filters" aria-hidden="false">
+      <div class="chip active" data-type="all">All</div>
+      <div class="chip" data-type="airliner">Airliner</div>
+      <div class="chip" data-type="cargo">Cargo</div>
+      <div class="chip" data-type="private">Private</div>
+      <div class="chip" data-type="military">Military</div>
+    </div>
+
+    <div style="margin-top:4px;" class="detail">
+      <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(90deg,#00d4ff,#5af0c8);display:flex;align-items:center;justify-content:center;font-weight:700;color:#042428">✈</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700">Selected: <span id="selectedCall">—</span></div>
+            <div class="small-muted">Click a flight to view details</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small-muted">Flights</div>
+            <div id="flightCount" style="font-weight:700">0</div>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <div class="progress" aria-hidden="true"><i id="progBar" style="width:0%"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="list" id="flightList" role="list" aria-label="Active flights">
+      <!-- flight items injected here -->
+    </div>
+
+    <div class="small-muted" style="text-align:center; margin-top:6px;">Demo data — realistic patterns, simulated updates every second</div>
+  </aside>
+
+  <main class="mapwrap" aria-label="Map">
+    <div id="map" style="width:100%;height:100%;"></div>
+    <div class="map-legend" id="mapLegend">
+      <div style="font-weight:700;margin-bottom:6px">Legend</div>
+      <div style="display:flex;gap:8px;align-items:center"><div style="width:12px;height:8px;background:rgba(0,212,255,0.9);border-radius:2px"></div> Airliner</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:12px;height:8px;background:#ffb86b;border-radius:2px"></div> Cargo</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><div style="width:12px;height:8px;background:#bdbdbd;border-radius:2px"></div> Private</div>
+    </div>
+  </main>
 </div>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-o9N1j7k3f6QJf8g1j2s4c4m7Z3u9g6s2bq3zMZ+Yk2o=" crossorigin=""></script>
+
 <script>
-/* -------------------------------------------------
-   ====  USER‑REPLACEABLE ASSETS  ====
-   Change the URLs (or local paths) below to use your own images / sounds.
-   ------------------------------------------------- */
-const ASSETS = {
-    // Bird (34×24 recommended)
-    bird: 'https://via.placeholder.com/34x24?text=Bird',
+/*
+  Ultra FlightRadar (frontend demo)
+  - Leaflet map
+  - Simulated flights with smoothing & animation
+  - Sidebar list & filters
+  - Search & playback controls
+  - Clear places to plug in real APIs (comments below)
+*/
 
-    // Background image (covers whole canvas)
-    background: 'https://images.unsplash.com/photo-1506318137071-a8e063b4ca58?auto=format&fit=crop&w=800&q=80',
+const map = L.map('map', { preferCanvas: true }).setView([20, 0], 2);
 
-    // Pipe (obstacle) – two images: top pipe & bottom pipe (52×320 each is fine)
-    pipeTop:    'https://i.imgur.com/7qY5J9K.png',   // top part
-    pipeBottom: 'https://i.imgur.com/7qY5J9K.png',   // bottom part (same image works)
+// OpenStreetMap tiles (free) — for real project consider tile usage limits and attribution rules
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-    // Sounds – replace with your own .mp3 / .wav files
-    flap:  'https://cdn.freesound.org/previews/657/657773_5674468-lq.mp3',
-    score: 'https://cdn.freesound.org/previews/269/269699_5674468-lq.mp3',
-    hit:   'https://cdn.freesound.org/previews/399/399036_5674468-lq.mp3',
-    die:   'https://cdn.freesound.org/previews/269/269026_5674468-lq.mp3',
-    bgm:   'https://cdn.freesound.org/previews/657/657573_5674468-lq.mp3'   // looping background music
-};
-/* ------------------------------------------------- */
-
-/* ---------- Canvas & Scaling ---------- */
-const container = document.getElementById('gameContainer');
-const canvas    = document.getElementById('canvas');
-const ctx       = canvas.getContext('2d');
-
-const GAME_W = 288, GAME_H = 512;
-let scale = 1;
-
-function resize() {
-    const rect = container.getBoundingClientRect();
-    scale = rect.width / GAME_W;
-    canvas.width = GAME_W; canvas.height = GAME_H;
-    ctx.setTransform(scale,0,0,scale,0,0);
+// simple plane SVG icon factory (rotatable)
+function planeIconSvg(color = '#00d4ff') {
+  return `
+  <svg width="46" height="46" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(24,24)">
+      <g transform="rotate(0)">
+        <path d="M-10 0 L16 -8 L18 -6 L12 0 L18 6 L16 8 L-10 0 Z" fill="${color}" stroke="#072428" stroke-opacity="0.08"/>
+        <circle cx="0" cy="0" r="7" fill="rgba(0,0,0,0.22)"/>
+      </g>
+    </g>
+  </svg>`;
 }
-resize(); window.addEventListener('resize', resize);
 
-/* ---------- Audio ---------- */
-let muted = false;
-const muteBtn = document.getElementById('muteBtn');
-muteBtn.onclick = () => {
-    muted = !muted;
-    muteBtn.textContent = muted ? 'Unmute' : 'Mute';
-    if (!muted && bgAudio) bgAudio.play().catch(()=>{});
-};
+// Simulated flights dataset generator
+function generateFlights(count = 40) {
+  const types = ['airliner','cargo','private','military'];
+  const airlines = ['AZA','SKY','TAL','BZT','RED','FLX','NVO','CSY'];
+  const airports = [
+    {code:'LHR', lat:51.4700, lon:-0.4543},
+    {code:'JFK', lat:40.6413, lon:-73.7781},
+    {code:'DXB', lat:25.2532, lon:55.3657},
+    {code:'HND', lat:35.5494, lon:139.7798},
+    {code:'SYD', lat:-33.9399, lon:151.1753},
+    {code:'GRU', lat:-23.4356, lon:-46.4731},
+    {code:'FRA', lat:50.0379, lon:8.5622},
+    {code:'SFO', lat:37.7749, lon:-122.4194},
+    {code:'DEL', lat:28.5562, lon:77.1000},
+    {code:'SIN', lat:1.3644, lon:103.9915}
+  ];
 
-function play(key){ if(muted) return; const a=new Audio(ASSETS[key]); a.volume=key==='bgm'?0.3:0.6; a.play().catch(()=>{}); return a; }
-let bgAudio = null;
-function startBGM(){ if(muted||bgAudio) return; bgAudio=new Audio(ASSETS.bgm); bgAudio.loop=true; bgAudio.volume=0.3; bgAudio.play().catch(()=>{}); }
-
-/* ---------- Asset Loading ---------- */
-const img = {};
-function loadImage(key, src){ img[key]=new Image(); img[key].src=src; }
-
-loadImage('pidk.jpg', ASSETS.bird);
-loadImage('bg',   ASSETS.background);
-loadImage('pipeTop',    ASSETS.pipeTop);
-loadImage('pipeBottom', ASSETS.pipeBottom);
-
-/* ---------- Game State ---------- */
-let bird = {x:60,y:150,w:34,h:24,vy:0,gravity:0.6,lift:-14};
-let pipes = [], score=0, frame=0, over=false;
-const PIPE_W = 52, PIPE_GAP = 120, GROUND_H = 112;
-
-/* ---------- Drawing ---------- */
-function drawBg(){
-    if(img.bg.complete) ctx.drawImage(img.bg,0,0,GAME_W,GAME_H);
-    else { ctx.fillStyle='#70c5ce'; ctx.fillRect(0,0,GAME_W,GAME_H); }
-
-    // ground
-    ctx.fillStyle='#ded895';
-    ctx.fillRect(0,GAME_H-GROUND_H,GAME_W,GROUND_H);
-}
-function drawBird(){
-    ctx.save();
-    ctx.translate(bird.x+bird.w/2, bird.y+bird.h/2);
-    const angle = Math.min(Math.max(bird.vy*3,-45),45)*(Math.PI/180);
-    ctx.rotate(angle);
-    ctx.drawImage(img.bird, -bird.w/2, -bird.h/2, bird.w, bird.h);
-    ctx.restore();
-}
-function drawPipes(){
-    pipes.forEach(p=>{
-        // top
-        ctx.drawImage(img.pipeTop, p.x, 0, PIPE_W, p.top);
-        // bottom
-        ctx.drawImage(img.pipeBottom, p.x, p.top+PIPE_GAP, PIPE_W, GAME_H-GROUND_H-(p.top+PIPE_GAP));
+  const flights = [];
+  for(let i=0;i<count;i++){
+    const origin = airports[Math.floor(Math.random()*airports.length)];
+    let dest = airports[Math.floor(Math.random()*airports.length)];
+    while(dest === origin) dest = airports[Math.floor(Math.random()*airports.length)];
+    const type = types[Math.floor(Math.random()*types.length)];
+    const callsign = ${airlines[Math.floor(Math.random()*airlines.length)]}${Math.floor(100+Math.random()*900)};
+    // Spread start time slightly in past so planes may be mid-flight
+    const progressStart = Math.random() * 0.9;
+    const duration = 60*60*(2 + Math.random()*6); // seconds: ~2-8h flights
+    const alt = 30000 + Math.floor(Math.random()*10000);
+    const spd = 400 + Math.floor(Math.random()*200); // knots
+    // Create a simple straight-line path with a few jitter waypoints to make it feel organic
+    const waypoints = buildWaypoints([origin.lon, origin.lat], [dest.lon,dest.lat]);
+    flights.push({
+      id: 'f'+(i+1),
+      callsign, type, origin: origin.code, dest: dest.code,
+      waypoints,
+      progress: progressStart, // 0..1 across entire path
+      duration, // seconds
+      altitude: alt,
+      speed: spd,
+      iconColor: type === 'airliner' ? '#00d4ff' : (type==='cargo' ? '#ffb86b' : (type==='private' ? '#cbd5e1' : '#ff7ab6'))
     });
-}
-function drawScore(){
-    ctx.font='24px Arial';
-    ctx.strokeStyle='#000'; ctx.lineWidth=3;
-    ctx.strokeText(`Score: ${score}`,12,32);
-    ctx.fillStyle='#fff';
-    ctx.fillText(`Score: ${score}`,12,32);
+  }
+  return flights;
 }
 
-/* ---------- Logic ---------- */
-function updateBird(){
-    if(over) return;
-    bird.vy += bird.gravity; bird.y += bird.vy;
-    if(bird.y+bird.h > GAME_H-GROUND_H){
-        bird.y = GAME_H-GROUND_H-bird.h; bird.vy=0;
-        if(!over){ over=true; play('hit'); setTimeout(()=>play('die'),200); }
-    }
-    if(bird.y<0) bird.y=0;
+// build intermediate waypoints with slight curve
+function buildWaypoints(from, to, segments = 40){
+  const [lon1, lat1] = from;
+  const [lon2, lat2] = to;
+  const wp = [];
+  for(let i=0;i<=segments;i++){
+    const t = i/segments;
+    // simple great-circle-ish linear interpolation with a little sinusoidal offset to avoid perfect straight lines
+    const lat = lat1 + (lat2-lat1) * t + Math.sin(t*Math.PI)* (Math.random()*1.2 - 0.6);
+    const lon = lon1 + (lon2-lon1) * t + Math.sin(t*Math.PI)* (Math.random()*1.2 - 0.6);
+    wp.push([lat, lon]);
+  }
+  return wp;
 }
-function spawnPipe(){
-    if(frame%90!==0 || over) return;
-    const min=60, max=GAME_H-GROUND_H-PIPE_GAP-min;
-    const top = Math.random()*(max-min)+min;
-    pipes.push({x:GAME_W, top:top, scored:false});
+
+// store flights and markers
+const flights = generateFlights(60);
+const markers = new Map();
+
+// create marker with rotation support (using DivIcon)
+function createMarker(flight){
+  const iconHtml = planeIconSvg(flight.iconColor);
+  const icon = L.divIcon({
+    html: iconHtml,
+    className: 'plane-div-icon',
+    iconSize: [46,46],
+    iconAnchor: [23,23]
+  });
+  // initial position at flight.progress along waypoints
+  const pos = sampleAlongPath(flight.waypoints, flight.progress);
+  const marker = L.marker(pos, { icon, rotationAngle: 0, rotationOrigin: 'center center' }).addTo(map);
+  marker.flightId = flight.id;
+  marker.on('click', ()=> selectFlight(flight.id));
+  return marker;
 }
-function updatePipes(){
-    pipes = pipes.filter(p=>{
-        p.x -= 2;
-        if(p.x+PIPE_W<bird.x && !p.scored){ score++; p.scored=true; play('score'); }
-        if(bird.x+bird.w>p.x && bird.x<p.x+PIPE_W &&
-           (bird.y<p.top || bird.y+bird.h>p.top+PIPE_GAP)){
-            if(!over){ over=true; play('hit'); setTimeout(()=>play('die'),200); }
+
+// sample position and bearing along a discrete waypoint path
+function sampleAlongPath(waypoints, progress){
+  if(progress<=0) return waypoints[0];
+  if(progress>=1) return waypoints[waypoints.length-1];
+  const idxFloat = progress * (waypoints.length-1);
+  const a = Math.floor(idxFloat);
+  const t = idxFloat - a;
+  const [lat1, lon1] = waypoints[a];
+  const [lat2, lon2] = waypoints[Math.min(a+1, waypoints.length-1)];
+  const lat = lat1 + (lat2-lat1)*t;
+  const lon = lon1 + (lon2-lon1)*t;
+  return [lat, lon];
+}
+
+// compute bearing for orientation (simple)
+function bearingBetween(a, b){
+  const [lat1, lon1] = a.map(deg=>deg*Math.PI/180);
+  const [lat2, lon2] = b.map(deg=>deg*Math.PI/180);
+  const y = Math.sin(lon2-lon1)*Math.cos(lat2);
+  const x = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1);
+  const brng = Math.atan2(y,x) * 180/Math.PI;
+  return (brng+360) % 360;
+}
+
+// create list item
+function createFlightListItem(flight){
+  const div = document.createElement('div');
+  div.className = 'flight';
+  div.id = 'item-'+flight.id;
+  div.innerHTML = `
+    <div class="plane-icon" style="background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));">
+      <div style="font-weight:700;color:${flight.iconColor}">${flight.callsign.slice(0,3)}</div>
+    </div>
+    <div style="flex:1">
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <div>
+          <div class="callsign">${flight.callsign}</div>
+          <div class="sub">${flight.origin} → ${flight.dest}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small">${Math.round(flight.altitude)} ft</div>
+          <div class="small-muted">${flight.type}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  div.onclick = ()=>{ selectFlight(flight.id); flyToFlight(flight.id); };
+  return div;
+}
+
+// populate map & sidebar
+const listContainer = document.getElementById('flightList');
+function populate(){
+  listContainer.innerHTML = '';
+  flights.forEach(f=>{
+    const m = createMarker(f);
+    markers.set(f.id, m);
+    listContainer.appendChild(createFlightListItem(f));
+  });
+  document.getElementById('flightCount').textContent = flights.length;
+}
+populate();
+
+// selection
+let selectedId = null;
+function selectFlight(id){
+  selectedId = id;
+  document.querySelectorAll('.flight').forEach(el => el.style.borderColor = 'rgba(255,255,255,0.02)');
+  const el = document.getElementById('item-'+id);
+  if(el) el.style.borderColor = 'rgba(0,212,255,0.18)';
+  const f = flights.find(x=>x.id===id);
+  document.getElementById('selectedCall').textContent = f ? f.callsign : '—';
+  updateProgressBar(f);
+}
+
+// fly map to center the flight
+function flyToFlight(id){
+  const f = flights.find(x=>x.id===id);
+  if(!f) return;
+  const pos = sampleAlongPath(f.waypoints, f.progress);
+  map.flyTo(pos, 6, {duration:1.1});
+}
+
+// update progress bar using selected flight's progress as percentage
+function updateProgressBar(f){
+  const bar = document.getElementById('progBar');
+  if(!f) { bar.style.width = '0%'; return; }
+  bar.style.width = Math.round(f.progress*100)+'%';
+}
+
+// simulation loop
+let running = false;
+let lastTick = performance.now();
+function tick(now){
+  const dt = (now - lastTick) / 1000; // seconds
+  lastTick = now;
+  if(running){
+    // update each flight progress by dt/duration
+    flights.forEach(f=>{
+      f.progress += (dt / f.duration);
+      if(f.progress > 1) { // loop flights for demo
+        f.progress = 0;
+      }
+      // sample new pos and rotate
+      const pos = sampleAlongPath(f.waypoints, f.progress);
+      const m = markers.get(f.id);
+      if(m){
+        // compute small smoothing using L.LatLng for smoother movement
+        m.setLatLng(pos);
+        // compute bearing by sampling slightly ahead
+        const ahead = sampleAlongPath(f.waypoints, Math.min(f.progress + 0.002, 1));
+        const br = bearingBetween([pos[0],pos[1]], [ahead[0],ahead[1]]);
+        // apply rotation by manipulating inner element (SVG) via transform
+        const node = m.getElement();
+        if(node){
+          const svg = node.querySelector('svg');
+          if(svg) svg.style.transform = rotate(${br}deg);
         }
-        return p.x+PIPE_W>0;
+      }
+      // update small text display altitude occasionally
+      const listEl = document.getElementById('item-'+f.id);
+      if(listEl){
+        const altEl = listEl.querySelector('.small');
+        if(altEl) altEl.textContent = Math.round(f.altitude + Math.sin(performance.now()/3000 + f.progress*10)*30) + ' ft';
+      }
     });
-}
-function flap(){
-    if(!over){ bird.vy=bird.lift; play('flap'); }
-    else reset();
-}
-function reset(){
-    bird.y=150; bird.vy=0; pipes=[]; score=0; frame=0; over=false;
-    startBGM();
-}
 
-/* ---------- Touch Ripple ---------- */
-function ripple(e){
-    const r = canvas.getBoundingClientRect();
-    const x = (e.touches?e.touches[0].clientX:e.clientX)-r.left;
-    const y = (e.touches?e.touches[0].clientY:e.clientY)-r.top;
-    const el=document.createElement('div'); el.className='ripple';
-    el.style.left=x+'px'; el.style.top=y+'px'; el.style.width=el.style.height='40px';
-    canvas.parentNode.appendChild(el);
-    setTimeout(()=>el.remove(),600);
+    // keep details panel up-to-date
+    const sel = flights.find(x=>x.id===selectedId);
+    if(sel) updateProgressBar(sel);
+  }
+
+  requestAnimationFrame(tick);
 }
+requestAnimationFrame(tick);
 
-/* ---------- Input ---------- */
-function handle(e){ e.preventDefault(); ripple(e); flap(); }
-canvas.addEventListener('touchstart',handle,{passive:false});
-canvas.addEventListener('mousedown',handle);
-document.addEventListener('keydown',e=>{ if(e.code==='Space'){ e.preventDefault(); flap(); }});
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
+// controls
+document.getElementById('playPause').addEventListener('click', ()=>{
+  running = !running;
+  document.getElementById('playPause').textContent = running ? 'Pause' : 'Play';
+  document.getElementById('playPause').classList.toggle('primary', running);
+  // when (un)pausing, reset lastTick to avoid jump
+  lastTick = performance.now();
+});
 
-/* ---------- Game Loop ---------- */
-function loop(){
-    ctx.clearRect(0,0,GAME_W,GAME_H);
-    drawBg(); updateBird(); spawnPipe(); updatePipes(); drawPipes(); drawBird(); drawScore();
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  flights.forEach(f => f.progress = 0);
+  flights.forEach(f => {
+    const m = markers.get(f.id);
+    if(m) m.setLatLng(sampleAlongPath(f.waypoints, 0));
+  });
+});
 
-    if(over){
-        ctx.font='30px Arial'; ctx.strokeStyle='#000'; ctx.lineWidth=4;
-        ctx.strokeText('GAME OVER',GAME_W/2-85,GAME_H/2);
-        ctx.fillStyle='#fff'; ctx.fillText('GAME OVER',GAME_W/2-85,GAME_H/2);
-        ctx.font='18px Arial';
-        ctx.strokeText('Tap to Restart',GAME_W/2-70,GAME_H/2+40);
-        ctx.fillText('Tap to Restart',GAME_W/2-70,GAME_H/2+40);
+// filter chips
+document.querySelectorAll('.chip').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    const type = chip.dataset.type;
+    applyFilter(type);
+  });
+});
+
+function applyFilter(type){
+  flights.forEach(f=>{
+    const el = document.getElementById('item-'+f.id);
+    const m = markers.get(f.id);
+    const ok = (type === 'all' || f.type === type);
+    if(el) el.style.display = ok ? '' : 'none';
+    if(m) {
+      if(ok) m.addTo(map); else map.removeLayer(m);
     }
-
-    frame++; requestAnimationFrame(loop);
+  });
 }
 
-/* ---------- Start when assets are ready ---------- */
-let loaded = 0, total = 4; // bird, bg, pipeTop, pipeBottom
-function assetLoaded(){ if(++loaded===total){ startBGM(); loop(); }}
-Object.values(img).forEach(i=>i.onload=assetLoaded);
-Object.values(img).forEach(i=>i.onerror=()=>{ i.src='https://via.placeholder.com/50/FF6B6B/FFFFFF?text=ERR'; });
-</script>
-</body>
-</html>
+// search
+const search = document.getElementById('search');
+search.addEventListener('input', (e)=>{
+  const q = (e.target.value || '').trim().toLowerCase();
+  flights.forEach(f=>{
+    const el = document.getElementById('item-'+f.id);
+    const m = markers.get(f.id);
+    const matches = q === '' || f.callsign.toLowerCase().includes(q) || f.origin.toLowerCase().includes(q) || f.dest.toLowerCase().includes(q);
+    if(el) el.style.display = matches ? '' : 'none';
+    if(m) {
+      if(matches) m.addTo(map); else map.removeLayer(m);
+    }
+  });
+});
+
+// keyboard shortcuts (space toggles play/pause, r resets)
+window.addEventListener('keydown', (e)=>{
+  if(e.code === 'Space'){ e.preventDefault(); document.getElementById('playPause').click(); }
+  if(e.key.toLowerCase() === 'r'){ document.getElementById('resetBtn').click(); }
+});
+
+// useful: auto-select the first flight
+if(flights.length>0) selectFlight(flights[0].id);
+
+// resize map to account for container
+setTimeout(()=>map.invalidateSize(), 600);
+
+/* 
+  Integration notes (how to plug in real flight data):
+  - Replace generateFlights() with calls to a real-time API (OpenSky Network, ADS-B Exchange, or your own backend).
+  - For OpenSky (public but rate-limited) you can use their REST API /states/all to get aircraft state vectors. You will need a backend proxy to avoid CORS and to hide credentials.
+  - Map tile choice: For production, use proper tile provider with usage plan (Mapbox, HERE, or paid OSM provider).
+  - For high-volume markers, consider using WebGL rendering (Mapbox GL or Leaflet.glify) or marker clustering (Leaflet.markerclust
