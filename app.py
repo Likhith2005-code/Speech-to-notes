@@ -111,11 +111,14 @@ def extract_pdf_text(pdf_path):
 def build_prompt(transcription, note_type):
     note_type = note_type.lower()
     mapping = {
-        "normal": "Convert into clear, readable notes.",
-        "detailed": "Convert into detailed, structured notes with key points and examples.",
-        "bullet": "Convert into short bullet points.",
-        "summary": "Summarize in 2–4 sentences."
-    }
+  "normal": "Rewrite the text into clear, concise, and easy-to-read notes while preserving all key information.",
+  
+  "detailed": "Transform the text into detailed, well-structured notes. Include key points, subpoints, and relevant examples or explanations for better understanding.",
+  
+  "bullet": "Condense the text into short, crisp bullet points highlighting only the essential facts or ideas.",
+  
+  "summary": "Summarize the text in 2–4 sentences, capturing the main argument or outcome without unnecessary detail."
+}
     instruction = mapping.get(note_type, mapping["normal"])
     return f"{instruction}\n\nTranscription:\n\"\"\"\n{transcription}\n\"\"\"\n\nNotes:"
 
